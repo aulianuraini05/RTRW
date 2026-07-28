@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('cash_transactions', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-        });
+
+            $table->string('transaction_type');
+            $table->text('description');
+            $table->decimal('amount', 15, 2);
+            $table->date('transaction_date');
+
+    $table->timestamps();
+});
     }
 
     /**
