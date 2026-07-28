@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('aspirations', function (Blueprint $table) {
             $table->id();
+
+            $table->string('aspiration_title');
+            $table->text('aspiration_content');
+            $table->string('category');
+            $table->date('submission_date');
+            $table->string('aspiration_status');
+            
             $table->timestamps();
         });
     }
