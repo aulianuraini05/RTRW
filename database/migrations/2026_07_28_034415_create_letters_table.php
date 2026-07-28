@@ -12,9 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('letters', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    $table->id();
+
+            $table->string('letter_number')->unique();
+            $table->string('letter_type');
+            $table->date('submission_date');
+            $table->date('letter_date')->nullable();
+            $table->text('purpose')->nullable();
+            $table->string('letter_status');
+
+    $table->timestamps();
+});
     }
 
     /**
