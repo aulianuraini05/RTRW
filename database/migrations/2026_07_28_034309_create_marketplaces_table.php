@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('marketplaces', function (Blueprint $table) {
             $table->id();
+
+            $table->string('product_name');
+            $table->text('description');
+            $table->decimal('price', 15, 2);
+            $table->integer('stock');
+            $table->string('product_status');
+            
             $table->timestamps();
         });
     }
