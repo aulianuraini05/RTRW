@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
+
+            $table->string('asset_name');
+            $table->string('asset_type');
+            $table->integer('quantity');
+            $table->string('condition');
+            $table->text('description')->nullable();
+
             $table->timestamps();
         });
     }
