@@ -13,5 +13,5 @@ class Letter extends Model
         'letter_date',
         'purpose',
         'letter_status',
-    ]
+    ];
 }
