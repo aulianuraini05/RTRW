@@ -12,5 +12,5 @@ class Contribution extends Model
         'amount',
         'payment_status',
         'peyment_date',
-    ]
+    ];
 }
