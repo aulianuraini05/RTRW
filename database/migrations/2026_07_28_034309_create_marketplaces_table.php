@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('price', 15, 2);
             $table->integer('stock');
             $table->string('product_status');
-            
+
             $table->timestamps();
         });
     }
