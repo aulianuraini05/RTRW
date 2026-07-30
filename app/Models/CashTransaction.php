@@ -11,6 +11,5 @@ class CashTransaction extends Model
         'description',
         'amount',
         'transaction_date',
-        
     ];
 }
