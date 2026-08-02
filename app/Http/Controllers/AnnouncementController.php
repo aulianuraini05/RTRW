@@ -9,7 +9,10 @@ class AnnouncementController extends Controller
 {
     public function index()
     {
-        $announcements = Announcement::all();
+        $announcements = Announcement::query()
+            ->when(! request()->user()->isAdmin(), fn ($query) => $query->where('status', 'active'))
+            ->latest('publication_date')
+            ->paginate(10);
 
         return view('announcements.index', compact('announcements'));
     }
@@ -21,19 +24,20 @@ class AnnouncementController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'announcement_title' => 'required',
-            'announcement_content' => 'required',
-            'publication_date' => 'required|date',
-        ]);
+        $validated = $this->validatedData($request);
 
-        Announcement::create($request->all());
+        Announcement::create($validated);
 
-        return redirect()->route('announcements.index');
+        return redirect()->route('announcements.index')
+            ->with('success', 'Pengumuman berhasil dibuat.');
     }
 
     public function show(Announcement $announcement)
     {
+        if ($announcement->status !== 'active' && ! request()->user()->isAdmin()) {
+            abort(404);
+        }
+
         return view('announcements.show', compact('announcement'));
     }
 
@@ -44,21 +48,32 @@ class AnnouncementController extends Controller
 
     public function update(Request $request, Announcement $announcement)
     {
-        $request->validate([
-            'announcement_title' => 'required',
-            'announcement_content' => 'required',
-            'publication_date' => 'required|date',
-        ]);
+        $validated = $this->validatedData($request);
 
-        $announcement->update($request->all());
+        $announcement->update($validated);
 
-        return redirect()->route('announcements.index');
+        return redirect()->route('announcements.index')
+            ->with('success', 'Pengumuman berhasil diperbarui.');
     }
 
     public function destroy(Announcement $announcement)
     {
         $announcement->delete();
 
-        return redirect()->route('announcements.index');
+        return redirect()->route('announcements.index')
+            ->with('success', 'Pengumuman berhasil dihapus.');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function validatedData(Request $request): array
+    {
+        return $request->validate([
+            'announcement_title' => ['required', 'string', 'max:255'],
+            'announcement_content' => ['required', 'string'],
+            'publication_date' => ['required', 'date'],
+            'status' => ['required', 'in:active,archived'],
+        ]);
     }
 }

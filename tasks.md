@@ -22,18 +22,18 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 ### B. Fondasi Sistem
 - [x] Project Laravel sudah tersedia
 - [x] Auth default Laravel tersedia
-- [ ] Menghubungkan halaman dashboard dengan navigasi modul utama
+- [x] Menghubungkan halaman dashboard dengan navigasi modul utama
 - [x] Menambahkan middleware dan otorisasi per role
-- [ ] Menyiapkan layout umum yang konsisten untuk admin dan warga
+- [x] Menyiapkan layout umum yang konsisten untuk admin dan warga
 
 ### C. Modul Pengumuman (Announcement)
 - [x] Controller untuk pengumuman tersedia
 - [x] Model Announcement tersedia
-- [x] Folder view pengumuman tersedia
+- [x] View pengumuman (list, detail, form) tersedia
 - [x] Route pengumuman terhubung ke aplikasi
-- [ ] Form create/edit/delete selesai dan bisa dipakai
-- [ ] Validasi input dan status pengumuman selesai
-- [ ] Tampilan list/detail pengumuman untuk warga selesai
+- [x] Form create/edit/delete selesai dan bisa dipakai
+- [x] Validasi input dan status pengumuman selesai
+- [x] Tampilan list/detail pengumuman untuk warga selesai
 
 ### D. Modul Aspirasi / Pengaduan (Aspiration)
 - [x] Controller untuk aspirasi tersedia

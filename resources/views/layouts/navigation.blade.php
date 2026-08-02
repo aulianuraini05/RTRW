@@ -15,6 +15,20 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('announcements.index')" :active="request()->routeIs('announcements.*')">
+                        {{ __('Pengumuman') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('aspirations.index')" :active="request()->routeIs('aspirations.*')">
+                        {{ __('Aspirasi') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('letters.index')" :active="request()->routeIs('letters.*')">
+                        {{ __('Persuratan') }}
+                    </x-nav-link>
+                    @if (Auth::user()->isAdmin())
+                        <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
+                            {{ __('Administrasi') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +84,20 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('announcements.index')" :active="request()->routeIs('announcements.*')">
+                {{ __('Pengumuman') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('aspirations.index')" :active="request()->routeIs('aspirations.*')">
+                {{ __('Aspirasi') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('letters.index')" :active="request()->routeIs('letters.*')">
+                {{ __('Persuratan') }}
+            </x-responsive-nav-link>
+            @if (Auth::user()->isAdmin())
+                <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
+                    {{ __('Administrasi') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

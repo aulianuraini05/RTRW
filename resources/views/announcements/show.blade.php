@@ -1,0 +1,22 @@
+<x-app-layout>
+    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800 leading-tight">Pengumuman</h2></x-slot>
+
+    <div class="py-12">
+        <article class="mx-auto max-w-3xl rounded-lg bg-white p-6 shadow-sm sm:p-8">
+            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                <time datetime="{{ $announcement->publication_date->toDateString() }}">{{ $announcement->publication_date->translatedFormat('d F Y') }}</time>
+                @if (Auth::user()->isAdmin())
+                    <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $announcement->status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700' }}">{{ $announcement->status === 'active' ? 'Aktif' : 'Arsip' }}</span>
+                @endif
+            </div>
+            <h1 class="mt-3 text-2xl font-bold text-gray-900">{{ $announcement->announcement_title }}</h1>
+            <div class="mt-6 whitespace-pre-line leading-7 text-gray-700">{{ $announcement->announcement_content }}</div>
+            <div class="mt-8 flex items-center gap-4 border-t pt-6">
+                <a href="{{ route('announcements.index') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900">← Kembali</a>
+                @if (Auth::user()->isAdmin())
+                    <a href="{{ route('announcements.edit', $announcement) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Edit pengumuman</a>
+                @endif
+            </div>
+        </article>
+    </div>
+</x-app-layout>
