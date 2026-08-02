@@ -17,20 +17,20 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Menyusun PRD awal untuk sistem Smart RT/RW
 - [x] Menyusun daftar tasks pelacakan progres proyek
 - [ ] Menyepakati prioritas implementasi fase 1, 2, dan 3
-- [ ] Menentukan skema role pengguna (admin/RT/RW vs warga)
+- [x] Menentukan skema role pengguna (admin/RT/RW vs warga)
 
 ### B. Fondasi Sistem
 - [x] Project Laravel sudah tersedia
 - [x] Auth default Laravel tersedia
 - [ ] Menghubungkan halaman dashboard dengan navigasi modul utama
-- [ ] Menambahkan middleware dan otorisasi per role
+- [x] Menambahkan middleware dan otorisasi per role
 - [ ] Menyiapkan layout umum yang konsisten untuk admin dan warga
 
 ### C. Modul Pengumuman (Announcement)
 - [x] Controller untuk pengumuman tersedia
 - [x] Model Announcement tersedia
 - [x] Folder view pengumuman tersedia
-- [ ] Route pengumuman terhubung ke aplikasi
+- [x] Route pengumuman terhubung ke aplikasi
 - [ ] Form create/edit/delete selesai dan bisa dipakai
 - [ ] Validasi input dan status pengumuman selesai
 - [ ] Tampilan list/detail pengumuman untuk warga selesai
@@ -39,7 +39,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Controller untuk aspirasi tersedia
 - [x] Model Aspiration tersedia
 - [x] Folder view aspirasi tersedia
-- [ ] Route aspirasi terhubung ke aplikasi
+- [x] Route aspirasi terhubung ke aplikasi
 - [ ] Form pengajuan aspirasi warga selesai
 - [ ] Workflow status (diterima/diproses/ditolak) selesai
 - [ ] Panel RT/RW untuk memproses aspirasi selesai
@@ -48,7 +48,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Controller untuk aset tersedia
 - [x] Model Asset tersedia
 - [x] Folder view aset tersedia
-- [ ] Route aset terhubung ke aplikasi
+- [x] Route aset terhubung ke aplikasi
 - [ ] CRUD aset oleh RT/RW selesai
 - [ ] Form peminjaman aset oleh warga selesai
 - [ ] Workflow persetujuan peminjaman selesai
@@ -57,7 +57,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Controller kas tersedia
 - [x] Model CashTransaction tersedia
 - [x] Folder view kas tersedia
-- [ ] Route kas terhubung ke aplikasi
+- [x] Route kas terhubung ke aplikasi
 - [ ] Pencatatan transaksi kas oleh RT/RW selesai
 - [ ] Status pembayaran kas per warga selesai
 - [ ] Integrasi pembayaran online selesai
@@ -66,7 +66,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Controller kontribusi tersedia
 - [x] Model Contribution tersedia
 - [x] Folder view kontribusi tersedia
-- [ ] Route iuran terhubung ke aplikasi
+- [x] Route iuran terhubung ke aplikasi
 - [ ] Pencatatan iuran oleh RT/RW selesai
 - [ ] Status pembayaran iuran per warga selesai
 - [ ] Integrasi pembayaran online selesai
@@ -75,7 +75,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Controller surat tersedia
 - [x] Model Letter tersedia
 - [x] Folder view surat tersedia
-- [ ] Route persuratan terhubung ke aplikasi
+- [x] Route persuratan terhubung ke aplikasi
 - [ ] Form pengajuan surat warga selesai
 - [ ] Approval/reject oleh RT/RW selesai
 - [ ] Riwayat status surat selesai
@@ -84,7 +84,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Controller marketplace tersedia
 - [x] Model Marketplace tersedia
 - [x] Folder view marketplace tersedia
-- [ ] Route marketplace terhubung ke aplikasi
+- [x] Route marketplace terhubung ke aplikasi
 - [ ] Form daftar produk UMKM selesai
 - [ ] Tampilan katalog produk selesai
 - [ ] Proses pembelian sederhana selesai
