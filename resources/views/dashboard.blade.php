@@ -22,7 +22,7 @@
                         <h3 class="text-lg font-semibold">Layanan warga</h3>
                         <p class="mt-2 text-sm text-gray-600">Ajukan aspirasi atau kebutuhan persuratan secara digital.</p>
                         <div class="mt-4 flex gap-4">
-                            <a class="font-medium text-indigo-600 hover:text-indigo-800" href="{{ route('aspirations.index') }}">Aspirasi</a>
+                            <a class="font-medium text-indigo-600 hover:text-indigo-800" href="{{ route(Auth::user()->isWarga() ? 'aspirations.create' : 'aspirations.index') }}">Aspirasi</a>
                             <a class="font-medium text-indigo-600 hover:text-indigo-800" href="{{ route('letters.index') }}">Surat</a>
                         </div>
                     </div>

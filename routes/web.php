@@ -60,12 +60,15 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get('/aspirations', [AspirationController::class, 'index'])->name('aspirations.index');
 
-    // Warga & Admin: mengajukan aspirasi baru
-    Route::get('/aspirations/create', [AspirationController::class, 'create'])->name('aspirations.create');
-    Route::post('/aspirations', [AspirationController::class, 'store'])->name('aspirations.store');
+    // Warga: mengajukan aspirasi baru
+    Route::middleware('role:warga')->group(function () {
+        Route::get('/aspirations/create', [AspirationController::class, 'create'])->name('aspirations.create');
+        Route::post('/aspirations', [AspirationController::class, 'store'])->name('aspirations.store');
+    });
 
     // Admin only: edit & hapus aspirasi (proses/approve/reject)
     Route::middleware('role:admin')->group(function () {
+        Route::patch('/aspirations/{aspiration}/status', [AspirationController::class, 'updateStatus'])->name('aspirations.status.update');
         Route::get('/aspirations/{aspiration}/edit', [AspirationController::class, 'edit'])->name('aspirations.edit');
         Route::put('/aspirations/{aspiration}', [AspirationController::class, 'update'])->name('aspirations.update');
         Route::delete('/aspirations/{aspiration}', [AspirationController::class, 'destroy'])->name('aspirations.destroy');

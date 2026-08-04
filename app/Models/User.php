@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -31,6 +32,14 @@ class User extends Authenticatable
     public function isWarga(): bool
     {
         return $this->role === 'warga';
+    }
+
+    /**
+     * @return HasMany<Aspiration, $this>
+     */
+    public function aspirations(): HasMany
+    {
+        return $this->hasMany(Aspiration::class);
     }
 
     /**

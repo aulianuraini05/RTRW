@@ -18,7 +18,7 @@
                     <x-nav-link :href="route('announcements.index')" :active="request()->routeIs('announcements.*')">
                         {{ __('Pengumuman') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('aspirations.index')" :active="request()->routeIs('aspirations.*')">
+                    <x-nav-link :href="route(Auth::user()->isWarga() ? 'aspirations.create' : 'aspirations.index')" :active="request()->routeIs('aspirations.*')">
                         {{ __('Aspirasi') }}
                     </x-nav-link>
                     <x-nav-link :href="route('letters.index')" :active="request()->routeIs('letters.*')">
@@ -87,7 +87,7 @@
             <x-responsive-nav-link :href="route('announcements.index')" :active="request()->routeIs('announcements.*')">
                 {{ __('Pengumuman') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('aspirations.index')" :active="request()->routeIs('aspirations.*')">
+            <x-responsive-nav-link :href="route(Auth::user()->isWarga() ? 'aspirations.create' : 'aspirations.index')" :active="request()->routeIs('aspirations.*')">
                 {{ __('Aspirasi') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('letters.index')" :active="request()->routeIs('letters.*')">

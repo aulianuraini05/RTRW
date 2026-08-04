@@ -40,9 +40,12 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Model Aspiration tersedia
 - [x] Folder view aspirasi tersedia
 - [x] Route aspirasi terhubung ke aplikasi
-- [ ] Form pengajuan aspirasi warga selesai
-- [ ] Workflow status (diterima/diproses/ditolak) selesai
-- [ ] Panel RT/RW untuk memproses aspirasi selesai
+- [x] Relasi aspirasi dengan akun warga dan pembatasan data per pemilik selesai
+- [x] Form pengajuan aspirasi warga selesai
+- [x] Navigasi Aspirasi warga mengarah ke form pengajuan
+- [x] Workflow status (diterima/diproses/ditolak) selesai
+- [x] Panel RT/RW untuk memproses aspirasi selesai
+- [x] Aspirasi baru menampilkan ACC/Tolak, lalu Ubah Status setelah keputusan RT/RW diberikan
 
 ### E. Modul Aset (Asset)
 - [x] Controller untuk aset tersedia
