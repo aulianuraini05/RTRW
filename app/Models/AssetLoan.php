@@ -6,19 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Letter extends Model
+class AssetLoan extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'asset_id',
         'user_id',
-        'letter_number',
-        'letter_type',
-        'submission_date',
-        'letter_date',
-        'purpose',
-        'letter_status',
+        'quantity',
+        'borrow_date',
+        'return_date',
+        'actual_return_date',
+        'loan_status',
+        'notes',
     ];
+
+    /**
+     * @return BelongsTo<Asset, $this>
+     */
+    public function asset(): BelongsTo
+    {
+        return $this->belongsTo(Asset::class);
+    }
 
     /**
      * @return BelongsTo<User, $this>
@@ -34,8 +43,9 @@ class Letter extends Model
     protected function casts(): array
     {
         return [
-            'submission_date' => 'date',
-            'letter_date' => 'date',
+            'borrow_date' => 'date',
+            'return_date' => 'date',
+            'actual_return_date' => 'date',
         ];
     }
 }

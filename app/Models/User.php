@@ -43,6 +43,22 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<Letter, $this>
+     */
+    public function letters(): HasMany
+    {
+        return $this->hasMany(Letter::class);
+    }
+
+    /**
+     * @return HasMany<AssetLoan, $this>
+     */
+    public function assetLoans(): HasMany
+    {
+        return $this->hasMany(AssetLoan::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

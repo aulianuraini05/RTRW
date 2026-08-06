@@ -52,9 +52,9 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Model Asset tersedia
 - [x] Folder view aset tersedia
 - [x] Route aset terhubung ke aplikasi
-- [ ] CRUD aset oleh RT/RW selesai
-- [ ] Form peminjaman aset oleh warga selesai
-- [ ] Workflow persetujuan peminjaman selesai
+- [x] CRUD aset oleh RT/RW selesai
+- [x] Form peminjaman aset oleh warga selesai
+- [x] Workflow persetujuan peminjaman selesai
 
 ### F. Modul Kas (Cash Transaction)
 - [x] Controller kas tersedia
@@ -79,9 +79,9 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Model Letter tersedia
 - [x] Folder view surat tersedia
 - [x] Route persuratan terhubung ke aplikasi
-- [ ] Form pengajuan surat warga selesai
-- [ ] Approval/reject oleh RT/RW selesai
-- [ ] Riwayat status surat selesai
+- [x] Form pengajuan surat warga selesai
+- [x] Approval/reject oleh RT/RW selesai
+- [x] Riwayat status surat selesai
 
 ### I. Modul Marketplace / UMKM
 - [x] Controller marketplace tersedia

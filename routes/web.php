@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AspirationController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetLoanController;
 use App\Http\Controllers\CashTransactionController;
 use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\LetterController;
@@ -82,12 +83,15 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get('/letters', [LetterController::class, 'index'])->name('letters.index');
 
-    // Warga & Admin: mengajukan surat baru
-    Route::get('/letters/create', [LetterController::class, 'create'])->name('letters.create');
-    Route::post('/letters', [LetterController::class, 'store'])->name('letters.store');
+    // Warga: mengajukan surat baru
+    Route::middleware('role:warga')->group(function () {
+        Route::get('/letters/create', [LetterController::class, 'create'])->name('letters.create');
+        Route::post('/letters', [LetterController::class, 'store'])->name('letters.store');
+    });
 
-    // Admin only: edit & hapus surat (approve/reject)
+    // Admin only: kelola surat (approve/reject/proses/hapus)
     Route::middleware('role:admin')->group(function () {
+        Route::patch('/letters/{letter}/status', [LetterController::class, 'updateStatus'])->name('letters.status.update');
         Route::get('/letters/{letter}/edit', [LetterController::class, 'edit'])->name('letters.edit');
         Route::put('/letters/{letter}', [LetterController::class, 'update'])->name('letters.update');
         Route::delete('/letters/{letter}', [LetterController::class, 'destroy'])->name('letters.destroy');
@@ -108,6 +112,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/assets/{asset}/edit', [AssetController::class, 'edit'])->name('assets.edit');
         Route::put('/assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
         Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
+    });
+
+    // Warga: ajukan peminjaman aset
+    Route::middleware('role:warga')->group(function () {
+        Route::post('/assets/{asset}/loans', [AssetLoanController::class, 'store'])->name('asset-loans.store');
+    });
+
+    // Admin only: proses peminjaman
+    Route::middleware('role:admin')->group(function () {
+        Route::patch('/asset-loans/{loan}/status', [AssetLoanController::class, 'updateStatus'])->name('asset-loans.status.update');
     });
 
     // Warga & Admin: lihat detail

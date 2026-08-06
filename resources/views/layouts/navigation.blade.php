@@ -21,14 +21,12 @@
                     <x-nav-link :href="route(Auth::user()->isWarga() ? 'aspirations.create' : 'aspirations.index')" :active="request()->routeIs('aspirations.*')">
                         {{ __('Aspirasi') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('letters.index')" :active="request()->routeIs('letters.*')">
+                    <x-nav-link :href="route(Auth::user()->isWarga() ? 'letters.create' : 'letters.index')" :active="request()->routeIs('letters.*')">
                         {{ __('Persuratan') }}
                     </x-nav-link>
-                    @if (Auth::user()->isAdmin())
-                        <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
-                            {{ __('Administrasi') }}
-                        </x-nav-link>
-                    @endif
+                    <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
+                        {{ __(Auth::user()->isAdmin() ? 'Administrasi' : 'Aset') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -90,14 +88,12 @@
             <x-responsive-nav-link :href="route(Auth::user()->isWarga() ? 'aspirations.create' : 'aspirations.index')" :active="request()->routeIs('aspirations.*')">
                 {{ __('Aspirasi') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('letters.index')" :active="request()->routeIs('letters.*')">
+            <x-responsive-nav-link :href="route(Auth::user()->isWarga() ? 'letters.create' : 'letters.index')" :active="request()->routeIs('letters.*')">
                 {{ __('Persuratan') }}
             </x-responsive-nav-link>
-            @if (Auth::user()->isAdmin())
-                <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
-                    {{ __('Administrasi') }}
-                </x-responsive-nav-link>
-            @endif
+            <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
+                {{ __(Auth::user()->isAdmin() ? 'Administrasi' : 'Aset') }}
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
