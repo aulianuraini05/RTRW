@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('cash_transactions', function (Blueprint $table) {
             $table->id();
 
-            $table->string('transaction_type');
-            $table->text('description');
-            $table->decimal('amount', 15, 2);
-            $table->date('transaction_date');
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('payment_status')->default('pending');
+            $table->string('proof_of_payment')->nullable();
 
-    $table->timestamps();
-});
+            $table->timestamps();
+        });
     }
 
     /**

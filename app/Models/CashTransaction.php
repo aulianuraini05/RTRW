@@ -2,14 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CashTransaction extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'transaction_type',
-        'description',
-        'amount',
-        'transaction_date',
+        'user_id',
+        'payment_status',
+        'proof_of_payment',
     ];
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

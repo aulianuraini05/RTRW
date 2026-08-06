@@ -27,6 +27,9 @@
                     <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
                         {{ __(Auth::user()->isAdmin() ? 'Administrasi' : 'Aset') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('cash_transactions.index')" :active="request()->routeIs('cash_transactions.*')">
+                        {{ __('Kas RT/RW') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -93,6 +96,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
                 {{ __(Auth::user()->isAdmin() ? 'Administrasi' : 'Aset') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('cash_transactions.index')" :active="request()->routeIs('cash_transactions.*')">
+                {{ __('Kas RT/RW') }}
             </x-responsive-nav-link>
         </div>
 

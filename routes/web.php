@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/cash-transactions/create', [CashTransactionController::class, 'create'])->name('cash_transactions.create');
         Route::post('/cash-transactions', [CashTransactionController::class, 'store'])->name('cash_transactions.store');
+        Route::patch('/cash-transactions/{cashTransaction}/status', [CashTransactionController::class, 'updateStatus'])->name('cash_transactions.status.update');
         Route::get('/cash-transactions/{cashTransaction}/edit', [CashTransactionController::class, 'edit'])->name('cash_transactions.edit');
         Route::put('/cash-transactions/{cashTransaction}', [CashTransactionController::class, 'update'])->name('cash_transactions.update');
         Route::delete('/cash-transactions/{cashTransaction}', [CashTransactionController::class, 'destroy'])->name('cash_transactions.destroy');
