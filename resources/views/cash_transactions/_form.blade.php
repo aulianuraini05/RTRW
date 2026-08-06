@@ -1,24 +1,32 @@
 <div class="space-y-6">
-    <div>
-        <x-input-label for="user_id" value="Warga" />
-        <select id="user_id" name="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-            <option value="">-- Pilih warga --</option>
-            @foreach ($warga as $user)
-                <option value="{{ $user->id }}" @selected(old('user_id', $cashTransaction->user_id ?? '') == $user->id)>{{ $user->name }}</option>
-            @endforeach
-        </select>
-        <x-input-error class="mt-2" :messages="$errors->get('user_id')" />
-    </div>
+    @if (Auth::user()->isWarga())
+        <div class="rounded-md bg-blue-50 p-4 text-sm text-blue-700">
+            Ajukan pembayaran kas Anda di sini. Status akan menjadi <strong>pending</strong> sampai diverifikasi RT/RW.
+        </div>
+        <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+        <input type="hidden" name="payment_status" value="pending">
+    @else
+        <div>
+            <x-input-label for="user_id" value="Warga" />
+            <select id="user_id" name="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                <option value="">-- Pilih warga --</option>
+                @foreach ($warga as $user)
+                    <option value="{{ $user->id }}" @selected(old('user_id', $cashTransaction->user_id ?? '') == $user->id)>{{ $user->name }}</option>
+                @endforeach
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('user_id')" />
+        </div>
 
-    <div>
-        <x-input-label for="payment_status" value="Status Pembayaran" />
-        <select id="payment_status" name="payment_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-            <option value="pending" @selected(old('payment_status', $cashTransaction->payment_status ?? '') === 'pending')>Pending (Belum Bayar)</option>
-            <option value="lunas" @selected(old('payment_status', $cashTransaction->payment_status ?? '') === 'lunas')>Lunas</option>
-            <option value="ditolak" @selected(old('payment_status', $cashTransaction->payment_status ?? '') === 'ditolak')>Ditolak</option>
-        </select>
-        <x-input-error class="mt-2" :messages="$errors->get('payment_status')" />
-    </div>
+        <div>
+            <x-input-label for="payment_status" value="Status Pembayaran" />
+            <select id="payment_status" name="payment_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                <option value="pending" @selected(old('payment_status', $cashTransaction->payment_status ?? '') === 'pending')>Pending (Belum Bayar)</option>
+                <option value="lunas" @selected(old('payment_status', $cashTransaction->payment_status ?? '') === 'lunas')>Lunas</option>
+                <option value="ditolak" @selected(old('payment_status', $cashTransaction->payment_status ?? '') === 'ditolak')>Ditolak</option>
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('payment_status')" />
+        </div>
+    @endif
 
     <div>
         <x-input-label for="proof_of_payment" value="Bukti Pembayaran (opsional)" />

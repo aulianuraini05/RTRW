@@ -88,7 +88,22 @@ test('admin can edit and delete cash payment record', function () {
     ]);
 });
 
-test('warga only sees their own kas records and cannot manage', function () {
+test('warga can submit their own kas payment', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+
+    $response = $this->actingAs($warga)->post(route('cash_transactions.store'), [
+        'proof_of_payment' => 'Transfer BCA a.n. Saya',
+    ]);
+
+    $response->assertRedirect(route('cash_transactions.index'));
+    $this->assertDatabaseHas('cash_transactions', [
+        'user_id' => $warga->id,
+        'payment_status' => 'pending',
+        'proof_of_payment' => 'Transfer BCA a.n. Saya',
+    ]);
+});
+
+test('warga only sees their own kas records and cannot manage others', function () {
     $warga = User::factory()->create(['role' => 'warga']);
     $other = User::factory()->create(['role' => 'warga']);
 
@@ -110,12 +125,6 @@ test('warga only sees their own kas records and cannot manage', function () {
     $this->actingAs($warga)->get(route('cash_transactions.show', $mine))->assertStatus(200);
     $this->actingAs($warga)->get(route('cash_transactions.show', $theirs))->assertStatus(404);
 
-    $this->actingAs($warga)->get(route('cash_transactions.create'))->assertStatus(403);
-    $this->actingAs($warga)->post(route('cash_transactions.store'), [
-        'user_id' => $warga->id,
-        'payment_status' => 'lunas',
-    ])->assertStatus(403);
-
     $this->actingAs($warga)->get(route('cash_transactions.edit', $mine))->assertStatus(403);
     $this->actingAs($warga)->put(route('cash_transactions.update', $mine), [
         'user_id' => $warga->id,
@@ -123,4 +132,7 @@ test('warga only sees their own kas records and cannot manage', function () {
     ])->assertStatus(403);
 
     $this->actingAs($warga)->delete(route('cash_transactions.destroy', $mine))->assertStatus(403);
+    $this->actingAs($warga)->patch(route('cash_transactions.status.update', $mine), [
+        'payment_status' => 'lunas',
+    ])->assertStatus(403);
 });

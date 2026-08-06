@@ -63,6 +63,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Route kas terhubung ke aplikasi
 - [x] Pencatatan transaksi kas oleh RT/RW selesai
 - [x] Status pembayaran kas per warga selesai
+- [x] Form pengajuan pembayaran kas oleh warga selesai
 - [ ] Integrasi pembayaran online selesai
 
 ### G. Modul Iuran Warga (Contribution)

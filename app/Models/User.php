@@ -59,6 +59,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<CashTransaction, $this>
+     */
+    public function cashTransactions(): HasMany
+    {
+        return $this->hasMany(CashTransaction::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

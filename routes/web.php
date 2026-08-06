@@ -132,10 +132,12 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get('/cash-transactions', [CashTransactionController::class, 'index'])->name('cash_transactions.index');
 
-    // Admin only: kelola transaksi kas
+    // Admin & Warga: catat / ajukan pembayaran kas
+    Route::get('/cash-transactions/create', [CashTransactionController::class, 'create'])->name('cash_transactions.create');
+    Route::post('/cash-transactions', [CashTransactionController::class, 'store'])->name('cash_transactions.store');
+
+    // Admin only: kelola & verifikasi transaksi kas
     Route::middleware('role:admin')->group(function () {
-        Route::get('/cash-transactions/create', [CashTransactionController::class, 'create'])->name('cash_transactions.create');
-        Route::post('/cash-transactions', [CashTransactionController::class, 'store'])->name('cash_transactions.store');
         Route::patch('/cash-transactions/{cashTransaction}/status', [CashTransactionController::class, 'updateStatus'])->name('cash_transactions.status.update');
         Route::get('/cash-transactions/{cashTransaction}/edit', [CashTransactionController::class, 'edit'])->name('cash_transactions.edit');
         Route::put('/cash-transactions/{cashTransaction}', [CashTransactionController::class, 'update'])->name('cash_transactions.update');

@@ -2,7 +2,9 @@
     <x-slot name="header">
         <div class="flex items-center justify-between gap-4">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Kas & Keuangan RT/RW</h2>
-            @if (Auth::user()->isAdmin())
+            @if (Auth::user()->isWarga())
+                <a href="{{ route('cash_transactions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bayar Kas</a>
+            @else
                 <a href="{{ route('cash_transactions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Catat Pembayaran Kas</a>
             @endif
         </div>
@@ -112,7 +114,9 @@
                 @empty
                     <div class="rounded-lg bg-white p-8 text-center text-gray-600 shadow-sm">
                         {{ Auth::user()->isAdmin() ? 'Belum ada catatan pembayaran kas warga.' : 'Anda belum memiliki catatan pembayaran kas.' }}
-                        @if (Auth::user()->isAdmin())
+                        @if (Auth::user()->isWarga())
+                            <a href="{{ route('cash_transactions.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bayar Kas Sekarang</a>
+                        @else
                             <a href="{{ route('cash_transactions.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Catat Pembayaran Kas Pertama</a>
                         @endif
                     </div>

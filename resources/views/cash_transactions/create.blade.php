@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Catat Pembayaran Kas</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ Auth::user()->isWarga() ? 'Ajukan Pembayaran Kas' : 'Catat Pembayaran Kas' }}</h2>
     </x-slot>
 
     <div class="py-12">

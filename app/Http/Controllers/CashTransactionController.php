@@ -44,6 +44,10 @@ class CashTransactionController extends Controller
 
     public function create()
     {
+        if (request()->user()->isWarga()) {
+            return view('cash_transactions.create');
+        }
+
         abort_unless(request()->user()->isAdmin(), 403);
 
         $warga = User::query()->where('role', 'warga')->orderBy('name')->get();
@@ -53,6 +57,20 @@ class CashTransactionController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->user()->isWarga()) {
+            $validated = $request->validate([
+                'proof_of_payment' => ['nullable', 'string', 'max:255'],
+            ]);
+
+            $request->user()->cashTransactions()->create([
+                'payment_status' => 'pending',
+                'proof_of_payment' => $validated['proof_of_payment'] ?? null,
+            ]);
+
+            return redirect()->route('cash_transactions.index')
+                ->with('success', 'Pembayaran kas Anda berhasil diajukan dan menunggu verifikasi RT/RW.');
+        }
+
         abort_unless($request->user()->isAdmin(), 403);
 
         $validated = $request->validate([
