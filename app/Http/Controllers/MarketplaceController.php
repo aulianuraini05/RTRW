@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marketplace;
+use App\Models\MarketplacePurchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -137,13 +137,56 @@ class MarketplaceController extends Controller
             $marketplace->update(['product_status' => 'habis']);
         }
 
-        Log::info('Marketplace purchase', [
+        MarketplacePurchase::create([
+            'marketplace_id' => $marketplace->id,
             'buyer_id' => Auth::id(),
-            'product_id' => $marketplace->id,
+            'seller_id' => $marketplace->user_id,
             'product_name' => $marketplace->product_name,
+            'price' => $marketplace->price,
+            'quantity' => 1,
+            'total_price' => $marketplace->price,
+            'status' => 'menunggu',
         ]);
 
         return back()->with('success', "Pembelian {$marketplace->product_name} berhasil diproses.");
+    }
+
+    public function myPurchases()
+    {
+        $purchases = MarketplacePurchase::query()
+            ->with(['marketplace.user', 'seller'])
+            ->where('buyer_id', Auth::id())
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return view('marketplaces.purchases', compact('purchases'));
+    }
+
+    public function mySales()
+    {
+        $sales = MarketplacePurchase::query()
+            ->with(['marketplace', 'buyer'])
+            ->where('seller_id', Auth::id())
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return view('marketplaces.sales', compact('sales'));
+    }
+
+    public function updatePurchaseStatus(Request $request, MarketplacePurchase $purchase)
+    {
+        abort_unless(
+            Auth::user()->role === 'admin' || Auth::id() === $purchase->seller_id,
+            403
+        );
+
+        $request->validate([
+            'status' => 'required|in:menunggu,diproses,selesai',
+        ]);
+
+        $purchase->update(['status' => $request->status]);
+
+        return back()->with('success', 'Status pembelian berhasil diperbarui.');
     }
 
     private function storeImage(Request $request): ?string

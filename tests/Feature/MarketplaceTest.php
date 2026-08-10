@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Marketplace;
+use App\Models\MarketplacePurchase;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -210,4 +211,129 @@ test('produk dengan stok habis tidak dapat dibeli', function () {
     $response->assertSessionHas('error');
     $product->refresh();
     expect($product->stock)->toBe(0);
+});
+
+test('pembeli mendapatkan halaman riwayat pembelian sendiri', function () {
+    $buyer = User::factory()->create(['role' => 'warga']);
+    $seller = User::factory()->create(['role' => 'warga']);
+
+    $product = Marketplace::create([
+        'user_id' => $seller->id,
+        'product_name' => 'Kopi Tubruk',
+        'description' => 'Kopi buatan warga',
+        'price' => 15000,
+        'stock' => 10,
+        'product_status' => 'tersedia',
+    ]);
+
+    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
+
+    $this->actingAs($buyer)->get(route('marketplaces.purchases'))
+        ->assertStatus(200)
+        ->assertSee('Kopi Tubruk')
+        ->assertSee($seller->name);
+});
+
+test('penjual melihat produknya di halaman produk terjual', function () {
+    $buyer = User::factory()->create(['role' => 'warga']);
+    $seller = User::factory()->create(['role' => 'warga']);
+
+    $product = Marketplace::create([
+        'user_id' => $seller->id,
+        'product_name' => 'Kopi Tubruk',
+        'description' => 'Kopi buatan warga',
+        'price' => 15000,
+        'stock' => 10,
+        'product_status' => 'tersedia',
+    ]);
+
+    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
+
+    $this->actingAs($seller)->get(route('marketplaces.sales'))
+        ->assertStatus(200)
+        ->assertSee('Kopi Tubruk')
+        ->assertSee($buyer->name);
+});
+
+test('penjual tidak melihat pembelian orang lain di halaman pembeliannya', function () {
+    $buyer = User::factory()->create(['role' => 'warga']);
+    $seller = User::factory()->create(['role' => 'warga']);
+
+    $product = Marketplace::create([
+        'user_id' => $seller->id,
+        'product_name' => 'Kopi Tubruk',
+        'description' => 'Kopi buatan warga',
+        'price' => 15000,
+        'stock' => 10,
+        'product_status' => 'tersedia',
+    ]);
+
+    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
+
+    // Habiskan flash message milik pembeli agar tidak menempel di session
+    $this->actingAs($buyer)->get(route('marketplaces.index'));
+
+    $this->actingAs($seller)->get(route('marketplaces.purchases'))
+        ->assertStatus(200)
+        ->assertDontSee('Kopi Tubruk')
+        ->assertDontSee($buyer->name);
+
+    $this->actingAs($buyer)->get(route('marketplaces.sales'))
+        ->assertStatus(200)
+        ->assertDontSee('Kopi Tubruk')
+        ->assertDontSee($seller->name);
+});
+
+test('penjual dapat memperbarui status pembelian', function () {
+    $buyer = User::factory()->create(['role' => 'warga']);
+    $seller = User::factory()->create(['role' => 'warga']);
+
+    $product = Marketplace::create([
+        'user_id' => $seller->id,
+        'product_name' => 'Kopi Tubruk',
+        'description' => 'Kopi buatan warga',
+        'price' => 15000,
+        'stock' => 10,
+        'product_status' => 'tersedia',
+    ]);
+
+    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
+
+    $purchase = MarketplacePurchase::where('product_name', 'Kopi Tubruk')->latest()->first();
+
+    $this->actingAs($seller)->patch(route('marketplace-purchases.status.update', $purchase), [
+        'status' => 'diproses',
+    ])->assertRedirect();
+
+    $this->assertDatabaseHas('marketplace_purchases', [
+        'id' => $purchase->id,
+        'status' => 'diproses',
+    ]);
+});
+
+test('pembeli tidak dapat memperbarui status pembelian', function () {
+    $buyer = User::factory()->create(['role' => 'warga']);
+    $seller = User::factory()->create(['role' => 'warga']);
+
+    $product = Marketplace::create([
+        'user_id' => $seller->id,
+        'product_name' => 'Kopi Tubruk',
+        'description' => 'Kopi buatan warga',
+        'price' => 15000,
+        'stock' => 10,
+        'product_status' => 'tersedia',
+    ]);
+
+    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
+
+    $purchase = MarketplacePurchase::where('product_name', 'Kopi Tubruk')->latest()->first();
+
+    $this->actingAs($buyer)->patch(route('marketplace-purchases.status.update', $purchase), [
+        'status' => 'selesai',
+    ])->assertStatus(403);
+
+    $this->assertDatabaseHas('marketplace_purchases', [
+        'id' => $purchase->id,
+        'status' => 'menunggu',
+    ]);
 });

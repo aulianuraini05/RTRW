@@ -1,8 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Marketplace UMKM</h2>
-            <a href="{{ route('marketplaces.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Daftarkan Produk</a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('marketplaces.purchases') }}" class="rounded-md border border-indigo-600 px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50">Pembelian Saya</a>
+                <a href="{{ route('marketplaces.sales') }}" class="rounded-md border border-indigo-600 px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50">Produk Terjual</a>
+                <a href="{{ route('marketplaces.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Daftarkan Produk</a>
+            </div>
         </div>
     </x-slot>
 

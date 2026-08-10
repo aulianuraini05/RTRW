@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Marketplace extends Model
 {
@@ -30,6 +31,14 @@ class Marketplace extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return HasMany<MarketplacePurchase, $this>
+     */
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(MarketplacePurchase::class);
     }
 
     public function scopeAvailable(Builder $query): Builder

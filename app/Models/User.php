@@ -83,6 +83,22 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<MarketplacePurchase, $this>
+     */
+    public function marketplacePurchases(): HasMany
+    {
+        return $this->hasMany(MarketplacePurchase::class, 'buyer_id');
+    }
+
+    /**
+     * @return HasMany<MarketplacePurchase, $this>
+     */
+    public function marketplaceSales(): HasMany
+    {
+        return $this->hasMany(MarketplacePurchase::class, 'seller_id');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
