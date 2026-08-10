@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('contributions', function (Blueprint $table) {
             $table->id();
 
-            $table->string('contribution_type');
-            $table->string('contribution_period');
-            $table->decimal('amount', 15, 2);
-            $table->string('payment_status');
-            $table->date('payment_date')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('payment_status')->default('pending');
+            $table->string('proof_of_payment')->nullable();
+
             $table->timestamps();
         });
     }

@@ -152,10 +152,13 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get('/contributions', [ContributionController::class, 'index'])->name('contributions.index');
 
-    // Admin only: kelola iuran
+    // Admin & Warga: catat / ajukan pembayaran iuran
+    Route::get('/contributions/create', [ContributionController::class, 'create'])->name('contributions.create');
+    Route::post('/contributions', [ContributionController::class, 'store'])->name('contributions.store');
+
+    // Admin only: kelola & verifikasi iuran
     Route::middleware('role:admin')->group(function () {
-        Route::get('/contributions/create', [ContributionController::class, 'create'])->name('contributions.create');
-        Route::post('/contributions', [ContributionController::class, 'store'])->name('contributions.store');
+        Route::patch('/contributions/{contribution}/status', [ContributionController::class, 'updateStatus'])->name('contributions.status.update');
         Route::get('/contributions/{contribution}/edit', [ContributionController::class, 'edit'])->name('contributions.edit');
         Route::put('/contributions/{contribution}', [ContributionController::class, 'update'])->name('contributions.update');
         Route::delete('/contributions/{contribution}', [ContributionController::class, 'destroy'])->name('contributions.destroy');
@@ -184,6 +187,9 @@ Route::middleware('auth')->group(function () {
 
     // Warga & Admin: lihat detail
     Route::get('/marketplaces/{marketplace}', [MarketplaceController::class, 'show'])->name('marketplaces.show');
+
+    // Warga & Admin: proses pembelian sederhana
+    Route::post('/marketplaces/{marketplace}/buy', [MarketplaceController::class, 'buy'])->name('marketplaces.buy');
 });
 
 require __DIR__.'/auth.php';

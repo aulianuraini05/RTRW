@@ -2,15 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Contribution extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'contribution_type',
-        'contribution_period',
-        'amount',
+        'user_id',
         'payment_status',
-        'peyment_date',
+        'proof_of_payment',
     ];
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

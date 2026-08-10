@@ -71,8 +71,9 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Model Contribution tersedia
 - [x] Folder view kontribusi tersedia
 - [x] Route iuran terhubung ke aplikasi
-- [ ] Pencatatan iuran oleh RT/RW selesai
-- [ ] Status pembayaran iuran per warga selesai
+- [x] Pencatatan iuran oleh RT/RW selesai
+- [x] Status pembayaran iuran per warga selesai
+- [x] Form pengajuan pembayaran iuran oleh warga selesai
 - [ ] Integrasi pembayaran online selesai
 
 ### H. Modul Persuratan (Letter)
@@ -89,9 +90,9 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Model Marketplace tersedia
 - [x] Folder view marketplace tersedia
 - [x] Route marketplace terhubung ke aplikasi
-- [ ] Form daftar produk UMKM selesai
-- [ ] Tampilan katalog produk selesai
-- [ ] Proses pembelian sederhana selesai
+- [x] Form daftar produk UMKM selesai
+- [x] Tampilan katalog produk selesai
+- [x] Proses pembelian sederhana selesai
 
 ## 4. Pekerjaan Cross-Cutting / Tambahan
 - [ ] Pencarian, filter, dan sorting data untuk tiap modul
@@ -110,5 +111,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 
 ## 6. Catatan Saat Ini
 - Struktur modul inti sudah mulai tersedia di dalam project.
-- Masih diperlukan pengerjaan integrasi antar komponen agar aplikasi benar-benar bisa dipakai sebagai sistem end-to-end.
+- Modul kas dan iuran sudah mengikuti desain per-warga sesuai PRD: warga dapat mengajukan pembayaran (status pending) dan RT/RW memverifikasi menjadi lunas/ditolak.
+- Marketplace (UMKM) sudah lengkap: warga dapat mendaftarkan produk, melihat katalog, membeli (stok berkurang otomatis jadi habis), serta pemilik/admin mengelola produk. Sudah ada test khusus (MarketplaceTest).
+- Integrasi pembayaran online masih belum dikerjakan (direncanakan di fase 3).
 - Dokumen ini bisa terus diperbarui setiap kali ada progress baru.

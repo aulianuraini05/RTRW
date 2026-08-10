@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('marketplaces', function (Blueprint $table) {
             $table->id();
 
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('product_name');
             $table->text('description');
             $table->decimal('price', 15, 2);
-            $table->integer('stock');
-            $table->string('product_status');
+            $table->integer('stock')->default(0);
+            $table->string('product_status')->default('tersedia');
+            $table->string('seller_phone')->nullable();
+            $table->string('image')->nullable();
 
             $table->timestamps();
         });

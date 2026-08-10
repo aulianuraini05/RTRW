@@ -30,6 +30,12 @@
                     <x-nav-link :href="route('cash_transactions.index')" :active="request()->routeIs('cash_transactions.*')">
                         {{ __('Kas RT/RW') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('contributions.index')" :active="request()->routeIs('contributions.*')">
+                        {{ __('Iuran Warga') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('marketplaces.index')" :active="request()->routeIs('marketplaces.*')">
+                        {{ __('Marketplace') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -99,6 +105,12 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('cash_transactions.index')" :active="request()->routeIs('cash_transactions.*')">
                 {{ __('Kas RT/RW') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('contributions.index')" :active="request()->routeIs('contributions.*')">
+                {{ __('Iuran Warga') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('marketplaces.index')" :active="request()->routeIs('marketplaces.*')">
+                {{ __('Marketplace') }}
             </x-responsive-nav-link>
         </div>
 

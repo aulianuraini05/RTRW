@@ -112,7 +112,6 @@ it('warga tidak bisa akses create di modul admin-only (403)', function () {
     $adminCreateRoutes = [
         'announcements.create',
         'assets.create',
-        'contributions.create',
     ];
 
     foreach ($adminCreateRoutes as $routeName) {
@@ -128,13 +127,14 @@ it('warga tidak bisa akses create di modul admin-only (403)', function () {
 |--------------------------------------------------------------------------
 */
 
-it('warga bisa akses create aspirasi, surat, kas, dan marketplace', function () {
+it('warga bisa akses create aspirasi, surat, kas, iuran, dan marketplace', function () {
     $warga = User::factory()->create(['role' => 'warga']);
 
     $wargaCreateRoutes = [
         'aspirations.create',
         'letters.create',
         'cash_transactions.create',
+        'contributions.create',
         'marketplaces.create',
     ];
 
