@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contribution;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ContributionController extends Controller
@@ -59,16 +60,21 @@ class ContributionController extends Controller
     {
         if ($request->user()->isWarga()) {
             $validated = $request->validate([
+                'amount' => ['required', 'numeric', 'min:0'],
+                'payment_method' => ['required', Rule::in(['virtual_account', 'qris', 'transfer'])],
                 'proof_of_payment' => ['nullable', 'string', 'max:255'],
             ]);
 
             $request->user()->contributions()->create([
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'payment_code' => $this->generatePaymentCode(),
                 'payment_status' => 'pending',
                 'proof_of_payment' => $validated['proof_of_payment'] ?? null,
             ]);
 
             return redirect()->route('contributions.index')
-                ->with('success', 'Pembayaran iuran Anda berhasil diajukan dan menunggu verifikasi RT/RW.');
+                ->with('success', 'Pembayaran iuran Anda berhasil diajukan. Silakan selesaikan pembayaran online untuk melunasi.');
         }
 
         abort_unless($request->user()->isAdmin(), 403);
@@ -92,6 +98,25 @@ class ContributionController extends Controller
         }
 
         return view('contributions.show', compact('contribution'));
+    }
+
+    public function payOnline(Request $request, Contribution $contribution)
+    {
+        abort_unless($request->user()->isWarga(), 403);
+
+        if ($contribution->user_id !== $request->user()->id) {
+            abort(404);
+        }
+
+        abort_if($contribution->payment_status !== 'pending', 403, 'Pembayaran ini sudah diselesaikan.');
+
+        $contribution->update([
+            'payment_status' => 'lunas',
+            'paid_at' => now(),
+            'proof_of_payment' => $contribution->proof_of_payment ?? 'Pembayaran online via '.$this->paymentMethodLabel($contribution->payment_method),
+        ]);
+
+        return back()->with('success', 'Pembayaran iuran online berhasil. Status kini Lunas.');
     }
 
     public function edit(Contribution $contribution)
@@ -140,5 +165,20 @@ class ContributionController extends Controller
 
         return redirect()->route('contributions.index')
             ->with('success', 'Catatan iuran warga berhasil dihapus.');
+    }
+
+    private function generatePaymentCode(): string
+    {
+        return 'IUR-'.now()->format('ymd').'-'.strtoupper(Str::random(6));
+    }
+
+    private function paymentMethodLabel(?string $method): string
+    {
+        return match ($method) {
+            'virtual_account' => 'Virtual Account',
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer Bank',
+            default => 'Online',
+        };
     }
 }

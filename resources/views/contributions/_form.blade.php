@@ -1,10 +1,27 @@
 <div class="space-y-6">
     @if (Auth::user()->isWarga())
         <div class="rounded-md bg-blue-50 p-4 text-sm text-blue-700">
-            Ajukan pembayaran iuran Anda di sini. Status akan menjadi <strong>pending</strong> sampai diverifikasi RT/RW.
+            Ajukan pembayaran iuran Anda di sini. Setelah diajukan, Anda dapat menyelesaikan pembayaran online pada halaman detail untuk melunasi.
         </div>
         <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
         <input type="hidden" name="payment_status" value="pending">
+
+        <div>
+            <x-input-label for="amount" value="Jumlah Pembayaran (Rp)" />
+            <x-text-input id="amount" name="amount" type="number" step="0.01" min="0" class="mt-1 block w-full" :value="old('amount', $contribution->amount ?? '')" placeholder="Contoh: 50000" required />
+            <x-input-error class="mt-2" :messages="$errors->get('amount')" />
+        </div>
+
+        <div>
+            <x-input-label for="payment_method" value="Metode Pembayaran Online" />
+            <select id="payment_method" name="payment_method" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                <option value="">-- Pilih metode --</option>
+                <option value="virtual_account" @selected(old('payment_method', $contribution->payment_method ?? '') === 'virtual_account')>Virtual Account</option>
+                <option value="qris" @selected(old('payment_method', $contribution->payment_method ?? '') === 'qris')>QRIS</option>
+                <option value="transfer" @selected(old('payment_method', $contribution->payment_method ?? '') === 'transfer')>Transfer Bank</option>
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('payment_method')" />
+        </div>
     @else
         <div>
             <x-input-label for="user_id" value="Warga" />

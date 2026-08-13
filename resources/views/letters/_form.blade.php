@@ -16,17 +16,10 @@
         <x-input-error class="mt-2" :messages="$errors->get('purpose')" />
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2">
-        <div>
-            <x-input-label for="submission_date" value="Tanggal pengajuan" />
-            <x-text-input id="submission_date" name="submission_date" type="date" class="mt-1 block w-full" :value="old('submission_date', isset($letter) ? $letter->submission_date->toDateString() : now()->toDateString())" required />
-            <x-input-error class="mt-2" :messages="$errors->get('submission_date')" />
-        </div>
-        <div>
-            <x-input-label for="letter_date" value="Tanggal surat (opsional)" />
-            <x-text-input id="letter_date" name="letter_date" type="date" class="mt-1 block w-full" :value="old('letter_date', isset($letter) && $letter->letter_date ? $letter->letter_date->toDateString() : '')" />
-            <x-input-error class="mt-2" :messages="$errors->get('letter_date')" />
-        </div>
+    <div>
+        <x-input-label for="submission_date" value="Tanggal pengajuan" />
+        <x-text-input id="submission_date" name="submission_date" type="date" class="mt-1 block w-full" :value="old('submission_date', isset($letter) ? $letter->submission_date->toDateString() : now()->toDateString())" required />
+        <x-input-error class="mt-2" :messages="$errors->get('submission_date')" />
     </div>
 
     <div>

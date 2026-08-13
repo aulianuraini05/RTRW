@@ -12,6 +12,10 @@ class CashTransaction extends Model
 
     protected $fillable = [
         'user_id',
+        'amount',
+        'payment_method',
+        'payment_code',
+        'paid_at',
         'payment_status',
         'proof_of_payment',
     ];
@@ -22,5 +26,16 @@ class CashTransaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'paid_at' => 'datetime',
+        ];
     }
 }

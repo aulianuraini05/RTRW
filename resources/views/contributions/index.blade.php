@@ -17,7 +17,7 @@
             @endif
 
             <!-- Summary Cards -->
-            <div class="grid gap-6 sm:grid-cols-3">
+            <div class="grid gap-6 lg:grid-cols-3">
                 <div class="rounded-lg bg-indigo-600 p-6 text-white shadow-sm">
                     <p class="text-sm font-medium opacity-90">Sudah Lunas</p>
                     <p class="mt-2 text-3xl font-extrabold">{{ $totalPaid }} warga</p>
@@ -74,6 +74,12 @@
                                         {{ $contribution->user?->name ?? 'Warga lama' }}
                                     </a>
                                 </h3>
+                                @if ($contribution->amount)
+                                    <p class="mt-1 text-sm font-semibold text-gray-700">Rp {{ number_format((float) $contribution->amount, 0, ',', '.') }}</p>
+                                @endif
+                                @if ($contribution->payment_code)
+                                    <p class="mt-1 font-mono text-xs text-gray-500">Kode: {{ $contribution->payment_code }}</p>
+                                @endif
                                 @if ($contribution->proof_of_payment)
                                     <p class="mt-1 text-sm text-gray-500">Bukti: {{ $contribution->proof_of_payment }}</p>
                                 @endif

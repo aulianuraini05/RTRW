@@ -16,11 +16,45 @@
                 <div class="mt-4">
                     <p class="text-sm text-gray-500">Warga</p>
                     <h1 class="text-2xl font-bold text-gray-900">{{ $cashTransaction->user?->name ?? 'Warga lama' }}</h1>
+
+                    @if ($cashTransaction->amount)
+                        <div class="mt-4 rounded-md bg-gray-50 p-4">
+                            <p class="text-sm text-gray-500">Jumlah Pembayaran</p>
+                            <p class="text-2xl font-extrabold text-gray-900">Rp {{ number_format((float) $cashTransaction->amount, 0, ',', '.') }}</p>
+                        </div>
+                    @endif
+
+                    @if ($cashTransaction->payment_code)
+                        <p class="mt-4 text-sm text-gray-500">Kode Pembayaran</p>
+                        <p class="font-mono text-sm font-semibold text-gray-800">{{ $cashTransaction->payment_code }}</p>
+                    @endif
+
+                    @if ($cashTransaction->payment_method)
+                        <p class="mt-2 text-sm text-gray-500">Metode Pembayaran</p>
+                        <p class="text-sm font-medium text-gray-800 capitalize">{{ str_replace('_', ' ', $cashTransaction->payment_method) }}</p>
+                    @endif
+
+                    @if ($cashTransaction->paid_at)
+                        <p class="mt-2 text-sm text-gray-500">Dibayar pada</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $cashTransaction->paid_at->translatedFormat('d F Y H:i') }}</p>
+                    @endif
+
                     @if ($cashTransaction->proof_of_payment)
                         <p class="mt-4 text-sm text-gray-500">Bukti Pembayaran</p>
                         <p class="whitespace-pre-line text-gray-700 leading-relaxed">{{ $cashTransaction->proof_of_payment }}</p>
                     @endif
                 </div>
+
+                @if (Auth::user()->isWarga() && $cashTransaction->user_id === Auth::id() && $cashTransaction->payment_status === 'pending')
+                    <div class="mt-8 rounded-md border-2 border-dashed border-indigo-300 bg-indigo-50 p-6">
+                        <h2 class="text-base font-semibold text-indigo-900">Selesaikan Pembayaran Online</h2>
+                        <p class="mt-1 text-sm text-indigo-700">Simulasi pembayaran online. Klik tombol di bawah untuk menganggap pembayaran telah diterima.</p>
+                        <form method="POST" action="{{ route('cash_transactions.pay', $cashTransaction) }}" class="mt-4">
+                            @csrf
+                            <x-primary-button type="submit">Bayar Sekarang (Simulasi)</x-primary-button>
+                        </form>
+                    </div>
+                @endif
 
                 @if (Auth::user()->isAdmin())
                     <div class="mt-8 flex items-center gap-4 border-t pt-6">

@@ -15,9 +15,6 @@
             @if (Auth::user()->isAdmin())
                 <p class="mt-2 text-sm text-gray-500">Diajukan oleh: {{ $letter->user?->name ?? 'Data warga lama' }}</p>
             @endif
-            @if ($letter->letter_date)
-                <p class="mt-1 text-sm text-gray-500">Tanggal surat: {{ $letter->letter_date->translatedFormat('d F Y') }}</p>
-            @endif
             <div class="mt-6 whitespace-pre-line leading-7 text-gray-700">{{ $letter->purpose }}</div>
 
             @if (Auth::user()->isAdmin())

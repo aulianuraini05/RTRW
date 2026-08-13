@@ -35,14 +35,15 @@ class LetterController extends Controller
         abort_unless($request->user()->isWarga(), 403);
 
         $validated = $request->validate([
+            'letter_number' => ['nullable', 'string', 'max:100'],
             'letter_type' => ['required', 'string', 'max:100'],
             'purpose' => ['required', 'string'],
+            'submission_date' => ['required', 'date'],
         ]);
 
         $request->user()->letters()->create([
             ...$validated,
-            'letter_number' => $this->generateLetterNumber(),
-            'submission_date' => today(),
+            'letter_number' => $validated['letter_number'] ?: $this->generateLetterNumber(),
             'letter_status' => 'diajukan',
         ]);
 
@@ -70,7 +71,6 @@ class LetterController extends Controller
             'letter_type' => ['required', 'string', 'max:100'],
             'purpose' => ['required', 'string'],
             'submission_date' => ['required', 'date'],
-            'letter_date' => ['nullable', 'date'],
             'letter_status' => ['required', Rule::in(['diajukan', 'diproses', 'disetujui', 'ditolak', 'selesai'])],
         ]);
 
@@ -91,7 +91,6 @@ class LetterController extends Controller
 
         $letter->update([
             'letter_status' => $status,
-            'letter_date' => in_array($status, ['disetujui', 'selesai']) && ! $letter->letter_date ? today() : $letter->letter_date,
         ]);
 
         return back()->with('success', 'Status surat berhasil diubah menjadi '.ucfirst($status).'.');

@@ -25,6 +25,11 @@
                     <textarea id="aspiration_content" name="aspiration_content" rows="7" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>{{ old('aspiration_content') }}</textarea>
                     <x-input-error class="mt-2" :messages="$errors->get('aspiration_content')" />
                 </div>
+                <div>
+                    <x-input-label for="submission_date" value="Tanggal" />
+                    <x-text-input id="submission_date" name="submission_date" type="date" class="mt-1 block w-full" :value="old('submission_date', today()->format('Y-m-d'))" required />
+                    <x-input-error class="mt-2" :messages="$errors->get('submission_date')" />
+                </div>
                 <div class="flex items-center gap-4">
                     <x-primary-button>Kirim aspirasi</x-primary-button>
                     <a href="{{ route('aspirations.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Batal</a>

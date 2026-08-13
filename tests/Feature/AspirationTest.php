@@ -23,6 +23,7 @@ it('warga dapat mengirim aspirasi yang terhubung ke akunnya', function () {
             'aspiration_title' => 'Lampu jalan mati',
             'aspiration_content' => 'Lampu di dekat pos ronda sudah mati.',
             'category' => 'Keamanan',
+            'submission_date' => now()->toDateString(),
         ])
         ->assertRedirect(route('aspirations.index'));
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashTransaction;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CashTransactionController extends Controller
@@ -59,16 +60,21 @@ class CashTransactionController extends Controller
     {
         if ($request->user()->isWarga()) {
             $validated = $request->validate([
+                'amount' => ['required', 'numeric', 'min:0'],
+                'payment_method' => ['required', Rule::in(['virtual_account', 'qris', 'transfer'])],
                 'proof_of_payment' => ['nullable', 'string', 'max:255'],
             ]);
 
             $request->user()->cashTransactions()->create([
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'payment_code' => $this->generatePaymentCode(),
                 'payment_status' => 'pending',
                 'proof_of_payment' => $validated['proof_of_payment'] ?? null,
             ]);
 
             return redirect()->route('cash_transactions.index')
-                ->with('success', 'Pembayaran kas Anda berhasil diajukan dan menunggu verifikasi RT/RW.');
+                ->with('success', 'Pembayaran kas Anda berhasil diajukan. Silakan selesaikan pembayaran online untuk melunasi.');
         }
 
         abort_unless($request->user()->isAdmin(), 403);
@@ -92,6 +98,25 @@ class CashTransactionController extends Controller
         }
 
         return view('cash_transactions.show', compact('cashTransaction'));
+    }
+
+    public function payOnline(Request $request, CashTransaction $cashTransaction)
+    {
+        abort_unless($request->user()->isWarga(), 403);
+
+        if ($cashTransaction->user_id !== $request->user()->id) {
+            abort(404);
+        }
+
+        abort_if($cashTransaction->payment_status !== 'pending', 403, 'Pembayaran ini sudah diselesaikan.');
+
+        $cashTransaction->update([
+            'payment_status' => 'lunas',
+            'paid_at' => now(),
+            'proof_of_payment' => $cashTransaction->proof_of_payment ?? 'Pembayaran online via '.$this->paymentMethodLabel($cashTransaction->payment_method),
+        ]);
+
+        return back()->with('success', 'Pembayaran kas online berhasil. Status kini Lunas.');
     }
 
     public function edit(CashTransaction $cashTransaction)
@@ -140,5 +165,20 @@ class CashTransactionController extends Controller
 
         return redirect()->route('cash_transactions.index')
             ->with('success', 'Catatan kas warga berhasil dihapus.');
+    }
+
+    private function generatePaymentCode(): string
+    {
+        return 'KAS-'.now()->format('ymd').'-'.strtoupper(Str::random(6));
+    }
+
+    private function paymentMethodLabel(?string $method): string
+    {
+        return match ($method) {
+            'virtual_account' => 'Virtual Account',
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer Bank',
+            default => 'Online',
+        };
     }
 }

@@ -90,15 +90,55 @@ test('warga can submit their own iuran payment', function () {
     $warga = User::factory()->create(['role' => 'warga']);
 
     $response = $this->actingAs($warga)->post(route('contributions.store'), [
+        'amount' => '50000',
+        'payment_method' => 'virtual_account',
         'proof_of_payment' => 'Transfer BCA a.n. Saya',
     ]);
 
     $response->assertRedirect(route('contributions.index'));
     $this->assertDatabaseHas('contributions', [
         'user_id' => $warga->id,
+        'amount' => 50000,
+        'payment_method' => 'virtual_account',
         'payment_status' => 'pending',
         'proof_of_payment' => 'Transfer BCA a.n. Saya',
     ]);
+});
+
+test('warga can complete their pending iuran payment online', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+
+    $contribution = Contribution::create([
+        'user_id' => $warga->id,
+        'amount' => 50000,
+        'payment_method' => 'virtual_account',
+        'payment_code' => 'IUR-250813-ABCDEF',
+        'payment_status' => 'pending',
+    ]);
+
+    $response = $this->actingAs($warga)->post(route('contributions.pay', $contribution));
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('contributions', [
+        'id' => $contribution->id,
+        'payment_status' => 'lunas',
+    ]);
+    $this->assertNotNull($contribution->fresh()->paid_at);
+});
+
+test('warga cannot pay online a iuran record belonging to someone else', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $other = User::factory()->create(['role' => 'warga']);
+
+    $theirs = Contribution::create([
+        'user_id' => $other->id,
+        'amount' => 50000,
+        'payment_method' => 'virtual_account',
+        'payment_code' => 'IUR-250813-ABCDEF',
+        'payment_status' => 'pending',
+    ]);
+
+    $this->actingAs($warga)->post(route('contributions.pay', $theirs))->assertStatus(404);
 });
 
 test('warga only sees their own iuran records and cannot manage others', function () {

@@ -92,15 +92,55 @@ test('warga can submit their own kas payment', function () {
     $warga = User::factory()->create(['role' => 'warga']);
 
     $response = $this->actingAs($warga)->post(route('cash_transactions.store'), [
+        'amount' => '50000',
+        'payment_method' => 'qris',
         'proof_of_payment' => 'Transfer BCA a.n. Saya',
     ]);
 
     $response->assertRedirect(route('cash_transactions.index'));
     $this->assertDatabaseHas('cash_transactions', [
         'user_id' => $warga->id,
+        'amount' => 50000,
+        'payment_method' => 'qris',
         'payment_status' => 'pending',
         'proof_of_payment' => 'Transfer BCA a.n. Saya',
     ]);
+});
+
+test('warga can complete their pending kas payment online', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+
+    $transaction = CashTransaction::create([
+        'user_id' => $warga->id,
+        'amount' => 50000,
+        'payment_method' => 'qris',
+        'payment_code' => 'KAS-250813-ABCDEF',
+        'payment_status' => 'pending',
+    ]);
+
+    $response = $this->actingAs($warga)->post(route('cash_transactions.pay', $transaction));
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('cash_transactions', [
+        'id' => $transaction->id,
+        'payment_status' => 'lunas',
+    ]);
+    $this->assertNotNull($transaction->fresh()->paid_at);
+});
+
+test('warga cannot pay online a kas record belonging to someone else', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $other = User::factory()->create(['role' => 'warga']);
+
+    $theirs = CashTransaction::create([
+        'user_id' => $other->id,
+        'amount' => 50000,
+        'payment_method' => 'qris',
+        'payment_code' => 'KAS-250813-ABCDEF',
+        'payment_status' => 'pending',
+    ]);
+
+    $this->actingAs($warga)->post(route('cash_transactions.pay', $theirs))->assertStatus(404);
 });
 
 test('warga only sees their own kas records and cannot manage others', function () {

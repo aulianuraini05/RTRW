@@ -38,8 +38,8 @@ class AspirationController extends Controller
                 'aspiration_title' => ['required', 'string', 'max:255'],
                 'aspiration_content' => ['required', 'string'],
                 'category' => ['required', 'string', 'max:100'],
+                'submission_date' => ['required', 'date'],
             ]),
-            'submission_date' => today(),
             'aspiration_status' => 'dikirim',
         ]);
 

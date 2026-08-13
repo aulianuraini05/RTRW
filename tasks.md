@@ -64,7 +64,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Pencatatan transaksi kas oleh RT/RW selesai
 - [x] Status pembayaran kas per warga selesai
 - [x] Form pengajuan pembayaran kas oleh warga selesai
-- [ ] Integrasi pembayaran online selesai
+- [x] Integrasi pembayaran online selesai (simulasi sandbox: VA/QRIS/Transfer, generate kode pembayaran, bayar online)
 
 ### G. Modul Iuran Warga (Contribution)
 - [x] Controller kontribusi tersedia
@@ -74,7 +74,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Pencatatan iuran oleh RT/RW selesai
 - [x] Status pembayaran iuran per warga selesai
 - [x] Form pengajuan pembayaran iuran oleh warga selesai
-- [ ] Integrasi pembayaran online selesai
+- [x] Integrasi pembayaran online selesai (simulasi sandbox: VA/QRIS/Transfer, generate kode pembayaran, bayar online)
 
 ### H. Modul Persuratan (Letter)
 - [x] Controller surat tersedia
@@ -115,5 +115,5 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - Struktur modul inti sudah mulai tersedia di dalam project.
 - Modul kas dan iuran sudah mengikuti desain per-warga sesuai PRD: warga dapat mengajukan pembayaran (status pending) dan RT/RW memverifikasi menjadi lunas/ditolak.
 - Marketplace (UMKM) sudah lengkap: warga dapat mendaftarkan produk, melihat katalog, membeli (stok berkurang otomatis jadi habis), serta pemilik/admin mengelola produk. Setiap pembelian tercatat: pembeli bisa melihat riwayat "Pembelian Saya", penjual bisa melihat "Produk Terjual" beserta nama pembeli dan memperbarui status (menunggu/diproses/selesai). Sudah ada test khusus (MarketplaceTest).
-- Integrasi pembayaran online masih belum dikerjakan (direncanakan di fase 3).
+- Integrasi pembayaran online (fase 3) sudah dikerjakan dalam bentuk simulasi/sandbox untuk modul kas dan iuran: warga mengisi jumlah & memilih metode (Virtual Account/QRIS/Transfer), sistem generate kode pembayaran, lalu warga menyelesaikan lewat tombol "Bayar Sekarang (Simulasi)" yang mengubah status menjadi lunas + mencatat paid_at. Sudah ada test tambahan (KasTest & IuranTest).
 - Dokumen ini bisa terus diperbarui setiap kali ada progress baru.

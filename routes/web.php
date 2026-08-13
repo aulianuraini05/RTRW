@@ -144,6 +144,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/cash-transactions/{cashTransaction}', [CashTransactionController::class, 'destroy'])->name('cash_transactions.destroy');
     });
 
+    // Warga: selesaikan pembayaran kas online (simulasi)
+    Route::post('/cash-transactions/{cashTransaction}/pay', [CashTransactionController::class, 'payOnline'])->name('cash_transactions.pay');
+
     // Warga & Admin: lihat detail
     Route::get('/cash-transactions/{cashTransaction}', [CashTransactionController::class, 'show'])->name('cash_transactions.show');
 
@@ -163,6 +166,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/contributions/{contribution}', [ContributionController::class, 'update'])->name('contributions.update');
         Route::delete('/contributions/{contribution}', [ContributionController::class, 'destroy'])->name('contributions.destroy');
     });
+
+    // Warga: selesaikan pembayaran iuran online (simulasi)
+    Route::post('/contributions/{contribution}/pay', [ContributionController::class, 'payOnline'])->name('contributions.pay');
 
     // Warga & Admin: lihat detail
     Route::get('/contributions/{contribution}', [ContributionController::class, 'show'])->name('contributions.show');
