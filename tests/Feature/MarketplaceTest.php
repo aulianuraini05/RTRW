@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Marketplace;
-use App\Models\MarketplacePurchase;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +14,6 @@ test('warga dan admin dapat melihat katalog produk marketplace', function () {
         'product_name' => 'Keripik Pisang',
         'description' => 'Keripik buatan warga RT',
         'price' => 25000,
-        'stock' => 10,
         'product_status' => 'tersedia',
     ]);
 
@@ -37,7 +35,6 @@ test('warga dapat mendaftarkan produk baru di marketplace', function () {
         'product_name' => 'Keripik Pisang',
         'description' => 'Keripik buatan warga RT',
         'price' => 25000,
-        'stock' => 10,
         'seller_phone' => '0812-3456-7890',
         'image' => UploadedFile::fake()->image('keripik.jpg', 400, 400),
     ]);
@@ -47,8 +44,8 @@ test('warga dapat mendaftarkan produk baru di marketplace', function () {
         'user_id' => $seller->id,
         'product_name' => 'Keripik Pisang',
         'price' => 25000,
-        'stock' => 10,
         'product_status' => 'tersedia',
+        'seller_phone' => '0812-3456-7890',
     ]);
 
     $marketplace = Marketplace::where('product_name', 'Keripik Pisang')->first();
@@ -66,7 +63,6 @@ test('penjual hanya dapat mengedit produk miliknya sendiri', function () {
         'product_name' => 'Produk Saya',
         'description' => 'Milik saya',
         'price' => 10000,
-        'stock' => 5,
         'product_status' => 'tersedia',
         'image' => 'marketplace/lama.jpg',
     ]);
@@ -76,7 +72,6 @@ test('penjual hanya dapat mengedit produk miliknya sendiri', function () {
         'product_name' => 'Produk Orang',
         'description' => 'Milik orang lain',
         'price' => 20000,
-        'stock' => 5,
         'product_status' => 'tersedia',
     ]);
 
@@ -87,8 +82,8 @@ test('penjual hanya dapat mengedit produk miliknya sendiri', function () {
         'product_name' => 'Produk Saya Update',
         'description' => 'Milik saya',
         'price' => 12000,
-        'stock' => 3,
         'product_status' => 'tersedia',
+        'seller_phone' => '0812-3456-7890',
         'image' => UploadedFile::fake()->image('baru.jpg', 400, 400),
     ])->assertRedirect(route('marketplaces.index'));
 
@@ -102,7 +97,7 @@ test('penjual hanya dapat mengedit produk miliknya sendiri', function () {
         'product_name' => 'Bukan Punya Saya',
         'description' => 'Milik orang lain',
         'price' => 20000,
-        'stock' => 5,
+        'seller_phone' => '0812-3456-7890',
     ])->assertStatus(403);
 });
 
@@ -115,7 +110,6 @@ test('admin dapat menghapus produk marketplace', function () {
         'product_name' => 'Produk Dihapus',
         'description' => 'Akan dihapus',
         'price' => 15000,
-        'stock' => 2,
         'product_status' => 'tersedia',
     ]);
 
@@ -133,33 +127,10 @@ test('warga tidak dapat menghapus produk milik orang lain', function () {
         'product_name' => 'Produk Orang',
         'description' => 'Milik orang lain',
         'price' => 20000,
-        'stock' => 5,
         'product_status' => 'tersedia',
     ]);
 
     $this->actingAs($seller)->delete(route('marketplaces.destroy', $theirs))->assertStatus(403);
-});
-
-test('warga dapat membeli produk dan stok berkurang', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
-    $seller = User::factory()->create(['role' => 'warga']);
-
-    $product = Marketplace::create([
-        'user_id' => $seller->id,
-        'product_name' => 'Keripik Pisang',
-        'description' => 'Keripik buatan warga RT',
-        'price' => 25000,
-        'stock' => 1,
-        'product_status' => 'tersedia',
-    ]);
-
-    $response = $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-    $response->assertRedirect();
-    $response->assertSessionHas('success');
-
-    $product->refresh();
-    expect($product->stock)->toBe(0);
-    expect($product->product_status)->toBe('habis');
 });
 
 test('produk dengan gambar melebihi batas 10MB ditolak dengan pesan indonesia', function () {
@@ -169,7 +140,6 @@ test('produk dengan gambar melebihi batas 10MB ditolak dengan pesan indonesia', 
         'product_name' => 'Produk Besar',
         'description' => 'Foto terlalu besar',
         'price' => 15000,
-        'stock' => 3,
         'image' => UploadedFile::fake()->image('besar.jpg', 400, 400)->size(11000),
     ]);
 
@@ -186,7 +156,6 @@ test('produk dengan gambar hingga 10MB dapat disimpan', function () {
         'product_name' => 'Produk 10MB',
         'description' => 'Foto maksimal',
         'price' => 20000,
-        'stock' => 5,
         'image' => UploadedFile::fake()->image('maks.jpg', 400, 400)->size(10240),
     ]);
 
@@ -194,146 +163,42 @@ test('produk dengan gambar hingga 10MB dapat disimpan', function () {
     $this->assertDatabaseHas('marketplaces', ['product_name' => 'Produk 10MB']);
 });
 
-test('produk dengan stok habis tidak dapat dibeli', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
-    $seller = User::factory()->create(['role' => 'warga']);
-
-    $product = Marketplace::create([
-        'user_id' => $seller->id,
-        'product_name' => 'Produk Habis',
-        'description' => 'Stok kosong',
-        'price' => 10000,
-        'stock' => 0,
-        'product_status' => 'habis',
-    ]);
-
-    $response = $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-    $response->assertSessionHas('error');
-    $product->refresh();
-    expect($product->stock)->toBe(0);
-});
-
-test('pembeli mendapatkan halaman riwayat pembelian sendiri', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
-    $seller = User::factory()->create(['role' => 'warga']);
+test('tombol beli menampilkan link WhatsApp dengan template pesan', function () {
+    $seller = User::factory()->create(['role' => 'warga', 'name' => 'Budi']);
 
     $product = Marketplace::create([
         'user_id' => $seller->id,
         'product_name' => 'Kopi Tubruk',
         'description' => 'Kopi buatan warga',
         'price' => 15000,
-        'stock' => 10,
         'product_status' => 'tersedia',
+        'seller_phone' => '0812-3456-7890',
     ]);
 
-    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-
-    $this->actingAs($buyer)->get(route('marketplaces.purchases'))
+    $this->actingAs($seller)->get(route('marketplaces.show', $product))
         ->assertStatus(200)
-        ->assertSee('Kopi Tubruk')
-        ->assertSee($seller->name);
+        ->assertSee('Beli via WhatsApp')
+        ->assertSee('wa.me/6281234567890', false)
+        ->assertSee('Kopi Tubruk');
+
+    $waLink = $product->whatsappLink($product->whatsappMessage());
+    expect($waLink)->toStartWith('https://wa.me/6281234567890?text=');
+    expect(urldecode($waLink))->toContain('Halo Budi');
 });
 
-test('penjual melihat produknya di halaman produk terjual', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
+test('produk tanpa nomor WhatsApp tidak menampilkan tombol beli', function () {
     $seller = User::factory()->create(['role' => 'warga']);
 
     $product = Marketplace::create([
         'user_id' => $seller->id,
-        'product_name' => 'Kopi Tubruk',
-        'description' => 'Kopi buatan warga',
-        'price' => 15000,
-        'stock' => 10,
+        'product_name' => 'Tanpa Kontak',
+        'description' => 'Tanpa nomor',
+        'price' => 5000,
         'product_status' => 'tersedia',
     ]);
 
-    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-
-    $this->actingAs($seller)->get(route('marketplaces.sales'))
+    $this->actingAs($seller)->get(route('marketplaces.show', $product))
         ->assertStatus(200)
-        ->assertSee('Kopi Tubruk')
-        ->assertSee($buyer->name);
-});
-
-test('penjual tidak melihat pembelian orang lain di halaman pembeliannya', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
-    $seller = User::factory()->create(['role' => 'warga']);
-
-    $product = Marketplace::create([
-        'user_id' => $seller->id,
-        'product_name' => 'Kopi Tubruk',
-        'description' => 'Kopi buatan warga',
-        'price' => 15000,
-        'stock' => 10,
-        'product_status' => 'tersedia',
-    ]);
-
-    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-
-    // Habiskan flash message milik pembeli agar tidak menempel di session
-    $this->actingAs($buyer)->get(route('marketplaces.index'));
-
-    $this->actingAs($seller)->get(route('marketplaces.purchases'))
-        ->assertStatus(200)
-        ->assertDontSee('Kopi Tubruk')
-        ->assertDontSee($buyer->name);
-
-    $this->actingAs($buyer)->get(route('marketplaces.sales'))
-        ->assertStatus(200)
-        ->assertDontSee('Kopi Tubruk')
-        ->assertDontSee($seller->name);
-});
-
-test('penjual dapat memperbarui status pembelian', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
-    $seller = User::factory()->create(['role' => 'warga']);
-
-    $product = Marketplace::create([
-        'user_id' => $seller->id,
-        'product_name' => 'Kopi Tubruk',
-        'description' => 'Kopi buatan warga',
-        'price' => 15000,
-        'stock' => 10,
-        'product_status' => 'tersedia',
-    ]);
-
-    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-
-    $purchase = MarketplacePurchase::where('product_name', 'Kopi Tubruk')->latest()->first();
-
-    $this->actingAs($seller)->patch(route('marketplace-purchases.status.update', $purchase), [
-        'status' => 'diproses',
-    ])->assertRedirect();
-
-    $this->assertDatabaseHas('marketplace_purchases', [
-        'id' => $purchase->id,
-        'status' => 'diproses',
-    ]);
-});
-
-test('pembeli tidak dapat memperbarui status pembelian', function () {
-    $buyer = User::factory()->create(['role' => 'warga']);
-    $seller = User::factory()->create(['role' => 'warga']);
-
-    $product = Marketplace::create([
-        'user_id' => $seller->id,
-        'product_name' => 'Kopi Tubruk',
-        'description' => 'Kopi buatan warga',
-        'price' => 15000,
-        'stock' => 10,
-        'product_status' => 'tersedia',
-    ]);
-
-    $this->actingAs($buyer)->post(route('marketplaces.buy', $product));
-
-    $purchase = MarketplacePurchase::where('product_name', 'Kopi Tubruk')->latest()->first();
-
-    $this->actingAs($buyer)->patch(route('marketplace-purchases.status.update', $purchase), [
-        'status' => 'selesai',
-    ])->assertStatus(403);
-
-    $this->assertDatabaseHas('marketplace_purchases', [
-        'id' => $purchase->id,
-        'status' => 'menunggu',
-    ]);
+        ->assertSee('Kontak penjual belum diisi')
+        ->assertDontSee('wa.me');
 });

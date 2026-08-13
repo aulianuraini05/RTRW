@@ -6,8 +6,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -80,22 +80,6 @@ class User extends Authenticatable
     public function marketplaces(): HasMany
     {
         return $this->hasMany(Marketplace::class);
-    }
-
-    /**
-     * @return HasMany<MarketplacePurchase, $this>
-     */
-    public function marketplacePurchases(): HasMany
-    {
-        return $this->hasMany(MarketplacePurchase::class, 'buyer_id');
-    }
-
-    /**
-     * @return HasMany<MarketplacePurchase, $this>
-     */
-    public function marketplaceSales(): HasMany
-    {
-        return $this->hasMany(MarketplacePurchase::class, 'seller_id');
     }
 
     /**

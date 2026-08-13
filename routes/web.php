@@ -186,10 +186,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/marketplaces/{marketplace}/edit', [MarketplaceController::class, 'edit'])->name('marketplaces.edit');
     Route::put('/marketplaces/{marketplace}', [MarketplaceController::class, 'update'])->name('marketplaces.update');
 
-    // Riwayat pembelian: pembeli & penjual (SEBELUM /{marketplace} agar tidak konflik)
-    Route::get('/marketplaces/purchases/history', [MarketplaceController::class, 'myPurchases'])->name('marketplaces.purchases');
-    Route::get('/marketplaces/sales/history', [MarketplaceController::class, 'mySales'])->name('marketplaces.sales');
-
     // Admin only: hapus produk
     Route::middleware('role:admin')->group(function () {
         Route::delete('/marketplaces/{marketplace}', [MarketplaceController::class, 'destroy'])->name('marketplaces.destroy');
@@ -197,12 +193,6 @@ Route::middleware('auth')->group(function () {
 
     // Warga & Admin: lihat detail
     Route::get('/marketplaces/{marketplace}', [MarketplaceController::class, 'show'])->name('marketplaces.show');
-
-    // Warga & Admin: proses pembelian sederhana
-    Route::post('/marketplaces/{marketplace}/buy', [MarketplaceController::class, 'buy'])->name('marketplaces.buy');
-
-    // Penjual / Admin: perbarui status pembelian
-    Route::patch('/marketplace-purchases/{purchase}/status', [MarketplaceController::class, 'updatePurchaseStatus'])->name('marketplace-purchases.status.update');
 });
 
 require __DIR__.'/auth.php';

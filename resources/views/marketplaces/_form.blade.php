@@ -17,12 +17,6 @@
             <x-text-input id="price" name="price" type="number" step="0.01" min="0" class="mt-1 block w-full" :value="old('price', $marketplace->price ?? '')" placeholder="50000" required />
             <x-input-error class="mt-2" :messages="$errors->get('price')" />
         </div>
-
-        <div>
-            <x-input-label for="stock" value="Stok" />
-            <x-text-input id="stock" name="stock" type="number" min="0" class="mt-1 block w-full" :value="old('stock', $marketplace->stock ?? '')" placeholder="10" required />
-            <x-input-error class="mt-2" :messages="$errors->get('stock')" />
-        </div>
     </div>
 
     @if ($editMode ?? false)
@@ -39,8 +33,9 @@
     @endif
 
     <div>
-        <x-input-label for="seller_phone" value="Kontak Penjual (opsional)" />
-        <x-text-input id="seller_phone" name="seller_phone" type="text" class="mt-1 block w-full" :value="old('seller_phone', $marketplace->seller_phone ?? '')" placeholder="Contoh: 0812-3456-7890" />
+        <x-input-label for="seller_phone" value="Nomor WhatsApp Penjual" />
+        <x-text-input id="seller_phone" name="seller_phone" type="text" class="mt-1 block w-full" :value="old('seller_phone', $marketplace->seller_phone ?? '')" placeholder="Contoh: 0812-3456-7890" required />
+        <p class="mt-1 text-xs text-gray-500">Digunakan untuk tombol "Beli via WhatsApp".</p>
         <x-input-error class="mt-2" :messages="$errors->get('seller_phone')" />
     </div>
 

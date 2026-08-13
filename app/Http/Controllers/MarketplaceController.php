@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marketplace;
-use App\Models\MarketplacePurchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +34,6 @@ class MarketplaceController extends Controller
             'product_name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'seller_phone' => 'nullable|string|max:20',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ], [
@@ -49,7 +47,6 @@ class MarketplaceController extends Controller
             'product_name' => $request->product_name,
             'description' => $request->description,
             'price' => $request->price,
-            'stock' => $request->stock,
             'product_status' => 'tersedia',
             'seller_phone' => $request->seller_phone,
             'image' => $this->storeImage($request),
@@ -79,7 +76,6 @@ class MarketplaceController extends Controller
             'product_name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'product_status' => 'nullable|in:tersedia,habis',
             'seller_phone' => 'nullable|string|max:20',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
@@ -93,7 +89,6 @@ class MarketplaceController extends Controller
             'product_name' => $request->product_name,
             'description' => $request->description,
             'price' => $request->price,
-            'stock' => $request->stock,
             'product_status' => $request->product_status ?? 'tersedia',
             'seller_phone' => $request->seller_phone,
         ];
@@ -124,69 +119,6 @@ class MarketplaceController extends Controller
 
         return redirect()->route('marketplaces.index')
             ->with('success', 'Produk berhasil dihapus.');
-    }
-
-    public function buy(Marketplace $marketplace)
-    {
-        if ($marketplace->product_status !== 'tersedia' || $marketplace->stock < 1) {
-            return back()->with('error', 'Produk sedang tidak tersedia.');
-        }
-
-        $marketplace->decrement('stock');
-        if ($marketplace->stock === 0) {
-            $marketplace->update(['product_status' => 'habis']);
-        }
-
-        MarketplacePurchase::create([
-            'marketplace_id' => $marketplace->id,
-            'buyer_id' => Auth::id(),
-            'seller_id' => $marketplace->user_id,
-            'product_name' => $marketplace->product_name,
-            'price' => $marketplace->price,
-            'quantity' => 1,
-            'total_price' => $marketplace->price,
-            'status' => 'menunggu',
-        ]);
-
-        return back()->with('success', "Pembelian {$marketplace->product_name} berhasil diproses.");
-    }
-
-    public function myPurchases()
-    {
-        $purchases = MarketplacePurchase::query()
-            ->with(['marketplace.user', 'seller'])
-            ->where('buyer_id', Auth::id())
-            ->orderByDesc('id')
-            ->paginate(10);
-
-        return view('marketplaces.purchases', compact('purchases'));
-    }
-
-    public function mySales()
-    {
-        $sales = MarketplacePurchase::query()
-            ->with(['marketplace', 'buyer'])
-            ->where('seller_id', Auth::id())
-            ->orderByDesc('id')
-            ->paginate(10);
-
-        return view('marketplaces.sales', compact('sales'));
-    }
-
-    public function updatePurchaseStatus(Request $request, MarketplacePurchase $purchase)
-    {
-        abort_unless(
-            Auth::user()->role === 'admin' || Auth::id() === $purchase->seller_id,
-            403
-        );
-
-        $request->validate([
-            'status' => 'required|in:menunggu,diproses,selesai',
-        ]);
-
-        $purchase->update(['status' => $request->status]);
-
-        return back()->with('success', 'Status pembelian berhasil diperbarui.');
     }
 
     private function storeImage(Request $request): ?string

@@ -14,9 +14,9 @@
 
             <article class="overflow-hidden rounded-lg bg-white shadow-sm">
                 @if ($marketplace->image)
-                    <img src="{{ Storage::url($marketplace->image) }}" alt="{{ $marketplace->product_name }}" class="h-64 w-full object-cover">
+                    <img src="{{ Storage::url($marketplace->image) }}" alt="{{ $marketplace->product_name }}" class="aspect-[16/9] w-full object-cover object-center">
                 @else
-                    <div class="flex h-64 w-full items-center justify-center bg-gray-100 text-6xl">🛍️</div>
+                    <div class="flex aspect-[16/9] w-full items-center justify-center bg-gray-100 text-6xl">🛍️</div>
                 @endif
                 <div class="p-6 sm:p-8">
                     <div class="flex items-center justify-between gap-4">
@@ -36,8 +36,8 @@
                             <dd class="font-medium text-gray-900">{{ $marketplace->user?->name ?? 'Pedagang lama' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-gray-500">Stok</dt>
-                            <dd class="font-medium text-gray-900">{{ $marketplace->stock }} {{ $marketplace->stock === 1 ? 'buah' : 'buah' }}</dd>
+                            <dt class="text-gray-500">Status</dt>
+                            <dd class="font-medium text-gray-900 capitalize">{{ $marketplace->product_status }}</dd>
                         </div>
                         @if ($marketplace->seller_phone)
                             <div>
@@ -48,13 +48,17 @@
                     </dl>
 
                     <div class="mt-8 flex flex-wrap items-center gap-3 border-t pt-6">
-                        @if ($marketplace->product_status === 'tersedia' && $marketplace->stock > 0)
-                            <form method="POST" action="{{ route('marketplaces.buy', $marketplace) }}">
-                                @csrf
-                                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Beli Produk</button>
-                            </form>
+                        @if ($marketplace->product_status === 'tersedia')
+                            @php($waLink = $marketplace->whatsappLink($marketplace->whatsappMessage()))
+                            @if ($waLink)
+                                <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">
+                                    Beli via WhatsApp
+                                </a>
+                            @else
+                                <span class="rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">Kontak penjual belum diisi</span>
+                            @endif
                         @else
-                            <span class="rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">Produk habis</span>
+                            <span class="rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">Produk tidak tersedia</span>
                         @endif
 
                         @if (Auth::user()->isAdmin() || Auth::id() === $marketplace->user_id)
