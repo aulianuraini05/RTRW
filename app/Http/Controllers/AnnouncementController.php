@@ -7,14 +7,75 @@ use Illuminate\Http\Request;
 
 class AnnouncementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $announcements = Announcement::query()
-            ->when(! request()->user()->isAdmin(), fn ($query) => $query->where('status', 'active'))
-            ->latest('publication_date')
-            ->paginate(10);
+        $user = $request->user();
 
-        return view('announcements.index', compact('announcements'));
+        $announcements = Announcement::query()
+            ->when(! $user->isAdmin(), fn ($query) => $query->where('status', 'active'))
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search')->trim();
+
+                return $query->where(function ($sub) use ($search) {
+                    $sub->where('announcement_title', 'like', "%{$search}%")
+                        ->orWhere('announcement_content', 'like', "%{$search}%");
+                });
+            })
+            ->when($user->isAdmin() && $request->filled('filter'), function ($query) use ($request) {
+                return match ($request->string('filter')->toString()) {
+                    'mendesak' => $query->where('priority', 'mendesak'),
+                    'penting' => $query->where('priority', 'penting'),
+                    'biasa' => $query->where('priority', 'biasa'),
+                    'nonaktif' => $query->where('status', 'archived'),
+                    default => $query,
+                };
+            })
+            ->latest('publication_date')
+            ->paginate(10)
+            ->withQueryString();
+
+        $stats = $user->isAdmin() ? $this->stats() : [];
+
+        return view('announcements.index', array_merge(compact('announcements'), $stats));
+    }
+
+    /**
+     * Ringkasan statistik untuk panel administrasi.
+     *
+     * @return array<string, int>
+     */
+    private function stats(): array
+    {
+        $total = Announcement::count();
+        $active = Announcement::where('status', 'active')->count();
+        $urgent = Announcement::where('priority', 'mendesak')->count();
+        $totalRead = (int) Announcement::sum('read_count');
+
+        $thisMonth = Announcement::whereBetween('publication_date', [now()->startOfMonth(), now()->endOfMonth()])->count();
+        $lastMonth = Announcement::whereBetween('publication_date', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])->count();
+
+        $trend = $lastMonth > 0
+            ? (int) round((($thisMonth - $lastMonth) / $lastMonth) * 100)
+            : ($thisMonth > 0 ? 100 : 0);
+
+        return [
+            'totalAnnouncements' => $total,
+            'activeAnnouncements' => $active,
+            'urgentAnnouncements' => $urgent,
+            'totalRead' => $totalRead,
+            'activePercentage' => $total > 0 ? (int) round(($active / $total) * 100) : 0,
+            'trend' => $trend,
+            'trendIsUp' => $trend >= 0,
+        ];
+    }
+
+    public function toggleStatus(Announcement $announcement)
+    {
+        $announcement->update([
+            'status' => $announcement->status === 'active' ? 'archived' : 'active',
+        ]);
+
+        return back()->with('success', 'Status pengumuman berhasil diperbarui.');
     }
 
     public function create()
@@ -74,6 +135,9 @@ class AnnouncementController extends Controller
             'announcement_content' => ['required', 'string'],
             'publication_date' => ['required', 'date'],
             'status' => ['required', 'in:active,archived'],
+            'category' => ['required', 'string', 'in:umum,kegiatan,kesehatan,keamanan,lingkungan,agenda'],
+            'priority' => ['required', 'string', 'in:biasa,penting,mendesak'],
+            'is_pinned' => ['sometimes', 'boolean'],
         ]);
     }
 }

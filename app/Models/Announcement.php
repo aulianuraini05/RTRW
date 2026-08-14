@@ -17,6 +17,10 @@ class Announcement extends Model
         'announcement_content',
         'publication_date',
         'status',
+        'category',
+        'priority',
+        'is_pinned',
+        'read_count',
     ];
 
     /**
@@ -26,6 +30,8 @@ class Announcement extends Model
     {
         return [
             'publication_date' => 'date',
+            'is_pinned' => 'boolean',
+            'read_count' => 'integer',
         ];
     }
 }
