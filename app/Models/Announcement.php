@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\AnnouncementFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Announcement extends Model
 {
+    /** @use HasFactory<AnnouncementFactory> */
     use HasFactory;
 
     /**
@@ -33,5 +36,17 @@ class Announcement extends Model
             'is_pinned' => 'boolean',
             'read_count' => 'integer',
         ];
+    }
+
+    /**
+     * Warga yang sudah membaca pengumuman ini.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function readBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'announcement_reads')
+            ->withPivot('read_at')
+            ->withTimestamps();
     }
 }

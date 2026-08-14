@@ -128,3 +128,57 @@ it('admin dapat memfilter pengumuman berdasarkan prioritas dan status', function
         ->assertSee($archived->announcement_title)
         ->assertDontSee($mendesak->announcement_title);
 });
+
+it('warga dapat memfilter pengumuman berdasarkan prioritas', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $mendesak = Announcement::factory()->create(['priority' => 'mendesak', 'status' => 'active']);
+    $biasa = Announcement::factory()->create(['priority' => 'biasa', 'status' => 'active']);
+
+    $this->actingAs($warga)
+        ->get(route('announcements.index', ['filter' => 'mendesak']))
+        ->assertOk()
+        ->assertSee('Semua')
+        ->assertSee('Mendesak')
+        ->assertSee('Penting')
+        ->assertSee('Biasa')
+        ->assertSee($mendesak->announcement_title)
+        ->assertDontSee($biasa->announcement_title);
+});
+
+it('pengumuman belum dibaca ditandai untuk warga', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $announcement = Announcement::factory()->create(['status' => 'active']);
+
+    $this->actingAs($warga)
+        ->get(route('announcements.index'))
+        ->assertOk()
+        ->assertSee('Belum dibaca');
+});
+
+it('pengumuman yang sudah dibaca tidak ditandai lagi', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $announcement = Announcement::factory()->create(['status' => 'active']);
+    $announcement->readBy()->attach($warga->id, ['read_at' => now()]);
+
+    $this->actingAs($warga)
+        ->get(route('announcements.index'))
+        ->assertOk()
+        ->assertSee($announcement->announcement_title)
+        ->assertDontSee('Belum dibaca');
+});
+
+it('warga menandai pengumuman terbaca saat membuka detail', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $announcement = Announcement::factory()->create(['status' => 'active', 'read_count' => 0]);
+
+    $this->actingAs($warga)
+        ->get(route('announcements.show', $announcement))
+        ->assertOk();
+
+    $this->assertDatabaseHas('announcement_reads', [
+        'announcement_id' => $announcement->id,
+        'user_id' => $warga->id,
+    ]);
+
+    $this->assertSame(1, $announcement->fresh()->read_count);
+});

@@ -12,7 +12,10 @@ class AnnouncementController extends Controller
         $user = $request->user();
 
         $announcements = Announcement::query()
-            ->when(! $user->isAdmin(), fn ($query) => $query->where('status', 'active'))
+            ->when(! $user->isAdmin(), function ($query) use ($user) {
+                return $query->where('status', 'active')
+                    ->withExists(['readBy as is_read' => fn ($q) => $q->where('user_id', $user->id)]);
+            })
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->string('search')->trim();
 
@@ -21,12 +24,17 @@ class AnnouncementController extends Controller
                         ->orWhere('announcement_content', 'like', "%{$search}%");
                 });
             })
-            ->when($user->isAdmin() && $request->filled('filter'), function ($query) use ($request) {
-                return match ($request->string('filter')->toString()) {
+            ->when($request->filled('filter'), function ($query) use ($request, $user) {
+                $filter = $request->string('filter')->toString();
+
+                if ($user->isAdmin() && $filter === 'nonaktif') {
+                    return $query->where('status', 'archived');
+                }
+
+                return match ($filter) {
                     'mendesak' => $query->where('priority', 'mendesak'),
                     'penting' => $query->where('priority', 'penting'),
                     'biasa' => $query->where('priority', 'biasa'),
-                    'nonaktif' => $query->where('status', 'archived'),
                     default => $query,
                 };
             })
@@ -95,8 +103,15 @@ class AnnouncementController extends Controller
 
     public function show(Announcement $announcement)
     {
-        if ($announcement->status !== 'active' && ! request()->user()->isAdmin()) {
+        $user = request()->user();
+
+        if ($announcement->status !== 'active' && ! $user->isAdmin()) {
             abort(404);
+        }
+
+        if ($user->isWarga() && ! $announcement->readBy()->whereKey($user->id)->exists()) {
+            $announcement->readBy()->attach($user->id, ['read_at' => now()]);
+            $announcement->increment('read_count');
         }
 
         return view('announcements.show', compact('announcement'));

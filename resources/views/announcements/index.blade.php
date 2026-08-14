@@ -330,25 +330,98 @@
                 </section>
             @else
                 {{-- ============================================================
-                    Tampilan sederhana untuk warga
+                    Tampilan untuk warga (filter kategori + kartu pengumuman)
                     ============================================================ --}}
-                <div class="space-y-4">
+                @php
+                    $filters = ['' => 'Semua', 'mendesak' => 'Mendesak', 'penting' => 'Penting', 'biasa' => 'Biasa'];
+                    $categoryStyles = [
+                        'umum' => 'bg-slate-100 text-slate-600',
+                        'kegiatan' => 'bg-sky-100 text-sky-700',
+                        'kesehatan' => 'bg-emerald-100 text-emerald-700',
+                        'keamanan' => 'bg-amber-100 text-amber-700',
+                        'lingkungan' => 'bg-lime-100 text-lime-700',
+                        'agenda' => 'bg-indigo-100 text-indigo-700',
+                    ];
+                    $priorityStyles = [
+                        'biasa' => 'bg-slate-100 text-slate-600',
+                        'penting' => 'bg-amber-100 text-amber-700',
+                        'mendesak' => 'bg-red-100 text-red-700',
+                    ];
+                @endphp
+
+                <div class="space-y-5">
+                    {{-- Filter kategori pengumuman --}}
+                    <div class="flex flex-wrap items-center gap-2">
+                        @foreach ($filters as $value => $label)
+                            <a href="{{ route('announcements.index', array_merge(request()->except(['filter', 'page']), ['filter' => $value])) }}"
+                                class="rounded-full px-4 py-2 text-sm font-semibold transition {{ request('filter', '') === $value ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50' }}">
+                                {{ $label }}
+                            </a>
+                        @endforeach
+                    </div>
+
                     @forelse ($announcements as $announcement)
-                        <article class="rounded-xl bg-white p-6 shadow-sm">
-                            <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-                                <div>
-                                    <div class="mb-2 flex items-center gap-3 text-sm text-gray-500">
-                                        <time datetime="{{ $announcement->publication_date->toDateString() }}">{{ $announcement->publication_date->translatedFormat('d F Y') }}</time>
-                                    </div>
-                                    <h3 class="text-lg font-semibold text-gray-900">
-                                        <a href="{{ route('announcements.show', $announcement) }}" class="hover:text-emerald-600">{{ $announcement->announcement_title }}</a>
-                                    </h3>
-                                    <p class="mt-2 text-gray-600">{{ Str::limit($announcement->announcement_content, 180) }}</p>
-                                </div>
+                        <article class="relative flex flex-col gap-3 rounded-2xl border p-5 shadow-sm transition hover:shadow-md sm:p-6 {{ $announcement->is_read ? 'border-gray-100 bg-white' : 'border-emerald-300 bg-emerald-50/60' }}">
+                            {{-- Penanda belum dibaca --}}
+                            @unless ($announcement->is_read)
+                                <span class="absolute -top-2.5 right-5 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
+                                    Belum dibaca
+                                </span>
+                            @endunless
+
+                            {{-- Tanggal, kategori, prioritas --}}
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+                                <time datetime="{{ $announcement->publication_date->toDateString() }}" class="inline-flex items-center gap-1.5 font-medium text-gray-500">
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {{ $announcement->publication_date->translatedFormat('d F Y') }}
+                                </time>
+                                <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-semibold {{ $priorityStyles[$announcement->priority] ?? $priorityStyles['biasa'] }}">
+                                    @if ($announcement->priority === 'mendesak')
+                                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                    {{ ucfirst($announcement->priority) }}
+                                </span>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold {{ $categoryStyles[$announcement->category] ?? $categoryStyles['umum'] }}">
+                                    {{ ucfirst($announcement->category) }}
+                                </span>
+                                @if ($announcement->is_pinned)
+                                    <span class="inline-flex items-center gap-1 font-semibold text-emerald-600">
+                                        <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        Disematkan
+                                    </span>
+                                @endif
                             </div>
+
+                            {{-- Judul & ringkasan --}}
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <a href="{{ route('announcements.show', $announcement) }}" class="hover:text-emerald-600">{{ $announcement->announcement_title }}</a>
+                                </h3>
+                                <p class="mt-1.5 text-sm leading-relaxed text-gray-600 line-clamp-3">{{ Str::limit($announcement->announcement_content, 160) }}</p>
+                            </div>
+
+                            <a href="{{ route('announcements.show', $announcement) }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+                                Selengkapnya
+                                <svg class="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </a>
                         </article>
                     @empty
-                        <div class="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">Belum ada pengumuman.</div>
+                        <div class="rounded-2xl bg-white p-10 text-center shadow-sm">
+                            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                            </svg>
+                            <p class="mt-3 font-semibold text-gray-700">Belum ada pengumuman</p>
+                            <p class="mt-1 text-sm text-gray-500">Tidak ada pengumuman yang cocok dengan filter ini.</p>
+                        </div>
                     @endforelse
 
                     {{ $announcements->links() }}
