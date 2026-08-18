@@ -1,15 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ Auth::user()->isAdmin() ? 'Aspirasi & Pengaduan Warga' : 'Aspirasi & Pengaduan Saya' }}</h2>
+            <h2 class="font-semibold text-lg text-gray-800 leading-tight">{{ Auth::user()->isAdmin() ? 'Aspirasi & Pengaduan Warga' : 'Aspirasi & Pengaduan Saya' }}</h2>
             @if (Auth::user()->isWarga())
                 <a href="{{ route('aspirations.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Ajukan aspirasi</a>
             @endif
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto space-y-4 px-4 sm:px-6 lg:px-8">
+    <div>
+        <div class="space-y-4">
             @if (session('success'))
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
@@ -33,7 +33,7 @@
                                 <time datetime="{{ $aspiration->submission_date->toDateString() }}">{{ $aspiration->submission_date->translatedFormat('d F Y') }}</time>
                                 <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClasses[$aspiration->aspiration_status] ?? 'bg-gray-100 text-gray-700' }}">{{ ucfirst($aspiration->aspiration_status) }}</span>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900"><a href="{{ route('aspirations.show', $aspiration) }}" class="hover:text-indigo-600">{{ $aspiration->aspiration_title }}</a></h3>
+                            <h3 class="text-base font-semibold text-gray-900"><a href="{{ route('aspirations.show', $aspiration) }}" class="hover:text-indigo-600">{{ $aspiration->aspiration_title }}</a></h3>
                             @if (Auth::user()->isAdmin())
                                 <p class="mt-1 text-sm text-gray-500">Pengaju: {{ $aspiration->user?->name ?? 'Data warga lama' }}</p>
                             @endif

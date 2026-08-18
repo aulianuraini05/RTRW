@@ -1,7 +1,7 @@
 <x-app-layout>
-    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800 leading-tight">Detail aset</h2></x-slot>
+    <x-slot name="header"><h2 class="font-semibold text-lg text-gray-800 leading-tight">Detail aset</h2></x-slot>
 
-    <div class="py-12">
+    <div>
         <div class="mx-auto max-w-4xl space-y-6 px-4 sm:px-6 lg:px-8">
             @if (session('success'))
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
@@ -24,13 +24,13 @@
                     <span>•</span>
                     <span>Tersedia: {{ $available }}/{{ $asset->quantity }}</span>
                 </div>
-                <h1 class="mt-3 text-2xl font-bold text-gray-900">{{ $asset->asset_name }}</h1>
+                <h1 class="mt-2 text-lg font-bold text-gray-900">{{ $asset->asset_name }}</h1>
                 @if ($asset->description)
-                    <div class="mt-6 whitespace-pre-line leading-7 text-gray-700">{{ $asset->description }}</div>
+                    <div class="mt-3 whitespace-pre-line leading-7 text-gray-700">{{ $asset->description }}</div>
                 @endif
 
                 @if (Auth::user()->isAdmin())
-                    <div class="mt-8 flex items-center gap-4 border-t pt-6">
+                    <div class="mt-6 flex items-center gap-4 border-t pt-5">
                         <a href="{{ route('assets.edit', $asset) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Edit aset</a>
                         <form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm('Hapus aset ini?')">
                             @csrf
@@ -43,7 +43,7 @@
 
             @if (Auth::user()->isWarga() && $available > 0)
                 <section class="rounded-lg bg-white p-6 shadow-sm sm:p-8">
-                    <h3 class="text-lg font-semibold text-gray-900">Ajukan peminjaman</h3>
+                    <h3 class="text-base font-semibold text-gray-900">Ajukan peminjaman</h3>
                     @include('assets._loan-form', ['asset' => $asset])
                 </section>
             @elseif (Auth::user()->isWarga() && $available <= 0)
@@ -54,8 +54,8 @@
 
             @if ($asset->loans->isNotEmpty())
                 <section class="rounded-lg bg-white p-6 shadow-sm sm:p-8">
-                    <h3 class="text-lg font-semibold text-gray-900">{{ Auth::user()->isAdmin() ? 'Riwayat peminjaman' : 'Peminjaman saya' }}</h3>
-                    <div class="mt-4 space-y-3">
+                    <h3 class="text-base font-semibold text-gray-900">{{ Auth::user()->isAdmin() ? 'Riwayat peminjaman' : 'Peminjaman saya' }}</h3>
+                    <div class="mt-3 space-y-3">
                         @foreach ($asset->loans as $loan)
                             @php
                                 $statusClasses = [

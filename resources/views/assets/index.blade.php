@@ -1,22 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Daftar Aset Lingkungan</h2>
+            <h2 class="font-semibold text-lg text-gray-800 leading-tight">Daftar Aset Lingkungan</h2>
             @if (Auth::user()->isAdmin())
                 <a href="{{ route('assets.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Tambah aset</a>
             @endif
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto space-y-4 px-4 sm:px-6 lg:px-8">
+    <div>
+        <div class="space-y-4">
             @if (session('success'))
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
 
             @if ($loans->isNotEmpty())
                 <section class="rounded-lg bg-white p-6 shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <h3 class="text-base font-semibold text-gray-900 mb-4">
                         {{ Auth::user()->isAdmin() ? 'Daftar Pengajuan Peminjaman Aset (Warga)' : 'Riwayat Peminjaman Saya' }}
                     </h3>
                     <div class="space-y-3">
@@ -78,7 +78,7 @@
                                 <span>•</span>
                                 <span>Tersedia: {{ $available }}/{{ $asset->quantity }}</span>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900"><a href="{{ route('assets.show', $asset) }}" class="hover:text-indigo-600">{{ $asset->asset_name }}</a></h3>
+                            <h3 class="text-base font-semibold text-gray-900"><a href="{{ route('assets.show', $asset) }}" class="hover:text-indigo-600">{{ $asset->asset_name }}</a></h3>
                             @if ($asset->description)
                                 <p class="mt-2 text-gray-600">{{ Str::limit($asset->description, 180) }}</p>
                             @endif

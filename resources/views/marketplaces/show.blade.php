@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Detail Produk</h2>
+        <h2 class="font-semibold text-lg text-gray-800 leading-tight">Detail Produk</h2>
     </x-slot>
 
-    <div class="py-12">
+    <div>
         <div class="mx-auto max-w-3xl space-y-6 px-4 sm:px-6 lg:px-8">
             @if (session('success'))
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
@@ -26,11 +26,11 @@
                         <span class="text-sm text-gray-500">Terdaftar {{ $marketplace->created_at->translatedFormat('d F Y') }}</span>
                     </div>
 
-                    <h1 class="mt-4 text-2xl font-bold text-gray-900">{{ $marketplace->product_name }}</h1>
-                    <p class="mt-2 text-lg font-bold text-indigo-600">Rp {{ number_format((float) $marketplace->price, 0, ',', '.') }}</p>
-                    <p class="mt-4 whitespace-pre-line text-gray-700 leading-relaxed">{{ $marketplace->description }}</p>
+                    <h1 class="mt-3 text-lg font-bold text-gray-900">{{ $marketplace->product_name }}</h1>
+                    <p class="mt-2 text-base font-bold text-indigo-600">Rp {{ number_format((float) $marketplace->price, 0, ',', '.') }}</p>
+                    <p class="mt-3 whitespace-pre-line text-gray-700 leading-relaxed">{{ $marketplace->description }}</p>
 
-                    <dl class="mt-6 grid gap-4 rounded-md bg-gray-50 p-4 text-sm sm:grid-cols-2">
+                    <dl class="mt-4 grid gap-4 rounded-md bg-gray-50 p-4 text-sm sm:grid-cols-2">
                         <div>
                             <dt class="text-gray-500">Penjual</dt>
                             <dd class="font-medium text-gray-900">{{ $marketplace->user?->name ?? 'Pedagang lama' }}</dd>
@@ -47,7 +47,7 @@
                         @endif
                     </dl>
 
-                    <div class="mt-8 flex flex-wrap items-center gap-3 border-t pt-6">
+                    <div class="mt-6 flex flex-wrap items-center gap-3 border-t pt-5">
                         @if ($marketplace->product_status === 'tersedia')
                             @php($waLink = $marketplace->whatsappLink($marketplace->whatsappMessage()))
                             @if ($waLink)

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Iuran Warga</h2>
+            <h2 class="font-semibold text-lg text-gray-800 leading-tight">Iuran Warga</h2>
             @if (Auth::user()->isWarga())
                 <a href="{{ route('contributions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bayar Iuran</a>
             @else
@@ -10,8 +10,8 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
+    <div>
+        <div class="space-y-6">
             @if (session('success'))
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
@@ -20,17 +20,17 @@
             <div class="grid gap-6 lg:grid-cols-3">
                 <div class="rounded-lg bg-indigo-600 p-6 text-white shadow-sm">
                     <p class="text-sm font-medium opacity-90">Sudah Lunas</p>
-                    <p class="mt-2 text-3xl font-extrabold">{{ $totalPaid }} warga</p>
+                    <p class="mt-2 text-xl font-extrabold">{{ $totalPaid }} warga</p>
                     <p class="mt-1 text-xs opacity-75">Warga yang sudah membayar iuran</p>
                 </div>
                 <div class="rounded-lg bg-white p-6 shadow-sm border-l-4 border-yellow-500">
                     <p class="text-sm font-medium text-gray-500">Menunggu Pembayaran</p>
-                    <p class="mt-2 text-2xl font-bold text-yellow-600">{{ $totalPending }} warga</p>
+                    <p class="mt-2 text-lg font-bold text-yellow-600">{{ $totalPending }} warga</p>
                     <p class="mt-1 text-xs text-gray-400">Warga yang status iuran masih pending</p>
                 </div>
                 <div class="rounded-lg bg-white p-6 shadow-sm border-l-4 border-gray-400">
                     <p class="text-sm font-medium text-gray-500">Total Catatan</p>
-                    <p class="mt-2 text-2xl font-bold text-gray-800">{{ $contributions->total() }} catatan</p>
+                    <p class="mt-2 text-lg font-bold text-gray-800">{{ $contributions->total() }} catatan</p>
                     <p class="mt-1 text-xs text-gray-400">Seluruh data pembayaran iuran tercatat</p>
                 </div>
             </div>

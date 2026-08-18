@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Detail Pembayaran Iuran</h2>
+        <h2 class="font-semibold text-lg text-gray-800 leading-tight">Detail Pembayaran Iuran</h2>
     </x-slot>
 
-    <div class="py-12">
+    <div>
         <div class="mx-auto max-w-3xl space-y-6 px-4 sm:px-6 lg:px-8">
             <article class="rounded-lg bg-white p-6 shadow-sm sm:p-8">
                 <div class="flex items-center justify-between gap-4">
@@ -15,17 +15,17 @@
 
                 <div class="mt-4">
                     <p class="text-sm text-gray-500">Warga</p>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ $contribution->user?->name ?? 'Warga lama' }}</h1>
+                    <h1 class="text-lg font-bold text-gray-900">{{ $contribution->user?->name ?? 'Warga lama' }}</h1>
 
                     @if ($contribution->amount)
-                        <div class="mt-4 rounded-md bg-gray-50 p-4">
+                        <div class="mt-3 rounded-md bg-gray-50 p-4">
                             <p class="text-sm text-gray-500">Jumlah Pembayaran</p>
-                            <p class="text-2xl font-extrabold text-gray-900">Rp {{ number_format((float) $contribution->amount, 0, ',', '.') }}</p>
+                            <p class="text-lg font-extrabold text-gray-900">Rp {{ number_format((float) $contribution->amount, 0, ',', '.') }}</p>
                         </div>
                     @endif
 
                     @if ($contribution->payment_code)
-                        <p class="mt-4 text-sm text-gray-500">Kode Pembayaran</p>
+                        <p class="mt-3 text-sm text-gray-500">Kode Pembayaran</p>
                         <p class="font-mono text-sm font-semibold text-gray-800">{{ $contribution->payment_code }}</p>
                     @endif
 
@@ -40,13 +40,13 @@
                     @endif
 
                     @if ($contribution->proof_of_payment)
-                        <p class="mt-4 text-sm text-gray-500">Bukti Pembayaran</p>
+                        <p class="mt-3 text-sm text-gray-500">Bukti Pembayaran</p>
                         <p class="whitespace-pre-line text-gray-700 leading-relaxed">{{ $contribution->proof_of_payment }}</p>
                     @endif
                 </div>
 
                 @if (Auth::user()->isWarga() && $contribution->user_id === Auth::id() && $contribution->payment_status === 'pending')
-                    <div class="mt-8 rounded-md border-2 border-dashed border-indigo-300 bg-indigo-50 p-6">
+                    <div class="mt-6 rounded-md border-2 border-dashed border-indigo-300 bg-indigo-50 p-6">
                         <h2 class="text-base font-semibold text-indigo-900">Selesaikan Pembayaran Online</h2>
                         <p class="mt-1 text-sm text-indigo-700">Simulasi pembayaran online. Klik tombol di bawah untuk menganggap pembayaran telah diterima.</p>
                         <form method="POST" action="{{ route('contributions.pay', $contribution) }}" class="mt-4">
@@ -57,7 +57,7 @@
                 @endif
 
                 @if (Auth::user()->isAdmin())
-                    <div class="mt-8 flex items-center gap-4 border-t pt-6">
+                    <div class="mt-6 flex items-center gap-4 border-t pt-5">
                         <a href="{{ route('contributions.edit', $contribution) }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Edit Catatan</a>
                         <form method="POST" action="{{ route('contributions.destroy', $contribution) }}" onsubmit="return confirm('Hapus catatan ini?')">
                             @csrf
