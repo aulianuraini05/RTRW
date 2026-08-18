@@ -2,13 +2,13 @@
 <div class="flex h-full flex-col bg-white">
 
     {{-- Brand --}}
-    <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 px-5">
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-cream-200 px-4">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-            <x-application-logo class="h-8 w-8 fill-indigo-600" />
-            <span class="text-base font-bold text-gray-800">{{ config('app.name', 'Smart RT/RW') }}</span>
+            <x-application-logo class="h-8 w-8 fill-brand-600" />
+            <span class="text-base font-bold text-ink-800">{{ config('app.name', 'Smart RT/RW') }}</span>
         </a>
         <button @click="open = false"
-                class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 lg:hidden"
+                class="rounded-lg p-2 text-brand-700 hover:bg-cream-100 lg:hidden"
                 aria-label="Tutup menu">
             <svg class="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -17,10 +17,10 @@
     </div>
 
     {{-- Navigasi --}}
-    <div class="flex-1 overflow-y-auto px-3 py-6">
+    <div class="flex-1 overflow-y-auto px-3 py-4">
 
         {{-- Menu Utama --}}
-        <p class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Menu Utama</p>
+        <p class="px-3 text-sm font-bold uppercase tracking-wide text-ink-400">Menu Utama</p>
         <nav class="mt-2 space-y-1">
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@
         </nav>
 
         {{-- Administrasi --}}
-        <p class="mt-6 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Administrasi</p>
+        <p class="mt-6 px-3 text-xs font-bold uppercase tracking-wide text-ink-400">Administrasi</p>
         <nav class="mt-2 space-y-1">
             <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@
         </nav>
 
         {{-- Layanan --}}
-        <p class="mt-6 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Layanan</p>
+        <p class="mt-6 px-3 text-xs font-bold uppercase tracking-wide text-ink-400">Layanan</p>
         <nav class="mt-2 space-y-1">
             <x-nav-link :href="route('marketplaces.index')" :active="request()->routeIs('marketplaces.*')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@
         </nav>
 
         {{-- Akun --}}
-        <p class="mt-6 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Akun</p>
+        <p class="mt-6 px-3 text-xs font-bold uppercase tracking-wide text-ink-400">Akun</p>
         <nav class="mt-2 space-y-1">
             <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -112,14 +112,14 @@
     </div>
 
     {{-- Info pengguna --}}
-    <div class="shrink-0 border-t border-gray-200 p-4">
-        <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+    <div class="shrink-0 border-t border-cream-200 p-3">
+        <div class="flex items-center gap-2.5">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
             </div>
             <div class="min-w-0">
-                <p class="truncate text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
-                <p class="truncate text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                <p class="truncate text-sm font-semibold text-ink-800">{{ Auth::user()->name }}</p>
+                <p class="truncate text-xs text-ink-400">{{ Auth::user()->email }}</p>
             </div>
         </div>
     </div>

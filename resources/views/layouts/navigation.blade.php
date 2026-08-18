@@ -1,13 +1,13 @@
 <div x-data="{ open: false }">
     {{-- Top bar untuk layar kecil (mobile) --}}
-    <div class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden">
+    <div class="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-cream-200 bg-white px-4 lg:hidden">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-            <x-application-logo class="h-8 w-8 fill-indigo-600" />
-            <span class="text-base font-bold text-gray-800">{{ config('app.name', 'Smart RT/RW') }}</span>
+            <x-application-logo class="h-8 w-8 fill-brand-600" />
+            <span class="text-base font-bold text-ink-800">{{ config('app.name', 'Smart RT/RW') }}</span>
         </a>
 
         <button @click="open = !open"
-                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-brand-700 hover:bg-cream-100 focus:outline-none"
                 aria-label="Buka menu">
             <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -16,7 +16,7 @@
     </div>
 
     {{-- Sidebar desktop (selalu tampil di layar lg ke atas) --}}
-    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-cream-200 bg-white lg:flex">
         @include('layouts._sidebar')
     </aside>
 
