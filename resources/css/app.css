@@ -70,3 +70,15 @@
         @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
     }
 }
+
+@layer utilities {
+    /* Utility untuk menyembunyikan scrollbar tapi tetap bisa di-scroll */
+    .hide-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none; /* Chrome, Safari and Opera */
+    }
+}

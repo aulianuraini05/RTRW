@@ -38,6 +38,7 @@ class AnnouncementController extends Controller
                     default => $query,
                 };
             })
+            ->orderByDesc('is_pinned')
             ->latest('publication_date')
             ->paginate(10)
             ->withQueryString();

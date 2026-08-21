@@ -117,28 +117,73 @@
 
                 @foreach ($services as $service)
                     <a href="{{ route($service['route']) }}"
-                       class="card group flex items-start gap-3 transition hover:-translate-y-0.5 hover:shadow-md">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $service['tint'] }}">
-                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $service['icon'] }}" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h4 class="text-base font-bold text-ink-800 group-hover:text-brand-700">{{ $service['title'] }}</h4>
-                            <p class="mt-1 text-sm leading-relaxed text-ink-500">{{ $service['desc'] }}</p>
-                            <span class="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 group-hover:text-brand-700">
-                                Buka
-                                <svg class="h-4 w-4 transition group-hover:translate-x-0.5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                       class="card group flex flex-col h-full transition hover:-translate-y-0.5 hover:shadow-md">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $service['tint'] }}">
+                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $service['icon'] }}" />
                                 </svg>
-                            </span>
+                            </div>
+                            <h4 class="text-base font-bold text-ink-800 group-hover:text-brand-700">{{ $service['title'] }}</h4>
                         </div>
+                        <p class="mt-3 text-sm leading-relaxed text-ink-500">{{ $service['desc'] }}</p>
+                        <span class="mt-auto pt-4 block text-center text-sm font-bold text-brand-600 group-hover:text-brand-700">
+                            Buka
+                        </span>
                     </a>
                 @endforeach
             </div>
         </section>
 
-        {{-- ============ 3. PANEL ADMIN (jika admin) ============ --}}
+        {{-- ============ 3. PRODUK UMKM (HORIZONTAL SCROLL) ============ --}}
+        <section>
+            <div class="flex items-end justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-ink-800">{{ __('Produk UMKM Terpopuler') }}</h3>
+                    <p class="mt-1 text-sm text-ink-500">{{ __('Dukung usaha tetangga dengan berbelanja produk lokal warga.') }}</p>
+                </div>
+                <a href="{{ route('marketplaces.index') }}" class="hidden text-sm font-semibold text-brand-600 transition hover:text-brand-700 sm:block">
+                    Lihat Semua &rarr;
+                </a>
+            </div>
+
+            <div class="hide-scrollbar mt-5 flex gap-5 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory">
+                @php
+                    $products = \App\Models\Marketplace::available()->with('user')->latest()->take(10)->get();
+                @endphp
+
+                @forelse ($products as $product)
+                    <a href="{{ route('marketplaces.show', $product) }}" class="group flex w-40 shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-cream-200 bg-white shadow-sm cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                        <div class="h-32 w-full overflow-hidden bg-cream-200">
+                            @if ($product->image)
+                                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->product_name }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                            @else
+                                <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 text-3xl">
+                                    <span class="grayscale">🛍️</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="flex flex-1 flex-col p-3">
+                            <h4 class="line-clamp-1 text-sm font-bold text-ink-800 transition group-hover:text-brand-600">{{ $product->product_name }}</h4>
+                            <p class="mt-0.5 line-clamp-1 text-xs text-ink-500">{{ $product->user?->name ?? 'Pedagang' }}</p>
+                            <div class="mt-auto pt-2">
+                                <span class="text-sm font-bold text-brand-700">Rp {{ number_format((float) $product->price, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </a>
+                @empty
+                    <div class="w-full text-center text-sm text-ink-500 py-8">
+                        Belum ada produk yang tersedia. <br>
+                        <a href="{{ route('marketplaces.create') }}" class="mt-2 inline-block font-semibold text-brand-600 hover:text-brand-700">Daftarkan Produk Pertama</a>
+                    </div>
+                @endforelse
+            </div>
+            <a href="{{ route('marketplaces.index') }}" class="mt-3 block text-center text-sm font-semibold text-brand-600 transition hover:text-brand-700 sm:hidden">
+                Lihat Semua &rarr;
+            </a>
+        </section>
+
+        {{-- ============ 4. PANEL ADMIN (jika admin) ============ --}}
         @if (Auth::user()->isAdmin())
             <section>
                 <h3 class="text-xl font-bold text-ink-800">{{ __('Panel Pengurus') }}</h3>
