@@ -3,7 +3,7 @@
 
     <div>
         <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('announcements.store') }}" class="rounded-lg bg-white p-6 shadow-sm">
+            <form method="POST" action="{{ route('announcements.store') }}" enctype="multipart/form-data" class="rounded-lg bg-white p-6 shadow-sm">
                 @csrf
                 @include('announcements._form', ['submitLabel' => 'Simpan pengumuman'])
             </form>

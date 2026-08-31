@@ -18,6 +18,7 @@ class Announcement extends Model
     protected $fillable = [
         'announcement_title',
         'announcement_content',
+        'image',
         'publication_date',
         'status',
         'category',

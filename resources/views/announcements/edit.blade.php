@@ -3,7 +3,7 @@
 
     <div>
         <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('announcements.update', $announcement) }}" class="rounded-lg bg-white p-6 shadow-sm">
+            <form method="POST" action="{{ route('announcements.update', $announcement) }}" enctype="multipart/form-data" class="rounded-lg bg-white p-6 shadow-sm">
                 @csrf
                 @method('PUT')
                 @include('announcements._form', ['submitLabel' => 'Simpan perubahan'])

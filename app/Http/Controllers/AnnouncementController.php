@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Announcement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AnnouncementController extends Controller
 {
@@ -95,6 +97,7 @@ class AnnouncementController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validatedData($request);
+        $validated['image'] = $this->storeImage($request);
 
         Announcement::create($validated);
 
@@ -127,6 +130,15 @@ class AnnouncementController extends Controller
     {
         $validated = $this->validatedData($request);
 
+        if ($request->hasFile('image')) {
+            if ($announcement->image) {
+                Storage::disk('public')->delete($announcement->image);
+            }
+            $validated['image'] = $this->storeImage($request);
+        } else {
+            unset($validated['image']);
+        }
+
         $announcement->update($validated);
 
         return redirect()->route('announcements.index')
@@ -135,6 +147,10 @@ class AnnouncementController extends Controller
 
     public function destroy(Announcement $announcement)
     {
+        if ($announcement->image) {
+            Storage::disk('public')->delete($announcement->image);
+        }
+
         $announcement->delete();
 
         return redirect()->route('announcements.index')
@@ -149,11 +165,65 @@ class AnnouncementController extends Controller
         return $request->validate([
             'announcement_title' => ['required', 'string', 'max:255'],
             'announcement_content' => ['required', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
             'publication_date' => ['required', 'date'],
             'status' => ['required', 'in:active,archived'],
             'category' => ['required', 'string', 'in:umum,kegiatan,kesehatan,keamanan,lingkungan,agenda'],
             'priority' => ['required', 'string', 'in:biasa,penting,mendesak'],
             'is_pinned' => ['sometimes', 'boolean'],
+        ], [
+            'image.max' => 'Ukuran foto maksimal 10 MB.',
+            'image.image' => 'File yang diunggah harus berupa foto.',
+            'image.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
         ]);
+    }
+
+    private function storeImage(Request $request): ?string
+    {
+        if (! $request->hasFile('image')) {
+            return null;
+        }
+
+        $file = $request->file('image');
+
+        if (! $file->isValid() || ! is_file($file->getPathname())) {
+            return null;
+        }
+
+        $maxSize = 250;
+        $source = @imagecreatefromstring(file_get_contents($file->getPathname()));
+
+        if (! $source) {
+            return null;
+        }
+
+        $origW = imagesx($source);
+        $origH = imagesy($source);
+
+        if ($origW <= $maxSize && $origH <= $maxSize) {
+            $newW = $origW;
+            $newH = $origH;
+        } elseif ($origW >= $origH) {
+            $newW = $maxSize;
+            $newH = (int) round($origH * ($maxSize / $origW));
+        } else {
+            $newH = $maxSize;
+            $newW = (int) round($origW * ($maxSize / $origH));
+        }
+
+        $resized = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($resized, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+        imagedestroy($source);
+
+        $name = Str::random(40) . '.jpg';
+
+        ob_start();
+        imagejpeg($resized, null, 85);
+        $buffer = ob_get_clean();
+        imagedestroy($resized);
+
+        Storage::disk('public')->put("announcements/{$name}", $buffer);
+
+        return "announcements/{$name}";
     }
 }

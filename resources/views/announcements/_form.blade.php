@@ -11,6 +11,26 @@
         <x-input-error class="mt-2" :messages="$errors->get('announcement_content')" />
     </div>
 
+    <div>
+        <x-input-label for="image" value="Foto Pengumuman (opsional)" />
+        <input
+            id="image"
+            name="image"
+            type="file"
+            accept="image/jpeg,image/png,image/jpg,image/webp"
+            class="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-500"
+        />
+        <p class="mt-1 text-xs text-gray-500">Format JPG, PNG, atau WEBP. Ukuran maksimal 10MB.</p>
+        <x-input-error class="mt-2" :messages="$errors->get('image')" />
+
+        @if (($announcement->image ?? null) && \Illuminate\Support\Facades\Storage::disk('public')->exists($announcement->image))
+            <div class="mt-3">
+                <p class="mb-2 text-xs font-medium text-gray-500">Foto saat ini:</p>
+                <img src="{{ Storage::url($announcement->image) }}" alt="{{ $announcement->announcement_title }}" class="h-24 w-24 rounded-xl object-cover ring-1 ring-gray-200">
+            </div>
+        @endif
+    </div>
+
     <div class="grid gap-6 sm:grid-cols-2">
         <div>
             <x-input-label for="category" value="Kategori" />
