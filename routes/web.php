@@ -9,11 +9,62 @@ use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Asset;
+use App\Models\CashTransaction;
+use App\Models\Contribution;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/administrasi', function () {
+    // ── Kas RW ──────────────────────────────────────────────
+    $totalKas = CashTransaction::where('payment_status', 'lunas')->sum('amount');
+
+    $totalKasAkhirBulanLalu = CashTransaction::where('payment_status', 'lunas')
+        ->where('paid_at', '<', Carbon::now()->startOfMonth())
+        ->sum('amount');
+
+    $persentaseKas = $totalKasAkhirBulanLalu > 0
+        ? round((($totalKas - $totalKasAkhirBulanLalu) / $totalKasAkhirBulanLalu) * 100, 1)
+        : ($totalKas > 0 ? 100.0 : 0.0);
+
+    $riwayatKas = collect();
+    for ($i = 5; $i >= 0; $i--) {
+        $bulan = Carbon::now()->subMonths($i);
+        $riwayatKas->push([
+            'label' => $bulan->format('M'),
+            'total' => CashTransaction::where('payment_status', 'lunas')
+                ->where('paid_at', '<', $bulan->copy()->addMonth()->startOfMonth())
+                ->sum('amount'),
+        ]);
+    }
+
+    // ── Iuran Warga ─────────────────────────────────────────
+    $totalKK = User::where('role', 'warga')->count();
+    $kkSudahBayar = Contribution::where('payment_status', 'lunas')
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->whereYear('created_at', Carbon::now()->year)
+        ->distinct('user_id')
+        ->count('user_id');
+    $kkBelumBayar = max(0, $totalKK - $kkSudahBayar);
+    $persentaseIuran = $totalKK > 0 ? round(($kkSudahBayar / $totalKK) * 100, 1) : 0;
+
+    // ── Aset Lingkungan ─────────────────────────────────────
+    $totalAset = Asset::sum('quantity');
+    $asetBaik = Asset::where('condition', 'baik')->sum('quantity');
+    $asetRusakRingan = Asset::where('condition', 'rusak ringan')->sum('quantity');
+    $asetRusakBerat = Asset::where('condition', 'perlu perbaikan')->sum('quantity');
+
+    return view('administrasi', compact(
+        'totalKas', 'persentaseKas', 'riwayatKas',
+        'persentaseIuran', 'kkSudahBayar', 'kkBelumBayar',
+        'totalAset', 'asetBaik', 'asetRusakRingan', 'asetRusakBerat'
+    ));
+})->name('administrasi');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
