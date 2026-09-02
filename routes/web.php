@@ -66,6 +66,10 @@ Route::get('/administrasi', function () {
     ));
 })->name('administrasi');
 
+Route::get('/layanan', function () {
+    return view('layanan');
+})->name('layanan');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

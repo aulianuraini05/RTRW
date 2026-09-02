@@ -45,7 +45,7 @@
                 <nav class="hidden md:flex items-center space-x-8 mr-10">
                     <a href="/" class="text-sm font-semibold text-gray-800 font-sans hover:text-gray-600 transition" data-spa-link>Home</a>
                     <a href="/administrasi" class="text-sm font-semibold text-gray-800 font-sans hover:text-gray-600 transition" data-spa-link>Administrasi</a>
-                    <a href="#" class="text-sm font-semibold text-gray-800 font-sans hover:text-gray-600 transition">Layanan</a>
+                    <a href="/layanan" class="text-sm font-semibold text-gray-800 font-sans hover:text-gray-600 transition" data-spa-link>Layanan</a>
                 </nav>
                 @if (Route::has('login'))
                     <div class="flex items-center space-x-3">
