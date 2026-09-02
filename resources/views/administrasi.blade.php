@@ -231,28 +231,28 @@
                     @endphp
                     <div class="mt-4 flex rounded-full overflow-hidden h-3 bg-gray-100">
                         @if($asetBaik > 0)
-                            <div class="bg-[#C05634] transition-all duration-500" style="width: {{ $pBaik }}%"></div>
+                            <div class="bg-[#3E6B52] transition-all duration-500" style="width: {{ $pBaik }}%"></div>
                         @endif
                         @if($asetRusakRingan > 0)
-                            <div class="bg-[#D97706] transition-all duration-500" style="width: {{ $pRingan }}%"></div>
+                            <div class="bg-[#D6A13B] transition-all duration-500" style="width: {{ $pRingan }}%"></div>
                         @endif
                         @if($asetRusakBerat > 0)
-                            <div class="bg-[#1E293B] transition-all duration-500" style="width: {{ $pBerat }}%"></div>
+                            <div class="bg-[#B9502C] transition-all duration-500" style="width: {{ $pBerat }}%"></div>
                         @endif
                     </div>
 
                     {{-- Status List --}}
                     <div class="flex flex-col gap-2 mt-4 text-sm font-sans">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#C05634] shrink-0"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#3E6B52] shrink-0"></span>
                             <span class="text-gray-600">Kondisi baik — {{ $asetBaik }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#D6A13B] shrink-0"></span>
                             <span class="text-gray-600">Rusak ringan — {{ $asetRusakRingan }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#1E293B] shrink-0"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#B9502C] shrink-0"></span>
                             <span class="text-gray-600">Perlu perbaikan — {{ $asetRusakBerat }}</span>
                         </div>
                     </div>
