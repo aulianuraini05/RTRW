@@ -26,6 +26,11 @@
         html::-webkit-scrollbar { display: none; }
         #app-content { transition: opacity 0.25s ease-in-out; }
         #app-content.fade-out { opacity: 0; }
+        .card-glow {
+            filter: blur(50px) !important;
+            opacity: 0.14 !important;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-[#F3F5F4] min-h-screen">
@@ -87,9 +92,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
 
                 {{-- ── CARD 1: KAS RW ──────────────────────── --}}
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-[#C05634] p-6 flex flex-col justify-between">
+                <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
+                    <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#B9502C; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
                     <div>
-                        <p class="text-sm font-sans font-medium text-gray-500 mb-1">Kas RW</p>
+                        <div class="flex items-center gap-2.5 mb-1">
+                            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:#B9502C">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                            </div>
+                            <p class="text-sm font-sans font-medium text-gray-500">Kas RW</p>
+                        </div>
                         <p class="font-serif text-3xl font-bold text-gray-900">Rp {{ number_format($totalKas, 0, ',', '.') }}</p>
                         @if($persentaseKas >= 0)
                             <span class="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#C05634]/10 text-[#C05634]">
@@ -152,9 +163,15 @@
                 </div>
 
                 {{-- ── CARD 2: IURAN WARGA ────────────────── --}}
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-[#C05634] p-6 flex flex-col justify-between">
+                <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
+                    <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#D6A13B; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
                     <div>
-                        <p class="text-sm font-sans font-medium text-gray-500 mb-1">Iuran Warga</p>
+                        <div class="flex items-center gap-2.5 mb-1">
+                            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:#D6A13B">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <p class="text-sm font-sans font-medium text-gray-500">Iuran Warga</p>
+                        </div>
                         <p class="font-serif text-3xl font-bold text-gray-900">{{ $persentaseIuran }}%</p>
                     </div>
 
@@ -193,9 +210,15 @@
                 </div>
 
                 {{-- ── CARD 3: ASET LINGKUNGAN ────────────── --}}
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-[#1E293B] p-6 flex flex-col justify-between">
+                <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
+                    <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#3E6B52; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
                     <div>
-                        <p class="text-sm font-sans font-medium text-gray-500 mb-1">Aset Lingkungan</p>
+                        <div class="flex items-center gap-2.5 mb-1">
+                            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:#3E6B52">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            </div>
+                            <p class="text-sm font-sans font-medium text-gray-500">Aset Lingkungan</p>
+                        </div>
                         <p class="font-serif text-3xl font-bold text-gray-900">{{ $totalAset }} Unit</p>
                     </div>
 
