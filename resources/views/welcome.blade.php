@@ -92,7 +92,7 @@
         <main class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                 <div class="space-y-6">
-                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-5xl font-bold text-gray-900 leading-tight">
                         Satu sistem untuk mengelola lingkungan Anda.
                     </h1>
                     <p class="text-lg text-gray-600 font-sans max-w-lg leading-relaxed">
@@ -112,7 +112,7 @@
                 </div>
 
                 <div class="flex items-center justify-center">
-                    <svg viewBox="0 0 400 400" class="w-full max-w-md h-auto" xmlns="http://www.w3.org/2000/svg">
+                    <svg viewBox="0 0 400 400" class="w-full max-w-sm h-auto" xmlns="http://www.w3.org/2000/svg">
                         <line x1="200" y1="200" x2="60" y2="60" stroke="#2D3748" stroke-width="2" opacity="0.6" class="draw-line d1"/>
                         <line x1="200" y1="200" x2="340" y2="80" stroke="#2D3748" stroke-width="2" opacity="0.6" class="draw-line d2"/>
                         <line x1="200" y1="200" x2="80" y2="340" stroke="#2D3748" stroke-width="2" opacity="0.6" class="draw-line d3"/>

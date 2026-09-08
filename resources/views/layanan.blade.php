@@ -60,23 +60,12 @@
 
     <div id="app-content">
         <main class="relative overflow-hidden">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28 relative">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 py-12 lg:py-20 relative">
 
                 {{-- Watermark --}}
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 select-none pointer-events-none" aria-hidden="true">
                     <span class="block font-serif text-[120px] sm:text-[160px] lg:text-[200px] font-bold text-gray-200/60 leading-none tracking-tight mt-10">LAYANAN</span>
                 </div>
-
-                {{-- Guest badge --}}
-                @guest
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 mb-8 relative z-10">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-                        </span>
-                        <span class="text-sm font-sans font-medium text-amber-700">Tamu — sebagian data ditampilkan terbatas</span>
-                    </div>
-                @endguest
 
                 {{-- Heading --}}
                 <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1a2e35] leading-tight max-w-2xl relative z-10">

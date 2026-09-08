@@ -91,7 +91,56 @@
             {{-- ═══════════════════════════════════════════════ --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
 
-                {{-- ── CARD 1: KAS RW ──────────────────────── --}}
+                {{-- ── CARD 1: ASET LINGKUNGAN ────────────── --}}
+                <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
+                    <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#3E6B52; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-1">
+                            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:#3E6B52">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            </div>
+                            <p class="text-sm font-sans font-medium text-gray-500">Aset Lingkungan</p>
+                        </div>
+                        <p class="font-serif text-3xl font-bold text-gray-900">{{ $totalAset }} Unit</p>
+                    </div>
+
+                    {{-- Stacked Progress Bar --}}
+                    @php
+                        $totalAsetSafe = max($totalAset, 1);
+                        $pBaik = ($asetBaik / $totalAsetSafe) * 100;
+                        $pRingan = ($asetRusakRingan / $totalAsetSafe) * 100;
+                        $pBerat = ($asetRusakBerat / $totalAsetSafe) * 100;
+                    @endphp
+                    <div class="mt-4 flex rounded-full overflow-hidden h-3 bg-gray-100">
+                        @if($asetBaik > 0)
+                            <div class="bg-[#3E6B52] transition-all duration-500" style="width: {{ $pBaik }}%"></div>
+                        @endif
+                        @if($asetRusakRingan > 0)
+                            <div class="bg-[#D6A13B] transition-all duration-500" style="width: {{ $pRingan }}%"></div>
+                        @endif
+                        @if($asetRusakBerat > 0)
+                            <div class="bg-[#B9502C] transition-all duration-500" style="width: {{ $pBerat }}%"></div>
+                        @endif
+                    </div>
+
+                    {{-- Status List --}}
+                    <div class="flex flex-col gap-2 mt-4 text-sm font-sans">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#3E6B52] shrink-0"></span>
+                            <span class="text-gray-600">Kondisi baik — {{ $asetBaik }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#D6A13B] shrink-0"></span>
+                            <span class="text-gray-600">Rusak ringan — {{ $asetRusakRingan }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#B9502C] shrink-0"></span>
+                            <span class="text-gray-600">Perlu perbaikan — {{ $asetRusakBerat }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── CARD 2: KAS RW ──────────────────────── --}}
                 <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
                     <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#B9502C; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
                     <div>
@@ -162,7 +211,7 @@
                     <p class="text-xs text-gray-400 font-sans mt-3">Saldo naik enam bulan berturut-turut.</p>
                 </div>
 
-                {{-- ── CARD 2: IURAN WARGA ────────────────── --}}
+                {{-- ── CARD 3: IURAN WARGA ────────────────── --}}
                 <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
                     <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#D6A13B; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
                     <div>
@@ -205,55 +254,6 @@
                                 <span class="w-2.5 h-2.5 rounded-full border-2 border-gray-300 shrink-0"></span>
                                 <span class="text-gray-600">{{ $kkBelumBayar }} KK belum, jatuh tempo 5 Sep</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ── CARD 3: ASET LINGKUNGAN ────────────── --}}
-                <div class="bg-white rounded-[18px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden relative p-6 flex flex-col justify-between">
-                    <div class="absolute -top-[60px] -right-[60px] w-[200px] h-[200px] rounded-full card-glow" style="background:#3E6B52; filter:blur(50px); opacity:0.14; pointer-events:none;"></div>
-                    <div>
-                        <div class="flex items-center gap-2.5 mb-1">
-                            <div class="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0" style="background:#3E6B52">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                            </div>
-                            <p class="text-sm font-sans font-medium text-gray-500">Aset Lingkungan</p>
-                        </div>
-                        <p class="font-serif text-3xl font-bold text-gray-900">{{ $totalAset }} Unit</p>
-                    </div>
-
-                    {{-- Stacked Progress Bar --}}
-                    @php
-                        $totalAsetSafe = max($totalAset, 1);
-                        $pBaik = ($asetBaik / $totalAsetSafe) * 100;
-                        $pRingan = ($asetRusakRingan / $totalAsetSafe) * 100;
-                        $pBerat = ($asetRusakBerat / $totalAsetSafe) * 100;
-                    @endphp
-                    <div class="mt-4 flex rounded-full overflow-hidden h-3 bg-gray-100">
-                        @if($asetBaik > 0)
-                            <div class="bg-[#3E6B52] transition-all duration-500" style="width: {{ $pBaik }}%"></div>
-                        @endif
-                        @if($asetRusakRingan > 0)
-                            <div class="bg-[#D6A13B] transition-all duration-500" style="width: {{ $pRingan }}%"></div>
-                        @endif
-                        @if($asetRusakBerat > 0)
-                            <div class="bg-[#B9502C] transition-all duration-500" style="width: {{ $pBerat }}%"></div>
-                        @endif
-                    </div>
-
-                    {{-- Status List --}}
-                    <div class="flex flex-col gap-2 mt-4 text-sm font-sans">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#3E6B52] shrink-0"></span>
-                            <span class="text-gray-600">Kondisi baik — {{ $asetBaik }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#D6A13B] shrink-0"></span>
-                            <span class="text-gray-600">Rusak ringan — {{ $asetRusakRingan }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#B9502C] shrink-0"></span>
-                            <span class="text-gray-600">Perlu perbaikan — {{ $asetRusakBerat }}</span>
                         </div>
                     </div>
                 </div>
