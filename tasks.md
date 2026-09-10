@@ -84,6 +84,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Form pengajuan surat warga selesai
 - [x] Approval/reject oleh RT/RW selesai
 - [x] Riwayat status surat selesai
+- [x] Soft doc surat resmi auto-generate (cetak/simpan PDF) hanya untuk status disetujui/selesai
 
 ### I. Modul Marketplace / UMKM
 - [x] Controller marketplace tersedia

@@ -68,7 +68,7 @@
                 @endif
             </article>
 
-            <a href="{{ route('contributions.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">← Kembali ke rekap iuran</a>
+            <a href="{{ route('contributions.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke rekap iuran</a>
         </div>
     </div>
 </x-app-layout>

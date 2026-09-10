@@ -45,6 +45,9 @@
                             @if (Auth::user()->isAdmin())
                                 @include('letters._status-actions', ['letter' => $letter])
                             @endif
+                            @if (in_array($letter->letter_status, ['disetujui', 'selesai'], true))
+                                <a href="{{ route('letters.cetak', $letter) }}" class="text-sm font-medium text-green-600 hover:text-green-800">Cetak PDF</a>
+                            @endif
                             <a href="{{ route('letters.show', $letter) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Lihat detail</a>
                         </div>
                     </div>

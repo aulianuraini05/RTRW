@@ -153,7 +153,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/letters/{letter}', [LetterController::class, 'destroy'])->name('letters.destroy');
     });
 
-    // Warga & Admin: lihat detail
+    // Warga & Admin: lihat detail + cetak surat resmi (PDF via print)
+    Route::get('/letters/{letter}/cetak', [LetterController::class, 'cetak'])->name('letters.cetak');
     Route::get('/letters/{letter}', [LetterController::class, 'show'])->name('letters.show');
 
     // =========================================================================

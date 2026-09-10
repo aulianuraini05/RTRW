@@ -17,13 +17,20 @@
             @endif
             <div class="mt-3 whitespace-pre-line leading-7 text-gray-700">{{ $letter->purpose }}</div>
 
+            @if (in_array($letter->letter_status, ['disetujui', 'selesai'], true))
+                <div class="mt-6 border-t pt-5">
+                    <a href="{{ route('letters.cetak', $letter) }}" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">Cetak / Simpan PDF Surat Resmi</a>
+                    <p class="mt-2 text-xs text-gray-500">Softcopy surat resmi hanya tersedia setelah pengajuan disetujui.</p>
+                </div>
+            @endif
+
             @if (Auth::user()->isAdmin())
                 <div class="mt-6 border-t pt-5">
                     @include('letters._status-actions', ['letter' => $letter])
                 </div>
             @endif
 
-            <a href="{{ route('letters.index') }}" class="mt-6 inline-block border-t pt-5 text-sm font-medium text-gray-600 hover:text-gray-900">← Kembali ke daftar</a>
+            <a href="{{ route('letters.index') }}" class="mt-6 inline-block border-t pt-5 text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke daftar</a>
         </article>
     </div>
 </x-app-layout>

@@ -18,7 +18,7 @@
                     @include('aspirations._status-actions', ['aspiration' => $aspiration])
                 </div>
             @endif
-            <a href="{{ route('aspirations.index') }}" class="mt-6 inline-block border-t pt-5 text-sm font-medium text-gray-600 hover:text-gray-900">← Kembali ke daftar</a>
+            <a href="{{ route('aspirations.index') }}" class="mt-6 inline-block border-t pt-5 text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke daftar</a>
         </article>
     </div>
 </x-app-layout>

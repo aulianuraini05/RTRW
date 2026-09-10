@@ -29,7 +29,7 @@
             <h1 class="mt-3 text-lg font-bold leading-tight text-ink-800">{{ $announcement->announcement_title }}</h1>
             <div class="mt-6 whitespace-pre-line text-base leading-7 text-ink-700">{{ $announcement->announcement_content }}</div>
             <div class="mt-8 flex items-center gap-4 border-t border-cream-200 pt-6">
-                <a href="{{ route('announcements.index') }}" class="btn btn-secondary">← Kembali</a>
+                <a href="{{ route('announcements.index') }}" class="btn btn-secondary">Kembali</a>
                 @if (Auth::user()->isAdmin())
                     <a href="{{ route('announcements.edit', $announcement) }}" class="btn btn-ghost">Edit pengumuman</a>
                 @endif

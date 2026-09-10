@@ -68,7 +68,7 @@
                 @endif
             </article>
 
-            <a href="{{ route('cash_transactions.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">← Kembali ke rekap kas</a>
+            <a href="{{ route('cash_transactions.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke rekap kas</a>
         </div>
     </div>
 </x-app-layout>

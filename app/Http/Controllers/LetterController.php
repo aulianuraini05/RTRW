@@ -60,6 +60,23 @@ class LetterController extends Controller
         return view('letters.show', compact('letter'));
     }
 
+    public function cetak(Letter $letter)
+    {
+        if (! request()->user()->isAdmin() && $letter->user_id !== request()->user()->id) {
+            abort(404);
+        }
+
+        abort_unless(
+            in_array($letter->letter_status, ['disetujui', 'selesai'], true),
+            403,
+            'Surat resmi hanya bisa dicetak setelah disetujui.'
+        );
+
+        $letter->load('user.rt');
+
+        return view('letters.print', compact('letter'));
+    }
+
     public function edit(Letter $letter)
     {
         return view('letters.edit', compact('letter'));

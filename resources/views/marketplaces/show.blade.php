@@ -76,7 +76,7 @@
                 </div>
             </article>
 
-            <a href="{{ route('marketplaces.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">← Kembali ke katalog</a>
+            <a href="{{ route('marketplaces.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke katalog</a>
         </div>
     </div>
 </x-app-layout>
