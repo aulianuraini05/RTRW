@@ -19,7 +19,7 @@
 
             @if (in_array($letter->letter_status, ['disetujui', 'selesai'], true))
                 <div class="mt-6 border-t pt-5">
-                    <a href="{{ route('letters.cetak', $letter) }}" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">Cetak / Simpan PDF Surat Resmi</a>
+                    <a href="{{ route('letters.cetak', $letter) }}" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">Simpan PDF Surat Resmi</a>
                     <p class="mt-2 text-xs text-gray-500">Softcopy surat resmi hanya tersedia setelah pengajuan disetujui.</p>
                 </div>
             @endif

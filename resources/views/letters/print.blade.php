@@ -37,7 +37,7 @@
 <body>
     <div class="toolbar">
         <a href="{{ route('letters.show', $letter) }}">Kembali</a>
-        <button type="button" class="primary" onclick="window.print()">Cetak / Simpan PDF</button>
+        <button type="button" class="primary" onclick="window.print()">Simpan PDF</button>
     </div>
 
     <div class="sheet">
@@ -98,7 +98,7 @@
 
         <div class="note">
             Dokumen ini adalah softcopy surat resmi hasil pengajuan {{ $letter->letter_number }}.
-            Simpan sebagai PDF melalui tombol “Cetak / Simpan PDF”.
+            Simpan sebagai PDF melalui tombol “Simpan PDF”.
         </div>
     </div>
 </body>
