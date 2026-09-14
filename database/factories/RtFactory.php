@@ -18,10 +18,12 @@ class RtFactory extends Factory
     public function definition(): array
     {
         $number = fake()->unique()->numberBetween(1, 999);
+        $padded = str_pad((string) $number, 2, '0', STR_PAD_LEFT);
 
         return [
             'name' => "RT {$number}",
-            'code' => 'RT' . str_pad((string) $number, 2, '0', STR_PAD_LEFT),
+            'code' => "WARGA-RT{$padded}",
+            'admin_code' => "KETUA-RT{$padded}",
         ];
     }
 }

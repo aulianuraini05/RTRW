@@ -16,12 +16,12 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- RT Code -->
+        <!-- Code -->
         <div class="mt-4">
-            <x-input-label for="rt_code" :value="__('Kode RT')" />
-            <x-text-input id="rt_code" class="block mt-1 w-full" type="text" name="rt_code" :value="old('rt_code')" required placeholder="Contoh: RT01" />
+            <x-input-label for="rt_code" :value="__('Kode Akses Registrasi')" />
+            <x-text-input id="rt_code" class="block mt-1 w-full" type="text" name="rt_code" :value="old('rt_code')" required />
             <x-input-error :messages="$errors->get('rt_code')" class="mt-2" />
-            <p class="mt-1 text-xs text-gray-500">Masukkan kode pendaftaran sesuai RT tempat Anda tinggal. Kode dapat diperoleh dari pengurus RT.</p>
+            <p class="mt-1 text-xs text-gray-500">Masukkan kode pendaftaran sesuai peran/wilayah Anda. Kode dapat diperoleh dari pengurus RT/RW.</p>
         </div>
 
         <!-- Password -->

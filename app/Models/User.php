@@ -21,11 +21,35 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * Check if the user has admin role.
+     * Check if the user has superadmin role.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
+    /**
+     * Check if the user has RW admin role.
+     */
+    public function isRw(): bool
+    {
+        return $this->role === 'rw';
+    }
+
+    /**
+     * Check if the user has RT admin role.
+     */
+    public function isRt(): bool
+    {
+        return $this->role === 'rt';
+    }
+
+    /**
+     * Check if the user has any admin/management role (admin, superadmin, rw, rt).
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return in_array($this->role, ['admin', 'superadmin', 'rw', 'rt']);
     }
 
     /**

@@ -152,7 +152,7 @@ it('pengumuman belum dibaca ditandai untuk warga', function () {
     $this->actingAs($warga)
         ->get(route('announcements.index'))
         ->assertOk()
-        ->assertSee('Belum dibaca');
+        ->assertSee('Baru');
 });
 
 it('pengumuman yang sudah dibaca tidak ditandai lagi', function () {
@@ -164,7 +164,7 @@ it('pengumuman yang sudah dibaca tidak ditandai lagi', function () {
         ->get(route('announcements.index'))
         ->assertOk()
         ->assertSee($announcement->announcement_title)
-        ->assertDontSee('Belum dibaca');
+        ->assertDontSee('Baru');
 });
 
 it('warga menandai pengumuman terbaca saat membuka detail', function () {

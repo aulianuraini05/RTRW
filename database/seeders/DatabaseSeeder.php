@@ -18,18 +18,26 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // Seed RW master data (Ketua RW & Admin Utama codes)
+        \App\Models\Rw::updateOrCreate(
+            ['name' => 'RW 01'],
+            [
+                'code' => 'KETUA-RW',
+                'admin_code' => 'ADMIN-UTAMA',
+            ]
+        );
+
         $rtCount = 10;
 
         foreach (range(1, $rtCount) as $number) {
-            Rt::factory()->create([
-                'name' => "RT {$number}",
-                'code' => 'RT' . str_pad((string) $number, 2, '0', STR_PAD_LEFT),
-            ]);
+            $padded = str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+            Rt::updateOrCreate(
+                ['name' => "RT {$number}"],
+                [
+                    'code' => "WARGA-RT{$padded}",
+                    'admin_code' => "KETUA-RT{$padded}",
+                ]
+            );
         }
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
     }
 }

@@ -17,6 +17,7 @@ class Rt extends Model
     protected $fillable = [
         'name',
         'code',
+        'admin_code',
     ];
 
     /**

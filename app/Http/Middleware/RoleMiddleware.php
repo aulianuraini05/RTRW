@@ -16,14 +16,33 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user()) {
+        $user = $request->user();
+
+        if (! $user) {
             return redirect()->route('login');
         }
 
-        if (!in_array($request->user()->role, $roles)) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        foreach ($roles as $role) {
+            if ($role === 'admin' && $user->isAdmin()) {
+                return $next($request);
+            }
+            if ($role === 'superadmin' && $user->isSuperAdmin()) {
+                return $next($request);
+            }
+            if ($role === 'rw' && ($user->isRw() || $user->isSuperAdmin())) {
+                return $next($request);
+            }
+            if ($role === 'rt' && ($user->isRt() || $user->isRw() || $user->isSuperAdmin())) {
+                return $next($request);
+            }
+            if ($role === 'warga' && $user->isWarga()) {
+                return $next($request);
+            }
+            if ($user->role === $role) {
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        abort(403, 'Anda tidak memiliki akses ke halaman ini.');
     }
 }

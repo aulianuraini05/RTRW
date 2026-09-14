@@ -17,7 +17,48 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    // ── Data ringkas untuk section #admin di single-page landing ──
+    // (logika sama persis dengan route /administrasi agar tampilan konsisten)
+    $totalKas = CashTransaction::where('payment_status', 'lunas')->sum('amount');
+
+    $totalKasAkhirBulanLalu = CashTransaction::where('payment_status', 'lunas')
+        ->where('paid_at', '<', Carbon::now()->startOfMonth())
+        ->sum('amount');
+
+    $persentaseKas = $totalKasAkhirBulanLalu > 0
+        ? round((($totalKas - $totalKasAkhirBulanLalu) / $totalKasAkhirBulanLalu) * 100, 1)
+        : ($totalKas > 0 ? 100.0 : 0.0);
+
+    $riwayatKas = collect();
+    for ($i = 5; $i >= 0; $i--) {
+        $bulan = Carbon::now()->subMonths($i);
+        $riwayatKas->push([
+            'label' => $bulan->format('M'),
+            'total' => CashTransaction::where('payment_status', 'lunas')
+                ->where('paid_at', '<', $bulan->copy()->addMonth()->startOfMonth())
+                ->sum('amount'),
+        ]);
+    }
+
+    $totalKK = User::where('role', 'warga')->count();
+    $kkSudahBayar = Contribution::where('payment_status', 'lunas')
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->whereYear('created_at', Carbon::now()->year)
+        ->distinct('user_id')
+        ->count('user_id');
+    $kkBelumBayar = max(0, $totalKK - $kkSudahBayar);
+    $persentaseIuran = $totalKK > 0 ? round(($kkSudahBayar / $totalKK) * 100, 1) : 0;
+
+    $totalAset = Asset::sum('quantity');
+    $asetBaik = Asset::where('condition', 'baik')->sum('quantity');
+    $asetRusakRingan = Asset::where('condition', 'rusak ringan')->sum('quantity');
+    $asetRusakBerat = Asset::where('condition', 'perlu perbaikan')->sum('quantity');
+
+    return view('welcome', compact(
+        'totalKas', 'persentaseKas', 'riwayatKas',
+        'persentaseIuran', 'kkSudahBayar', 'kkBelumBayar',
+        'totalAset', 'asetBaik', 'asetRusakRingan', 'asetRusakBerat'
+    ));
 });
 
 Route::get('/administrasi', function () {
