@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Announcement;
+use App\Models\Rt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -15,7 +16,13 @@ class AnnouncementController extends Controller
 
         $announcements = Announcement::query()
             ->when(! $user->isAdmin(), function ($query) use ($user) {
+                $rtId = (int) ($user->rt_id ?? 0);
+
                 return $query->where('status', 'active')
+                    ->where(function ($q) use ($rtId) {
+                        $q->whereNull('target_rt_ids')
+                          ->orWhereRaw("CAST(target_rt_ids AS jsonb) @> ?::jsonb", [json_encode([(string) $rtId])]);
+                    })
                     ->withExists(['readBy as is_read' => fn ($q) => $q->where('user_id', $user->id)]);
             })
             ->when($request->filled('search'), function ($query) use ($request) {
@@ -46,8 +53,9 @@ class AnnouncementController extends Controller
             ->withQueryString();
 
         $stats = $user->isAdmin() ? $this->stats() : [];
+        $rtMap = Rt::pluck('name', 'id');
 
-        return view('announcements.index', array_merge(compact('announcements'), $stats));
+        return view('announcements.index', array_merge(compact('announcements', 'rtMap'), $stats));
     }
 
     /**
@@ -91,7 +99,9 @@ class AnnouncementController extends Controller
 
     public function create()
     {
-        return view('announcements.create');
+        $rts = Rt::orderBy('name')->get();
+
+        return view('announcements.create', compact('rts'));
     }
 
     public function store(Request $request)
@@ -113,17 +123,25 @@ class AnnouncementController extends Controller
             abort(404);
         }
 
+        if ($user->isWarga() && ! $announcement->targetsRt($user->rt_id ?? 0)) {
+            abort(404);
+        }
+
         if ($user->isWarga() && ! $announcement->readBy()->whereKey($user->id)->exists()) {
             $announcement->readBy()->attach($user->id, ['read_at' => now()]);
             $announcement->increment('read_count');
         }
 
-        return view('announcements.show', compact('announcement'));
+        $rtMap = Rt::pluck('name', 'id');
+
+        return view('announcements.show', compact('announcement', 'rtMap'));
     }
 
     public function edit(Announcement $announcement)
     {
-        return view('announcements.edit', compact('announcement'));
+        $rts = Rt::orderBy('name')->get();
+
+        return view('announcements.edit', compact('announcement', 'rts'));
     }
 
     public function update(Request $request, Announcement $announcement)
@@ -162,7 +180,15 @@ class AnnouncementController extends Controller
      */
     private function validatedData(Request $request): array
     {
-        return $request->validate([
+        $rawTargetRt = $request->input('target_rt_ids', []);
+
+        if (in_array('all', $rawTargetRt) || empty($rawTargetRt)) {
+            $request->merge(['target_rt_ids' => null]);
+        } else {
+            $request->merge(['target_rt_ids' => array_values(array_filter($rawTargetRt, fn ($v) => $v !== 'all'))]);
+        }
+
+        $data = $request->validate([
             'announcement_title' => ['required', 'string', 'max:255'],
             'announcement_content' => ['required', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
@@ -170,12 +196,20 @@ class AnnouncementController extends Controller
             'status' => ['required', 'in:active,archived'],
             'category' => ['required', 'string', 'in:umum,kegiatan,kesehatan,keamanan,lingkungan,agenda'],
             'priority' => ['required', 'string', 'in:biasa,penting,mendesak'],
+            'target_rt_ids' => ['nullable', 'array'],
+            'target_rt_ids.*' => ['integer', 'exists:rts,id'],
             'is_pinned' => ['sometimes', 'boolean'],
         ], [
             'image.max' => 'Ukuran foto maksimal 10 MB.',
             'image.image' => 'File yang diunggah harus berupa foto.',
             'image.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
         ]);
+
+        if (empty($data['target_rt_ids'])) {
+            $data['target_rt_ids'] = null;
+        }
+
+        return $data;
     }
 
     private function storeImage(Request $request): ?string

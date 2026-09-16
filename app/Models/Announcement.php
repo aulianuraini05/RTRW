@@ -23,6 +23,7 @@ class Announcement extends Model
         'status',
         'category',
         'priority',
+        'target_rt_ids',
         'is_pinned',
         'read_count',
     ];
@@ -36,6 +37,7 @@ class Announcement extends Model
             'publication_date' => 'date',
             'is_pinned' => 'boolean',
             'read_count' => 'integer',
+            'target_rt_ids' => 'array',
         ];
     }
 
@@ -49,5 +51,25 @@ class Announcement extends Model
         return $this->belongsToMany(User::class, 'announcement_reads')
             ->withPivot('read_at')
             ->withTimestamps();
+    }
+
+    /**
+     * Cek apakah pengumuman ini ditujukan untuk RT tertentu atau semua RT.
+     */
+    public function isForAllRt(): bool
+    {
+        return empty($this->target_rt_ids);
+    }
+
+    /**
+     * Cek apakah pengumuman ini ditujukan untuk RT tertentu.
+     */
+    public function targetsRt(int $rtId): bool
+    {
+        if ($this->isForAllRt()) {
+            return true;
+        }
+
+        return in_array($rtId, $this->target_rt_ids) || in_array((string) $rtId, $this->target_rt_ids);
     }
 }
