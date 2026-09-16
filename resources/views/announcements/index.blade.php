@@ -265,16 +265,22 @@
 
                                         {{-- Status toggle --}}
                                         <td class="px-4 py-4">
-                                            <form method="POST" action="{{ route('announcements.toggle', $announcement) }}">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" aria-label="Ubah status" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors {{ $announcement->status === 'active' ? 'bg-emerald-500' : 'bg-gray-300' }}">
-                                                    <span class="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition {{ $announcement->status === 'active' ? 'translate-x-5' : '' }}"></span>
-                                                </button>
-                                            </form>
-                                            <p class="mt-1 text-xs {{ $announcement->status === 'active' ? 'text-emerald-600' : 'text-gray-400' }}">
-                                                {{ $announcement->status === 'active' ? 'Aktif' : 'Nonaktif' }}
-                                            </p>
+                                            @php
+                                                $canToggle = Auth::user()->isSuperAdmin() || Auth::user()->isRw() || (Auth::user()->isRt() && $announcement->created_by === Auth::id());
+                                            @endphp
+                                            @if ($canToggle)
+                                                <form method="POST" action="{{ route('announcements.toggle', $announcement) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" aria-label="Ubah status" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors {{ $announcement->status === 'active' ? 'bg-emerald-500' : 'bg-gray-300' }}">
+                                                        <span class="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition {{ $announcement->status === 'active' ? 'translate-x-5' : '' }}"></span>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold {{ $announcement->status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500' }}">
+                                                    {{ $announcement->status === 'active' ? 'Aktif' : 'Tidak Aktif' }}
+                                                </span>
+                                            @endif
                                         </td>
 
                                         {{-- Dibaca --}}
@@ -303,6 +309,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                 </a>
+                                                @if ($canToggle)
                                                 <a href="{{ route('announcements.edit', $announcement) }}" title="Edit"
                                                     class="rounded-lg p-2 text-gray-400 transition hover:bg-amber-50 hover:text-amber-600">
                                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -319,6 +326,7 @@
                                                         </svg>
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

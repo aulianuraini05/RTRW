@@ -90,6 +90,12 @@ class AnnouncementController extends Controller
 
     public function toggleStatus(Announcement $announcement)
     {
+        $user = request()->user();
+
+        if ($user->isRt() && $announcement->created_by !== $user->id) {
+            abort(403);
+        }
+
         $announcement->update([
             'status' => $announcement->status === 'active' ? 'archived' : 'active',
         ]);
@@ -108,6 +114,7 @@ class AnnouncementController extends Controller
     {
         $validated = $this->validatedData($request);
         $validated['image'] = $this->storeImage($request);
+        $validated['created_by'] = $request->user()->id;
 
         Announcement::create($validated);
 
@@ -139,6 +146,12 @@ class AnnouncementController extends Controller
 
     public function edit(Announcement $announcement)
     {
+        $user = request()->user();
+
+        if ($user->isRt() && $announcement->created_by !== $user->id) {
+            abort(403);
+        }
+
         $rts = Rt::orderBy('name')->get();
 
         return view('announcements.edit', compact('announcement', 'rts'));
@@ -146,6 +159,12 @@ class AnnouncementController extends Controller
 
     public function update(Request $request, Announcement $announcement)
     {
+        $user = $request->user();
+
+        if ($user->isRt() && $announcement->created_by !== $user->id) {
+            abort(403);
+        }
+
         $validated = $this->validatedData($request);
 
         if ($request->hasFile('image')) {
@@ -165,6 +184,12 @@ class AnnouncementController extends Controller
 
     public function destroy(Announcement $announcement)
     {
+        $user = request()->user();
+
+        if ($user->isRt() && $announcement->created_by !== $user->id) {
+            abort(403);
+        }
+
         if ($announcement->image) {
             Storage::disk('public')->delete($announcement->image);
         }

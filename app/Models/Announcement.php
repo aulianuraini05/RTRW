@@ -24,6 +24,7 @@ class Announcement extends Model
         'category',
         'priority',
         'target_rt_ids',
+        'created_by',
         'is_pinned',
         'read_count',
     ];
