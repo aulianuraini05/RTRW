@@ -16,6 +16,33 @@
         <x-input-error class="mt-2" :messages="$errors->get('asset_type')" />
     </div>
 
+    <div>
+        <x-input-label for="rt_id" value="Kepemilikan / Lingkup Aset" />
+        <select id="rt_id" name="rt_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+            @php
+                $user = Auth::user();
+                $currentRtId = old('rt_id', isset($asset) ? ($asset->rt_id ?? 'rw') : ($user->rt_id ?? 'rw'));
+                if (is_null($currentRtId)) { $currentRtId = 'rw'; }
+                $userRtName = $user->rt?->name ?? 'RT Setempat';
+            @endphp
+            @if ($user->rt_id)
+                <option value="{{ $user->rt_id }}" @selected((string)$currentRtId === (string)$user->rt_id)>
+                    Aset {{ $userRtName }}
+                </option>
+                <option value="rw" @selected((string)$currentRtId === 'rw')>
+                    Aset Umum RW
+                </option>
+            @else
+                <option value="rw" @selected((string)$currentRtId === 'rw')>Aset Umum RW</option>
+                @foreach (\App\Models\Rt::orderBy('name')->get() as $rt)
+                    <option value="{{ $rt->id }}" @selected((string)$currentRtId === (string)$rt->id)>Khusus {{ $rt->name }}</option>
+                @endforeach
+            @endif
+        </select>
+        <p class="mt-1 text-xs text-gray-500">Pilih apakah aset ini milik RT setempat atau Aset Umum RW.</p>
+        <x-input-error class="mt-2" :messages="$errors->get('rt_id')" />
+    </div>
+
     <div class="grid gap-6 sm:grid-cols-2">
         <div>
             <x-input-label for="quantity" value="Jumlah" />
@@ -34,9 +61,23 @@
     </div>
 
     <div>
-        <x-input-label for="description" value="Keterangan (opsional)" />
+        <x-input-label for="description" value="Keterangan" />
         <textarea id="description" name="description" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $asset->description ?? '') }}</textarea>
         <x-input-error class="mt-2" :messages="$errors->get('description')" />
+    </div>
+
+    <div>
+        <x-input-label for="image" value="Foto Aset (opsional)" />
+        <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100" />
+        <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, WEBP (maks. 10 MB). Biarkan kosong jika tidak mengunggah foto.</p>
+        <x-input-error class="mt-2" :messages="$errors->get('image')" />
+
+        @if (!empty($asset->image))
+            <div class="mt-3 flex items-center gap-3">
+                <img src="{{ Storage::url($asset->image) }}" alt="Foto Aset" class="h-20 w-20 rounded-lg object-cover border border-gray-200 shadow-sm" />
+                <span class="text-xs text-gray-500">Foto saat ini</span>
+            </div>
+        @endif
     </div>
 
     <div class="flex items-center gap-4">

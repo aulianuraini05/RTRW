@@ -68,10 +68,24 @@
                     ];
                     $available = $asset->availableQuantity();
                 @endphp
-                <article class="rounded-lg bg-white p-6 shadow-sm">
-                    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                <article class="overflow-hidden rounded-lg bg-white p-6 shadow-sm transition hover:shadow-md">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+                        @if ($asset->image)
+                            <img src="{{ Storage::url($asset->image) }}" alt="{{ $asset->asset_name }}" class="h-24 w-24 shrink-0 rounded-lg object-cover border border-gray-100 shadow-sm" />
+                        @else
+                            <div class="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 text-3xl text-indigo-500 shadow-inner">
+                                📦
+                            </div>
+                        @endif
+
                         <div class="flex-1">
                             <div class="mb-2 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                                @if (is_null($asset->rt_id))
+                                    <span class="rounded-full bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs font-semibold">Aset Umum RW</span>
+                                @else
+                                    <span class="rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-semibold">Aset {{ $asset->rt?->name ?? 'RT' }}</span>
+                                @endif
+                                <span>•</span>
                                 <span>{{ $asset->asset_type }}</span>
                                 <span>•</span>
                                 <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $conditionClasses[$asset->condition] ?? 'bg-gray-100 text-gray-700' }}">{{ ucfirst($asset->condition) }}</span>
@@ -80,9 +94,10 @@
                             </div>
                             <h3 class="text-base font-semibold text-gray-900"><a href="{{ route('assets.show', $asset) }}" class="hover:text-indigo-600">{{ $asset->asset_name }}</a></h3>
                             @if ($asset->description)
-                                <p class="mt-2 text-gray-600">{{ Str::limit($asset->description, 180) }}</p>
+                                <p class="mt-2 text-gray-600 line-clamp-2">{{ Str::limit($asset->description, 180) }}</p>
                             @endif
                         </div>
+
                         <div class="flex shrink-0 flex-wrap items-center gap-3 sm:flex-col sm:items-end">
                             @if (Auth::user()->isAdmin())
                                 <a href="{{ route('assets.edit', $asset) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Edit</a>

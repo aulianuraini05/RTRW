@@ -143,7 +143,7 @@
                     <p class="mt-1 text-sm text-ink-500">{{ __('Dukung usaha tetangga dengan berbelanja produk lokal warga.') }}</p>
                 </div>
                 <a href="{{ route('marketplaces.index') }}" class="hidden text-sm font-semibold text-brand-600 transition hover:text-brand-700 sm:block">
-                    Lihat Semua &rarr;
+                    Lihat Semua
                 </a>
             </div>
 
@@ -179,7 +179,7 @@
                 @endforelse
             </div>
             <a href="{{ route('marketplaces.index') }}" class="mt-3 block text-center text-sm font-semibold text-brand-600 transition hover:text-brand-700 sm:hidden">
-                Lihat Semua &rarr;
+                Lihat Semua
             </a>
         </section>
 

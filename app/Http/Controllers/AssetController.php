@@ -4,19 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AssetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+
         $assets = Asset::query()
+            ->with('rt')
+            ->when(! $user->isAdmin(), function ($query) use ($user) {
+                $rtId = $user->rt_id;
+
+                return $query->where(function ($q) use ($rtId) {
+                    $q->whereNull('rt_id');
+                    if ($rtId) {
+                        $q->orWhere('rt_id', $rtId);
+                    }
+                });
+            })
             ->withCount(['loans' => function ($query) {
                 $query->whereIn('loan_status', ['disetujui', 'dipinjam']);
             }])
             ->latest()
             ->paginate(10);
 
-        $user = request()->user();
         if ($user->isAdmin()) {
             $loans = \App\Models\AssetLoan::with(['asset', 'user'])
                 ->latest()
@@ -50,7 +64,28 @@ class AssetController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'condition' => ['required', 'in:baik,rusak ringan,rusak berat,perlu perbaikan'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
+            'rt_id' => ['nullable'],
+        ], [
+            'image.max' => 'Ukuran foto maksimal 10 MB.',
+            'image.image' => 'File yang diunggah harus berupa foto.',
+            'image.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
         ]);
+
+        $user = $request->user();
+        $rawRt = $request->input('rt_id');
+
+        if ($rawRt === 'rw' || empty($rawRt)) {
+            $validated['rt_id'] = null;
+        } elseif (is_numeric($rawRt)) {
+            $validated['rt_id'] = (int) $rawRt;
+        } elseif ($user->rt_id) {
+            $validated['rt_id'] = $user->rt_id;
+        } else {
+            $validated['rt_id'] = null;
+        }
+
+        $validated['image'] = $this->storeImage($request);
 
         Asset::create($validated);
 
@@ -60,11 +95,17 @@ class AssetController extends Controller
 
     public function show(Asset $asset)
     {
-        $asset->load(['loans.user' => function ($query) {
+        $user = request()->user();
+
+        if ($user->isWarga() && $asset->rt_id !== null && $asset->rt_id !== $user->rt_id) {
+            abort(404);
+        }
+
+        $asset->load(['rt', 'loans.user' => function ($query) {
             $query->latest();
         }]);
 
-        if (request()->user()->isWarga()) {
+        if ($user->isWarga()) {
             $asset->load(['loans' => function ($query) {
                 $query->where('user_id', request()->user()->id)->latest();
             }]);
@@ -90,7 +131,35 @@ class AssetController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'condition' => ['required', 'in:baik,rusak ringan,rusak berat,perlu perbaikan'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
+            'rt_id' => ['nullable'],
+        ], [
+            'image.max' => 'Ukuran foto maksimal 10 MB.',
+            'image.image' => 'File yang diunggah harus berupa foto.',
+            'image.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
         ]);
+
+        $user = $request->user();
+        $rawRt = $request->input('rt_id');
+
+        if ($rawRt === 'rw' || empty($rawRt)) {
+            $validated['rt_id'] = null;
+        } elseif (is_numeric($rawRt)) {
+            $validated['rt_id'] = (int) $rawRt;
+        } elseif ($user->rt_id) {
+            $validated['rt_id'] = $user->rt_id;
+        } else {
+            $validated['rt_id'] = null;
+        }
+
+        if ($request->hasFile('image')) {
+            if ($asset->image) {
+                Storage::disk('public')->delete($asset->image);
+            }
+            $validated['image'] = $this->storeImage($request);
+        } else {
+            unset($validated['image']);
+        }
 
         $asset->update($validated);
 
@@ -102,9 +171,36 @@ class AssetController extends Controller
     {
         abort_unless(request()->user()->isAdmin(), 403);
 
+        if ($asset->image) {
+            Storage::disk('public')->delete($asset->image);
+        }
+
         $asset->delete();
 
         return redirect()->route('assets.index')
             ->with('success', 'Aset berhasil dihapus.');
+    }
+
+    private function storeImage(Request $request): ?string
+    {
+        if (! $request->hasFile('image')) {
+            return null;
+        }
+
+        $file = $request->file('image');
+
+        if (! $file->isValid() || ! is_file($file->getPathname())) {
+            return null;
+        }
+
+        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+        $name = Str::random(40).'.'.$extension;
+
+        Storage::disk('public')->put(
+            "assets/{$name}",
+            file_get_contents($file->getPathname())
+        );
+
+        return "assets/{$name}";
     }
 }

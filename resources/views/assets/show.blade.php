@@ -7,7 +7,11 @@
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
 
-            <article class="rounded-lg bg-white p-6 shadow-sm sm:p-8">
+            <article class="overflow-hidden rounded-lg bg-white shadow-sm">
+                @if ($asset->image)
+                    <img src="{{ Storage::url($asset->image) }}" alt="{{ $asset->asset_name }}" class="aspect-[16/9] w-full max-h-80 object-cover object-center border-b border-gray-100" />
+                @endif
+                <div class="p-6 sm:p-8">
                 @php
                     $conditionClasses = [
                         'baik' => 'bg-green-100 text-green-700',
@@ -18,6 +22,12 @@
                     $available = $asset->availableQuantity();
                 @endphp
                 <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                    @if (is_null($asset->rt_id))
+                        <span class="rounded-full bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs font-semibold">Aset Umum RW</span>
+                    @else
+                        <span class="rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-semibold">Aset {{ $asset->rt?->name ?? 'RT' }}</span>
+                    @endif
+                    <span>•</span>
                     <span>{{ $asset->asset_type }}</span>
                     <span>•</span>
                     <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $conditionClasses[$asset->condition] ?? 'bg-gray-100 text-gray-700' }}">{{ ucfirst($asset->condition) }}</span>
@@ -39,6 +49,7 @@
                         </form>
                     </div>
                 @endif
+                </div>
             </article>
 
             @if (Auth::user()->isWarga() && $available > 0)

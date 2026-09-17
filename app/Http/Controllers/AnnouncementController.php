@@ -21,7 +21,8 @@ class AnnouncementController extends Controller
                 return $query->where('status', 'active')
                     ->where(function ($q) use ($rtId) {
                         $q->whereNull('target_rt_ids')
-                          ->orWhereRaw("CAST(target_rt_ids AS jsonb) @> ?::jsonb", [json_encode([(string) $rtId])]);
+                          ->orWhereJsonContains('target_rt_ids', (string) $rtId)
+                          ->orWhereJsonContains('target_rt_ids', $rtId);
                     })
                     ->withExists(['readBy as is_read' => fn ($q) => $q->where('user_id', $user->id)]);
             })

@@ -22,10 +22,13 @@
         .meta table { border-collapse: collapse; }
         .meta td { vertical-align: top; padding: 1px 6px 1px 0; }
         .body-text { font-size: 14.5px; line-height: 1.9; text-align: justify; margin-top: 12px; }
-        .sign { display: flex; justify-content: flex-end; margin-top: 36px; font-size: 14px; }
-        .sign div { text-align: center; min-width: 220px; }
-        .sign .space { height: 80px; }
-        .note { margin-top: 28px; font-size: 11.5px; color: #555; border-top: 1px dashed #999; padding-top: 8px; font-family: ui-sans-serif, system-ui, sans-serif; }
+        .sign { display: flex; justify-content: flex-end; margin-top: 32px; font-size: 14px; }
+        .sign .sign-container { text-align: center; min-width: 240px; position: relative; }
+        .sign .signature-box { position: relative; width: 240px; height: 100px; margin: 4px auto; display: flex; align-items: center; justify-content: center; }
+        .sign .signature-img { height: 80px; width: auto; z-index: 2; position: relative; filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.15)); }
+        .sign .stamp-img { position: absolute; left: 20px; top: 0px; width: 100px; height: 100px; opacity: 0.88; z-index: 1; pointer-events: none; transform: rotate(-6deg); }
+        .verified-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 4px; margin-top: 6px; }
+        .note { margin-top: 24px; font-size: 11.5px; color: #555; border-top: 1px dashed #999; padding-top: 10px; font-family: ui-sans-serif, system-ui, sans-serif; }
         @media print {
             body { background: #fff; }
             .toolbar { display: none; }
@@ -43,12 +46,16 @@
     <div class="sheet">
         <div class="kop">
             <h1>Pengurus Rukun Tetangga / Rukun Warga</h1>
-            <h2>SmartRTRW{{ $letter->user?->rt ? ' — '.$letter->user->rt->name : '' }}</h2>
-            <p>Sistem Informasi RT/RW • Surat resmi diterbitkan melalui aplikasi SmartRTRW</p>
+            <h2>SmartRTRW{{ $letter->user?->rt ? ' — '.$letter->user->rt->name : ' — RT 01' }} / RW 05</h2>
+            <p>Sistem Informasi RT/RW • Surat Resmi Diterbitkan Secara Digital Melalui SmartRTRW</p>
         </div>
 
         @php
             $judul = str_contains(strtolower($letter->letter_type), 'keterangan') ? 'SURAT KETERANGAN' : 'SURAT PENGANTAR';
+            $rtName = $letter->user?->rt?->name ?? 'RT 01';
+            $ketuaName = 'H. Ahmad Subagja, S.T.';
+            $ttdPath = asset('images/signatures/ttd-ketua-rt01.svg');
+            $stempelPath = asset('images/stamps/stempel-rt01.svg');
         @endphp
 
         <div class="title">
@@ -58,47 +65,52 @@
         </div>
 
         <div class="body-text">
-            <p>Yang bertanda tangan di bawah ini, Pengurus RT/RW SmartRTRW, dengan ini menerangkan bahwa:</p>
+            <p>Yang bertanda tangan di bawah ini, Pengurus {{ $rtName }} RW 05 SmartRTRW, dengan ini menerangkan bahwa:</p>
         </div>
 
         <div class="meta">
             <table>
-                <tr><td style="width:170px;">Nama</td><td style="width:12px;">:</td><td><strong>{{ $letter->user?->name ?? '—' }}</strong></td></tr>
-                <tr><td>RT Terdaftar</td><td>:</td><td>{{ $letter->user?->rt?->name ?? '—' }}</td></tr>
-                <tr><td>Keperluan</td><td>:</td><td>{{ $letter->letter_type }}</td></tr>
+                <tr><td style="width:170px;">Nama Warga</td><td style="width:12px;">:</td><td><strong>{{ $letter->user?->name ?? '—' }}</strong></td></tr>
+                <tr><td>RT / Wilayah</td><td>:</td><td>{{ $rtName }} / RW 05</td></tr>
+                <tr><td>Jenis Surat</td><td>:</td><td>{{ $letter->letter_type }}</td></tr>
                 <tr><td>Tanggal Pengajuan</td><td>:</td><td>{{ $letter->submission_date?->translatedFormat('d F Y') }}</td></tr>
                 @if ($letter->letter_date)
-                    <tr><td>Tanggal Surat</td><td>:</td><td>{{ $letter->letter_date->translatedFormat('d F Y') }}</td></tr>
+                    <tr><td>Tanggal Disetujui</td><td>:</td><td>{{ $letter->letter_date->translatedFormat('d F Y') }}</td></tr>
                 @endif
             </table>
         </div>
 
         <div class="body-text">
             <p>
-                Adalah benar warga kami dan surat ini dipergunakan untuk keperluan
+                Adalah benar-benar warga yang terdaftar di lingkungan kami dan surat ini dipergunakan untuk keperluan
                 <strong>{{ $letter->letter_type }}</strong>
-                dengan keterangan sebagai berikut:
+                dengan rincian/keterangan sebagai berikut:
             </p>
-            <p style="padding: 10px 14px; border: 1px solid #ddd; background: #fafafa;">{{ $letter->purpose }}</p>
+            <p style="padding: 10px 14px; border: 1px solid #d1d5db; background: #f9fafb; border-radius: 4px; font-weight: 500;">{{ $letter->purpose }}</p>
             <p>
-                Demikian surat pengantar ini dibuat untuk diurus lebih lanjut ke Kelurahan
-                guna mendapatkan dokumen resmi yang dibutuhkan.
-                Surat ini diterbitkan secara elektronik melalui SmartRTRW dan dapat
-                diverifikasi dengan nomor surat di atas.
+                Demikian surat pengantar ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.
+                Surat ini diterbitkan secara elektronik melalui sistem SmartRTRW dan telah dilengkapi tanda tangan serta stempel digital resmi.
             </p>
         </div>
 
         <div class="sign">
-            <div>
-                <p>{{ now()->translatedFormat('d F Y') }}<br>Pengurus RT/RW</p>
-                <div class="space"></div>
-                <p><strong>( ............................................ )</strong></p>
+            <div class="sign-container">
+                <p style="margin:0 0 4px 0;">{{ ($letter->letter_date ?? now())->translatedFormat('d F Y') }}<br>Ketua {{ $rtName }} RW 05</p>
+                <div class="signature-box">
+                    <img src="{{ $stempelPath }}" alt="Stempel Resmi RT 01" class="stamp-img">
+                    <img src="{{ $ttdPath }}" alt="Tanda Tangan Ketua RT 01" class="signature-img">
+                </div>
+                <p style="margin: 0; font-weight: bold; text-decoration: underline; font-size: 15px;">{{ $ketuaName }}</p>
+                <p style="margin: 2px 0 0; font-size: 12px; color: #374151;">Ketua {{ $rtName }}</p>
             </div>
         </div>
 
         <div class="note">
-            Dokumen ini adalah softcopy surat resmi hasil pengajuan {{ $letter->letter_number }}.
-            Simpan sebagai PDF melalui tombol “Simpan PDF”.
+            <div class="verified-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <strong>TERVERIFIKASI DIGITAL:</strong> Softcopy surat resmi ini telah ditandatangani dan distempel secara sah oleh Ketua {{ $rtName }}.
+            </div>
+            <p style="margin: 6px 0 0; color: #6b7280; font-size: 11px;">Nomor Dokumen: {{ $letter->letter_number }} • Dapat dicetak atau disimpan langsung dalam format PDF.</p>
         </div>
     </div>
 </body>

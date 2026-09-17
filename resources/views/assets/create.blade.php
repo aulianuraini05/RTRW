@@ -3,7 +3,7 @@
 
     <div>
         <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('assets.store') }}" class="space-y-6 rounded-lg bg-white p-6 shadow-sm">
+            <form method="POST" action="{{ route('assets.store') }}" enctype="multipart/form-data" class="space-y-6 rounded-lg bg-white p-6 shadow-sm">
                 @csrf
                 @include('assets._form', ['submitLabel' => 'Simpan aset'])
             </form>

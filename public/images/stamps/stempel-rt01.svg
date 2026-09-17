@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Top arc text path -->
+    <path id="topArc" d="M 25 100 A 75 75 0 0 1 175 100" />
+    <!-- Bottom arc text path -->
+    <path id="bottomArc" d="M 175 100 A 75 75 0 0 1 25 100" />
+  </defs>
+
+  <g transform="rotate(-7 100 100)" fill="none" stroke="#2563eb" stroke-opacity="0.88">
+    <!-- Outer Double Circle -->
+    <circle cx="100" cy="100" r="94" stroke-width="3.5"/>
+    <circle cx="100" cy="100" r="87" stroke-width="1.5"/>
+
+    <!-- Inner Circle -->
+    <circle cx="100" cy="100" r="56" stroke-width="1.5" stroke-dasharray="4 2"/>
+
+    <!-- Center Box / Lines -->
+    <line x1="20" y1="82" x2="180" y2="82" stroke-width="2"/>
+    <line x1="20" y1="118" x2="180" y2="118" stroke-width="2"/>
+
+    <!-- Stars -->
+    <text x="24" y="104" font-size="14" fill="#2563eb" fill-opacity="0.88" text-anchor="middle" font-family="sans-serif">★</text>
+    <text x="176" y="104" font-size="14" fill="#2563eb" fill-opacity="0.88" text-anchor="middle" font-family="sans-serif">★</text>
+
+    <!-- Top Text -->
+    <text font-size="11.5" font-weight="bold" font-family="'Arial Black', Arial, sans-serif" letter-spacing="2" fill="#2563eb" fill-opacity="0.88">
+      <textPath href="#topArc" startOffset="50%" text-anchor="middle">
+        PENGURUS RT 01 / RW 05
+      </textPath>
+    </text>
+
+    <!-- Bottom Text -->
+    <text font-size="10.5" font-weight="bold" font-family="'Arial Black', Arial, sans-serif" letter-spacing="1.5" fill="#2563eb" fill-opacity="0.88">
+      <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">
+        SMART RT/RW KELURAHAN
+      </textPath>
+    </text>
+
+    <!-- Center Text -->
+    <text x="100" y="100" font-size="12" font-weight="900" font-family="'Arial Black', Arial, sans-serif" fill="#2563eb" fill-opacity="0.88" text-anchor="middle">
+      KETUA RT 01
+    </text>
+    <text x="100" y="112" font-size="7.5" font-weight="bold" font-family="Arial, sans-serif" letter-spacing="1" fill="#2563eb" fill-opacity="0.88" text-anchor="middle">
+      TERVERIFIKASI
+    </text>
+  </g>
+</svg>

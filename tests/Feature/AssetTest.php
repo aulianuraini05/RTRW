@@ -118,3 +118,20 @@ test('admin can update loan status to approved and returned', function () {
     // Check available quantity restored
     expect($asset->fresh()->availableQuantity())->toBe(10);
 });
+
+test('warga can only see assets of their own RT or public RW assets', function () {
+    $rt1 = \App\Models\Rt::factory()->create(['name' => 'RT 01']);
+    $rt2 = \App\Models\Rt::factory()->create(['name' => 'RT 02']);
+
+    $wargaRt1 = User::factory()->create(['role' => 'warga', 'rt_id' => $rt1->id]);
+
+    $assetRw = Asset::factory()->create(['asset_name' => 'Tenda RW Publik', 'rt_id' => null]);
+    $assetRt1 = Asset::factory()->create(['asset_name' => 'Sound System RT 01', 'rt_id' => $rt1->id]);
+    $assetRt2 = Asset::factory()->create(['asset_name' => 'Kursi RT 02', 'rt_id' => $rt2->id]);
+
+    $response = $this->actingAs($wargaRt1)->get(route('assets.index'));
+    $response->assertStatus(200);
+    $response->assertSee('Tenda RW Publik');
+    $response->assertSee('Sound System RT 01');
+    $response->assertDontSee('Kursi RT 02');
+});

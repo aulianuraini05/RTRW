@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" width="320" height="140">
+  <g fill="none" stroke="#1e3a8a" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main cursive signature line -->
+    <path d="M 25 80 Q 45 15 65 50 T 90 90 Q 105 25 125 55 T 150 75 Q 165 40 185 65 T 215 80 Q 235 20 260 60 T 290 75" stroke-width="3.8"/>
+    <!-- Second layer detail -->
+    <path d="M 40 45 Q 60 70 85 40 T 115 85" stroke-width="2.5"/>
+    <path d="M 135 60 Q 155 30 175 75 T 205 50" stroke-width="2.5"/>
+    <path d="M 225 45 Q 245 25 265 65" stroke-width="2.5"/>
+    <!-- Underline sweep -->
+    <path d="M 35 95 Q 130 118 280 85 Q 300 80 265 98 T 210 108" stroke-width="3.2"/>
+    <!-- Dot accents -->
+    <circle cx="282" cy="70" r="2.5" fill="#1e3a8a"/>
+  </g>
+</svg>
