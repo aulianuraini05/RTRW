@@ -16,8 +16,12 @@ class LetterController extends Controller
             ->when(
                 ! request()->user()->isAdmin(),
                 fn ($query) => $query->where('user_id', request()->user()->id),
-            )
-            ->latest('submission_date')
+            );
+
+        // Privasi per RT: Ketua RT hanya melihat surat warga RT-nya sendiri.
+        $this->applyRtScope(request(), $letters);
+
+        $letters = $letters->latest('submission_date')
             ->paginate(10);
 
         return view('letters.index', compact('letters'));
@@ -35,7 +39,6 @@ class LetterController extends Controller
         abort_unless($request->user()->isWarga(), 403);
 
         $validated = $request->validate([
-            'letter_number' => ['nullable', 'string', 'max:100'],
             'letter_type' => ['required', 'string', 'max:100'],
             'purpose' => ['required', 'string'],
             'submission_date' => ['required', 'date'],
@@ -43,7 +46,8 @@ class LetterController extends Controller
 
         $request->user()->letters()->create([
             ...$validated,
-            'letter_number' => $validated['letter_number'] ?: $this->generateLetterNumber(),
+            // Nomor surat selalu digenerate otomatis — tidak bisa diisi manual.
+            'letter_number' => $this->generateLetterNumber(),
             'letter_status' => 'diajukan',
         ]);
 
@@ -57,6 +61,8 @@ class LetterController extends Controller
             abort(404);
         }
 
+        $this->ensureRtAccess(request(), $letter);
+
         return view('letters.show', compact('letter'));
     }
 
@@ -65,6 +71,8 @@ class LetterController extends Controller
         if (! request()->user()->isAdmin() && $letter->user_id !== request()->user()->id) {
             abort(404);
         }
+
+        $this->ensureRtAccess(request(), $letter);
 
         abort_unless(
             in_array($letter->letter_status, ['disetujui', 'selesai'], true),
@@ -79,11 +87,15 @@ class LetterController extends Controller
 
     public function edit(Letter $letter)
     {
+        $this->ensureRtAccess(request(), $letter);
+
         return view('letters.edit', compact('letter'));
     }
 
     public function update(Request $request, Letter $letter)
     {
+        $this->ensureRtAccess($request, $letter);
+
         $validated = $request->validate([
             'letter_type' => ['required', 'string', 'max:100'],
             'purpose' => ['required', 'string'],
@@ -99,6 +111,8 @@ class LetterController extends Controller
 
     public function updateStatus(Request $request, Letter $letter)
     {
+        $this->ensureRtAccess($request, $letter);
+
         $status = $request->validate([
             'letter_status' => [
                 'required',
@@ -115,6 +129,8 @@ class LetterController extends Controller
 
     public function destroy(Letter $letter)
     {
+        $this->ensureRtAccess(request(), $letter);
+
         $letter->delete();
 
         return redirect()->route('letters.index')
@@ -127,5 +143,47 @@ class LetterController extends Controller
         $count = Letter::whereDate('created_at', today())->count() + 1;
 
         return 'SURAT/'.$date.'/'.str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Batasi query surat untuk Ketua RT: hanya surat warga RT-nya sendiri.
+     */
+    private function applyRtScope(Request $request, $query): void
+    {
+        $user = $request->user();
+
+        if (! $user->isRt()) {
+            return;
+        }
+
+        if (empty($user->rt_id)) {
+            $query->whereRaw('0 = 1');
+
+            return;
+        }
+
+        $rtId = $user->rt_id;
+
+        $query->whereHas('user', fn ($q) => $q->where('rt_id', $rtId));
+    }
+
+    /**
+     * Pastikan Ketua RT tidak bisa membuka/mengubah surat RT lain.
+     */
+    private function ensureRtAccess(Request $request, Letter $letter): void
+    {
+        $user = $request->user();
+
+        if (! $user->isRt()) {
+            return;
+        }
+
+        $letter->loadMissing('user');
+
+        $inScope = ! empty($user->rt_id)
+            && $letter->user
+            && (int) $letter->user->rt_id === (int) $user->rt_id;
+
+        abort_unless($inScope, 404);
     }
 }

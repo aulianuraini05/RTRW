@@ -130,12 +130,19 @@ it('warga tidak bisa akses create di modul admin-only (403)', function () {
 it('warga bisa akses create aspirasi, surat, kas, iuran, dan marketplace', function () {
     $warga = User::factory()->create(['role' => 'warga']);
 
-    // Form kas warga membutuhkan jadwal kas dari Ketua RT (nominal dikunci).
+    // Form kas & iuran warga membutuhkan jadwal dari Ketua RT (nominal dikunci).
     App\Models\KasSchedule::create([
         'rt_id' => $warga->rt_id,
         'month' => (int) now()->format('m'),
         'year' => (int) now()->format('Y'),
         'amount' => 25000,
+    ]);
+    App\Models\IuranSchedule::create([
+        'rt_id' => $warga->rt_id,
+        'jenis' => 'Sampah',
+        'month' => (int) now()->format('m'),
+        'year' => (int) now()->format('Y'),
+        'amount' => 15000,
     ]);
 
     $wargaCreateRoutes = [

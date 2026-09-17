@@ -21,7 +21,9 @@ class AssetLoanFactory extends Factory
             'quantity' => fake()->numberBetween(1, 3),
             'borrow_date' => $borrowDate->format('Y-m-d'),
             'return_date' => fake()->dateTimeBetween($borrowDate, '+2 weeks')->format('Y-m-d'),
-            'actual_return_date' => fake()->optional(0.3)->dateTimeBetween($borrowDate, '+2 weeks')->format('Y-m-d'),
+            'actual_return_date' => fake()->boolean(30)
+                ? fake()->dateTimeBetween($borrowDate, '+2 weeks')->format('Y-m-d')
+                : null,
             'loan_status' => 'diajukan',
             'notes' => fake()->optional()->sentence(),
         ];

@@ -37,6 +37,32 @@ class Asset extends Model
     }
 
     /**
+     * Siapa yang boleh mengonfirmasi peminjaman aset ini.
+     *
+     * - Aset milik RT: hanya Ketua RT dari RT tersebut (tergantung yang buat).
+     * - Aset Umum RW: ditangani admin/RW, bukan Ketua RT.
+     * - Superadmin selalu boleh (pemilik sistem).
+     */
+    public function userCanConfirmLoan(?User $user): bool
+    {
+        if (! $user || ! $user->isAdmin()) {
+            return false;
+        }
+
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($this->rt_id !== null) {
+            return $user->isRt()
+                && ! empty($user->rt_id)
+                && (int) $user->rt_id === (int) $this->rt_id;
+        }
+
+        return ! $user->isRt();
+    }
+
+    /**
      * @return HasMany<AssetLoan, $this>
      */
     public function loans(): HasMany

@@ -5,10 +5,8 @@
         <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <form method="POST" action="{{ route('letters.store') }}" class="space-y-6 rounded-lg bg-white p-6 shadow-sm">
                 @csrf
-                <div>
-                    <x-input-label for="letter_number" value="Nomor surat (opsional)" />
-                    <x-text-input id="letter_number" name="letter_number" type="text" class="mt-1 block w-full" :value="old('letter_number')" placeholder="Kosongkan untuk digenerate otomatis" />
-                    <x-input-error class="mt-2" :messages="$errors->get('letter_number')" />
+                <div class="rounded-md bg-blue-50 p-4 text-sm text-blue-700">
+                    Nomor surat akan dibuat otomatis oleh sistem setelah permohonan dikirim.
                 </div>
                 <div>
                     <x-input-label for="letter_type" value="Jenis surat" />

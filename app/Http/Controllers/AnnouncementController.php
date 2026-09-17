@@ -145,6 +145,27 @@ class AnnouncementController extends Controller
         return view('announcements.show', compact('announcement', 'rtMap'));
     }
 
+    /**
+     * Daftar warga yang sudah membaca pengumuman ini.
+     * Dibuka lewat ikon mata di tiap baris pengumuman.
+     */
+    public function readers(Announcement $announcement)
+    {
+        $user = request()->user();
+        abort_unless($user->isAdmin(), 403);
+
+        if ($user->isRt() && $announcement->created_by !== $user->id) {
+            abort(403);
+        }
+
+        $readers = $announcement->readBy()
+            ->with('rt')
+            ->orderByDesc('announcement_reads.read_at')
+            ->paginate(15);
+
+        return view('announcements.readers', compact('announcement', 'readers'));
+    }
+
     public function edit(Announcement $announcement)
     {
         $user = request()->user();

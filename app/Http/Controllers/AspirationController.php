@@ -15,9 +15,12 @@ class AspirationController extends Controller
             ->when(
                 ! request()->user()->isAdmin(),
                 fn ($query) => $query->where('user_id', request()->user()->id),
-            )
-            ->latest('submission_date')
-            ->paginate(10);
+            );
+
+        // Privasi per RT: Ketua RT hanya melihat aspirasi warga RT-nya sendiri.
+        $this->applyRtScope(request(), $aspirations);
+
+        $aspirations = $aspirations->latest('submission_date')->paginate(10);
 
         return view('aspirations.index', compact('aspirations'));
     }
@@ -53,16 +56,22 @@ class AspirationController extends Controller
             abort(404);
         }
 
+        $this->ensureRtAccess(request(), $aspiration);
+
         return view('aspirations.show', compact('aspiration'));
     }
 
     public function edit(Aspiration $aspiration)
     {
+        $this->ensureRtAccess(request(), $aspiration);
+
         return view('aspirations.edit', compact('aspiration'));
     }
 
     public function update(Request $request, Aspiration $aspiration)
     {
+        $this->ensureRtAccess($request, $aspiration);
+
         $request->validate([
             'aspiration_title' => 'required',
             'aspiration_content' => 'required',
@@ -78,6 +87,8 @@ class AspirationController extends Controller
 
     public function updateStatus(Request $request, Aspiration $aspiration)
     {
+        $this->ensureRtAccess($request, $aspiration);
+
         $status = $request->validate([
             'aspiration_status' => [
                 'required',
@@ -92,8 +103,52 @@ class AspirationController extends Controller
 
     public function destroy(Aspiration $aspiration)
     {
+        $this->ensureRtAccess(request(), $aspiration);
+
         $aspiration->delete();
 
         return redirect()->route('aspirations.index');
+    }
+
+    /**
+     * Batasi query aspirasi untuk Ketua RT: hanya aspirasi warga RT-nya sendiri.
+     */
+    private function applyRtScope(Request $request, $query): void
+    {
+        $user = $request->user();
+
+        if (! $user->isRt()) {
+            return;
+        }
+
+        if (empty($user->rt_id)) {
+            $query->whereRaw('0 = 1');
+
+            return;
+        }
+
+        $rtId = $user->rt_id;
+
+        $query->whereHas('user', fn ($q) => $q->where('rt_id', $rtId));
+    }
+
+    /**
+     * Pastikan Ketua RT tidak bisa membuka/mengubah aspirasi RT lain.
+     */
+    private function ensureRtAccess(Request $request, Aspiration $aspiration): void
+    {
+        $user = $request->user();
+
+        if (! $user->isRt()) {
+            return;
+        }
+
+        $aspiration->loadMissing('user');
+
+        $inScope = ! empty($user->rt_id)
+            && $aspiration->user
+            && (int) $aspiration->user->rt_id === (int) $user->rt_id;
+
+        abort_unless($inScope, 404);
     }
 }

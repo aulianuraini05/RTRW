@@ -19,7 +19,9 @@ class LetterFactory extends Factory
             'letter_number' => 'SURAT/'.now()->format('Ymd').'/'.str_pad((string) fake()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
             'letter_type' => fake()->randomElement($types),
             'submission_date' => fake()->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
-            'letter_date' => fake()->optional()->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
+            'letter_date' => fake()->boolean(30)
+                ? fake()->dateTimeBetween('-1 month', 'now')->format('Y-m-d')
+                : null,
             'purpose' => fake()->paragraph(),
             'letter_status' => 'diajukan',
         ];

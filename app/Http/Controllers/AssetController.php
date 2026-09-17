@@ -25,6 +25,16 @@ class AssetController extends Controller
                     }
                 });
             })
+            ->when($user->isRt(), function ($query) use ($user) {
+                // Ketua RT hanya melihat aset RT-nya sendiri + aset umum.
+                if (empty($user->rt_id)) {
+                    return $query->whereRaw('0 = 1');
+                }
+
+                return $query->where(function ($q) use ($user) {
+                    $q->whereNull('rt_id')->orWhere('rt_id', $user->rt_id);
+                });
+            })
             ->withCount(['loans' => function ($query) {
                 $query->whereIn('loan_status', ['disetujui', 'dipinjam']);
             }])
@@ -32,10 +42,18 @@ class AssetController extends Controller
             ->paginate(10);
 
         if ($user->isAdmin()) {
-            $loans = \App\Models\AssetLoan::with(['asset', 'user'])
-                ->latest()
-                ->take(15)
-                ->get();
+            $loansQuery = \App\Models\AssetLoan::with(['asset', 'user'])->latest();
+
+            // Ketua RT hanya melihat pengajuan untuk aset RT-nya sendiri.
+            if ($user->isRt()) {
+                if (empty($user->rt_id)) {
+                    $loansQuery->whereRaw('0 = 1');
+                } else {
+                    $loansQuery->whereHas('asset', fn ($q) => $q->where('rt_id', $user->rt_id));
+                }
+            }
+
+            $loans = $loansQuery->take(15)->get();
         } else {
             $loans = \App\Models\AssetLoan::with('asset')
                 ->where('user_id', $user->id)

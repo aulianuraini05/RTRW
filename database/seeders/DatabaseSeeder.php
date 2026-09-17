@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed RW master data (Ketua RW & Admin Utama codes)
         \App\Models\Rw::updateOrCreate(
-            ['name' => 'RW 01'],
+            ['name' => 'RW 10'],
             [
                 'code' => 'KETUA-RW',
                 'admin_code' => 'ADMIN-UTAMA',

@@ -16,7 +16,7 @@ class AssetLoanController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'borrow_date' => ['required', 'date', 'after_or_equal:today'],
             'return_date' => ['required', 'date', 'after_or_equal:borrow_date'],
-            'notes' => ['nullable', 'string'],
+            'notes' => ['required', 'string', 'max:1000'],
         ]);
 
         if ($validated['quantity'] > $asset->availableQuantity()) {
@@ -39,6 +39,10 @@ class AssetLoanController extends Controller
     public function updateStatus(Request $request, AssetLoan $loan)
     {
         abort_unless($request->user()->isAdmin(), 403);
+
+        // Konfirmasi hanya oleh Ketua RT pemilik aset (atau admin/RW untuk aset umum).
+        $loan->loadMissing('asset');
+        abort_unless($loan->asset && $loan->asset->userCanConfirmLoan($request->user()), 403);
 
         $status = $request->validate([
             'loan_status' => [

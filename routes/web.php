@@ -6,6 +6,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetLoanController;
 use App\Http\Controllers\CashTransactionController;
 use App\Http\Controllers\ContributionController;
+use App\Http\Controllers\IuranScheduleController;
 use App\Http\Controllers\KasScheduleController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\MarketplaceController;
@@ -145,6 +146,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
         Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('/announcements/{announcement}/readers', [AnnouncementController::class, 'readers'])->name('announcements.readers');
         Route::get('/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
         Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::patch('/announcements/{announcement}/toggle', [AnnouncementController::class, 'toggleStatus'])->name('announcements.toggle');
@@ -285,6 +287,20 @@ Route::middleware('auth')->group(function () {
 
     // Warga & Admin: lihat detail
     Route::get('/contributions/{contribution}', [ContributionController::class, 'show'])->name('contributions.show');
+
+    // =========================================================================
+    // JADWAL IURAN BULANAN PER RT (IuranSchedule)
+    // =========================================================================
+    // Ketua RT mengisi nominal iuran bulan berjalan untuk RT-nya;
+    // sistem otomatis menerbitkan tagihan ke warga RT tersebut.
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/iuran-schedules', [IuranScheduleController::class, 'index'])->name('iuran_schedules.index');
+        Route::get('/iuran-schedules/create', [IuranScheduleController::class, 'create'])->name('iuran_schedules.create');
+        Route::post('/iuran-schedules', [IuranScheduleController::class, 'store'])->name('iuran_schedules.store');
+        Route::post('/iuran-schedules/{iuranSchedule}/sync', [IuranScheduleController::class, 'sync'])->name('iuran_schedules.sync');
+        Route::delete('/iuran-schedules/{iuranSchedule}', [IuranScheduleController::class, 'destroy'])->name('iuran_schedules.destroy');
+        Route::get('/iuran-schedules/{iuranSchedule}', [IuranScheduleController::class, 'show'])->name('iuran_schedules.show');
+    });
 
     // =========================================================================
     // MARKETPLACE / UMKM (Marketplace)

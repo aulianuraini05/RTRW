@@ -46,7 +46,7 @@
     <div class="sheet">
         <div class="kop">
             <h1>Pengurus Rukun Tetangga / Rukun Warga</h1>
-            <h2>SmartRTRW{{ $letter->user?->rt ? ' — '.$letter->user->rt->name : ' — RT 01' }} / RW 05</h2>
+            <h2>SmartRTRW{{ $letter->user?->rt ? ' — '.$letter->user->rt->name : ' — RT 01' }} / RW 10</h2>
             <p>Sistem Informasi RT/RW • Surat Resmi Diterbitkan Secara Digital Melalui SmartRTRW</p>
         </div>
 
@@ -65,13 +65,13 @@
         </div>
 
         <div class="body-text">
-            <p>Yang bertanda tangan di bawah ini, Pengurus {{ $rtName }} RW 05 SmartRTRW, dengan ini menerangkan bahwa:</p>
+            <p>Yang bertanda tangan di bawah ini, Pengurus {{ $rtName }} RW 10 SmartRTRW, dengan ini menerangkan bahwa:</p>
         </div>
 
         <div class="meta">
             <table>
                 <tr><td style="width:170px;">Nama Warga</td><td style="width:12px;">:</td><td><strong>{{ $letter->user?->name ?? '—' }}</strong></td></tr>
-                <tr><td>RT / Wilayah</td><td>:</td><td>{{ $rtName }} / RW 05</td></tr>
+                <tr><td>RT / Wilayah</td><td>:</td><td>{{ $rtName }} / RW 10</td></tr>
                 <tr><td>Jenis Surat</td><td>:</td><td>{{ $letter->letter_type }}</td></tr>
                 <tr><td>Tanggal Pengajuan</td><td>:</td><td>{{ $letter->submission_date?->translatedFormat('d F Y') }}</td></tr>
                 @if ($letter->letter_date)
@@ -95,7 +95,7 @@
 
         <div class="sign">
             <div class="sign-container">
-                <p style="margin:0 0 4px 0;">{{ ($letter->letter_date ?? now())->translatedFormat('d F Y') }}<br>Ketua {{ $rtName }} RW 05</p>
+                <p style="margin:0 0 4px 0;">{{ ($letter->letter_date ?? now())->translatedFormat('d F Y') }}<br>Ketua {{ $rtName }} RW 10</p>
                 <div class="signature-box">
                     <img src="{{ $stempelPath }}" alt="Stempel Resmi RT 01" class="stamp-img">
                     <img src="{{ $ttdPath }}" alt="Tanda Tangan Ketua RT 01" class="signature-img">

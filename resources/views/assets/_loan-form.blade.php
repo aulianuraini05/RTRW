@@ -18,8 +18,8 @@
         </div>
     </div>
     <div>
-        <x-input-label for="notes" value="Catatan (opsional)" />
-        <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('notes') }}</textarea>
+        <x-input-label for="notes" value="Alasan" />
+        <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>{{ old('notes') }}</textarea>
         <x-input-error class="mt-2" :messages="$errors->get('notes')" />
     </div>
     <div class="flex items-center gap-4">

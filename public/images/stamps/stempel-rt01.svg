@@ -25,7 +25,7 @@
     <!-- Top Text -->
     <text font-size="11.5" font-weight="bold" font-family="'Arial Black', Arial, sans-serif" letter-spacing="2" fill="#2563eb" fill-opacity="0.88">
       <textPath href="#topArc" startOffset="50%" text-anchor="middle">
-        PENGURUS RT 01 / RW 05
+        PENGURUS RT 01 / RW 10
       </textPath>
     </text>
 

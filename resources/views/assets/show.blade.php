@@ -85,12 +85,12 @@
                                     @endif
                                     <p class="text-gray-600">Jumlah: {{ $loan->quantity }} • Pinjam: {{ $loan->borrow_date->translatedFormat('d F Y') }} • Kembali: {{ $loan->return_date?->translatedFormat('d F Y') ?? '-' }}</p>
                                     @if ($loan->notes)
-                                        <p class="mt-1 text-gray-500">Catatan: {{ $loan->notes }}</p>
+                                        <p class="mt-1 text-gray-500">Alasan: {{ $loan->notes }}</p>
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $statusClasses[$loan->loan_status] ?? 'bg-gray-100 text-gray-700' }}">{{ ucfirst($loan->loan_status) }}</span>
-                                    @if (Auth::user()->isAdmin())
+                                    @if ($asset->userCanConfirmLoan(Auth::user()))
                                         @include('assets._loan-actions', ['loan' => $loan])
                                     @endif
                                 </div>

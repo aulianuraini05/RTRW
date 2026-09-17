@@ -59,7 +59,7 @@
                         $amount = (float) $cashTransaction->amount;
                         $code = $cashTransaction->payment_code ?? 'KAS-001';
                         $rtName = Auth::user()->rt?->name ?? 'RT 01';
-                        $qrPayload = '00020101021226680016ID.CO.QRIS.WWW01189360091800000000005204581253033605406' . (int)$amount . '5802ID5915SMART+' . str_replace(' ', '+', $rtName) . '+RW056007JAKARTA';
+                        $qrPayload = '00020101021226680016ID.CO.QRIS.WWW01189360091800000000005204581253033605406' . (int)$amount . '5802ID5915SMART+' . str_replace(' ', '+', $rtName) . '+RW106007JAKARTA';
                         $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($qrPayload);
                     @endphp
 

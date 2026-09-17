@@ -61,6 +61,23 @@ test('warga can request loan for an asset', function () {
     ]);
 });
 
+test('warga cannot submit loan without alasan', function () {
+    $warga = User::factory()->create(['role' => 'warga']);
+    $asset = Asset::factory()->create(['quantity' => 10]);
+
+    $response = $this->actingAs($warga)->post(route('asset-loans.store', $asset), [
+        'quantity' => 1,
+        'borrow_date' => now()->toDateString(),
+        'return_date' => now()->addDays(2)->toDateString(),
+    ]);
+
+    $response->assertSessionHasErrors(['notes']);
+    $this->assertDatabaseMissing('asset_loans', [
+        'asset_id' => $asset->id,
+        'user_id' => $warga->id,
+    ]);
+});
+
 test('warga cannot borrow more than available quantity', function () {
     $warga = User::factory()->create(['role' => 'warga']);
     $asset = Asset::factory()->create(['quantity' => 3]);
@@ -69,6 +86,7 @@ test('warga cannot borrow more than available quantity', function () {
         'quantity' => 5,
         'borrow_date' => now()->toDateString(),
         'return_date' => now()->addDays(2)->toDateString(),
+        'notes' => 'Untuk acara kerja bakti',
     ]);
 
     $response->assertSessionHasErrors(['quantity']);
