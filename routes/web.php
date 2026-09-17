@@ -6,6 +6,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetLoanController;
 use App\Http\Controllers\CashTransactionController;
 use App\Http\Controllers\ContributionController;
+use App\Http\Controllers\KasScheduleController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\ProfileController;
@@ -247,6 +248,20 @@ Route::middleware('auth')->group(function () {
 
     // Warga & Admin: lihat detail
     Route::get('/cash-transactions/{cashTransaction}', [CashTransactionController::class, 'show'])->name('cash_transactions.show');
+
+    // =========================================================================
+    // JADWAL KAS BULANAN PER RT (KasSchedule)
+    // =========================================================================
+    // Ketua RT mengisi nominal kas bulan berjalan untuk RT-nya;
+    // sistem otomatis menerbitkan tagihan ke warga RT tersebut.
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/kas-schedules', [KasScheduleController::class, 'index'])->name('kas_schedules.index');
+        Route::get('/kas-schedules/create', [KasScheduleController::class, 'create'])->name('kas_schedules.create');
+        Route::post('/kas-schedules', [KasScheduleController::class, 'store'])->name('kas_schedules.store');
+        Route::post('/kas-schedules/{kasSchedule}/sync', [KasScheduleController::class, 'sync'])->name('kas_schedules.sync');
+        Route::delete('/kas-schedules/{kasSchedule}', [KasScheduleController::class, 'destroy'])->name('kas_schedules.destroy');
+        Route::get('/kas-schedules/{kasSchedule}', [KasScheduleController::class, 'show'])->name('kas_schedules.show');
+    });
 
     // =========================================================================
     // IURAN WARGA (Contribution)

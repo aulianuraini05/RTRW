@@ -5,7 +5,10 @@
             @if (Auth::user()->isWarga())
                 <a href="{{ route('cash_transactions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bayar Kas</a>
             @else
-                <a href="{{ route('cash_transactions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Catat Pembayaran Kas</a>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('kas_schedules.index') }}" class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-600 hover:bg-indigo-50">Kelola Kas Bulanan</a>
+                    <a href="{{ route('cash_transactions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Catat Pembayaran Kas</a>
+                </div>
             @endif
         </div>
     </x-slot>
@@ -14,6 +17,26 @@
         <div class="space-y-6">
             @if (session('success'))
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
+            @endif
+            @if (session('info'))
+                <div class="rounded-md bg-blue-50 p-4 text-sm text-blue-700">{{ session('info') }}</div>
+            @endif
+
+            @if (Auth::user()->isWarga() && ! empty($activeSchedule))
+                <div class="rounded-lg bg-indigo-600 p-6 text-white shadow-sm">
+                    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                        <div>
+                            <p class="text-sm font-medium opacity-90">Kas {{ $activeSchedule->period_label }} {{ $activeSchedule->rt?->name ? '('.$activeSchedule->rt->name.')' : '' }}</p>
+                            <p class="mt-1 text-xl font-extrabold">Rp {{ number_format((float) $activeSchedule->amount, 0, ',', '.') }} / warga</p>
+                            <p class="mt-1 text-xs opacity-75">Nominal ditentukan Ketua RT — Anda tinggal memilih metode pembayaran.</p>
+                        </div>
+                        @if (! empty($myPendingBill))
+                            <a href="{{ route('cash_transactions.show', $myPendingBill) }}" class="rounded-md bg-white px-4 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-50">Bayar Sekarang</a>
+                        @elseif (! empty($schedulePaid))
+                            <span class="rounded-md bg-green-500 px-4 py-2 text-sm font-bold text-white">Sudah Lunas</span>
+                        @endif
+                    </div>
+                </div>
             @endif
 
             <!-- Summary Cards -->
@@ -40,7 +63,7 @@
                 <form method="GET" action="{{ route('cash_transactions.index') }}" class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
                         @if (Auth::user()->isAdmin())
-                            <x-text-input type="text" name="search" placeholder="Cari nama warga..." :value="request('search')" class="w-full sm:max-w-xs" />
+                            <x-text-input type="text" name="search" placeholder="Cari nama pembayar..." :value="request('search')" class="w-full sm:max-w-xs" />
                         @endif
                         <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                             <option value="">Semua Status</option>
@@ -71,9 +94,12 @@
                                 </div>
                                 <h3 class="text-base font-semibold text-gray-900">
                                     <a href="{{ route('cash_transactions.show', $transaction) }}" class="hover:text-indigo-600">
-                                        {{ $transaction->user?->name ?? 'Warga lama' }}
+                                        {{ $transaction->display_name }}
                                     </a>
                                 </h3>
+                                @if ($transaction->schedule)
+                                    <p class="mt-0.5 text-xs font-medium text-indigo-600">Kas {{ $transaction->schedule->period_label }}</p>
+                                @endif
                                 @if ($transaction->amount)
                                     <p class="mt-1 text-sm font-semibold text-gray-700">Rp {{ number_format((float) $transaction->amount, 0, ',', '.') }}</p>
                                 @endif
@@ -120,11 +146,6 @@
                 @empty
                     <div class="rounded-lg bg-white p-8 text-center text-gray-600 shadow-sm">
                         {{ Auth::user()->isAdmin() ? 'Belum ada catatan pembayaran kas warga.' : 'Anda belum memiliki catatan pembayaran kas.' }}
-                        @if (Auth::user()->isWarga())
-                            <a href="{{ route('cash_transactions.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bayar Kas Sekarang</a>
-                        @else
-                            <a href="{{ route('cash_transactions.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Catat Pembayaran Kas Pertama</a>
-                        @endif
                     </div>
                 @endforelse
 

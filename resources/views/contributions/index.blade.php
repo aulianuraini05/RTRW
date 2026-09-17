@@ -120,11 +120,6 @@
                 @empty
                     <div class="rounded-lg bg-white p-8 text-center text-gray-600 shadow-sm">
                         {{ Auth::user()->isAdmin() ? 'Belum ada catatan pembayaran iuran warga.' : 'Anda belum memiliki catatan pembayaran iuran.' }}
-                        @if (Auth::user()->isWarga())
-                            <a href="{{ route('contributions.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bayar Iuran Sekarang</a>
-                        @else
-                            <a href="{{ route('contributions.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">+ Catat Pembayaran Iuran Pertama</a>
-                        @endif
                     </div>
                 @endforelse
 

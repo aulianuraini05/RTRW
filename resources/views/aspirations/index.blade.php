@@ -50,9 +50,6 @@
             @empty
                 <div class="rounded-lg bg-white p-8 text-center text-gray-600 shadow-sm">
                     {{ Auth::user()->isAdmin() ? 'Belum ada aspirasi dari warga.' : 'Anda belum mengirim aspirasi atau pengaduan.' }}
-                    @if (Auth::user()->isWarga())
-                        <a href="{{ route('aspirations.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Ajukan aspirasi pertama</a>
-                    @endif
                 </div>
             @endforelse
 

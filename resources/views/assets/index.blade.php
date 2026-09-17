@@ -114,9 +114,6 @@
             @empty
                 <div class="rounded-lg bg-white p-8 text-center text-gray-600 shadow-sm">
                     Belum ada aset yang terdaftar.
-                    @if (Auth::user()->isAdmin())
-                        <a href="{{ route('assets.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Tambah aset pertama</a>
-                    @endif
                 </div>
             @endforelse
 

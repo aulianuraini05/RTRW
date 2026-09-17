@@ -5,6 +5,12 @@
 
     <div>
         <div class="mx-auto max-w-3xl space-y-6 px-4 sm:px-6 lg:px-8">
+            @if (session('info'))
+                <div class="rounded-md bg-blue-50 p-4 text-sm text-blue-700">{{ session('info') }}</div>
+            @endif
+            @if (session('success'))
+                <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
+            @endif
             <article class="rounded-lg bg-white p-6 shadow-sm sm:p-8">
                 <div class="flex items-center justify-between gap-4">
                     <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $cashTransaction->payment_status === 'lunas' ? 'bg-green-100 text-green-800' : ($cashTransaction->payment_status === 'ditolak' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
@@ -14,8 +20,11 @@
                 </div>
 
                 <div class="mt-4">
-                    <p class="text-sm text-gray-500">Warga</p>
-                    <h1 class="text-lg font-bold text-gray-900">{{ $cashTransaction->user?->name ?? 'Warga lama' }}</h1>
+                    <p class="text-sm text-gray-500">Pembayar</p>
+                    <h1 class="text-lg font-bold text-gray-900">{{ $cashTransaction->display_name }}</h1>
+                    @if ($cashTransaction->schedule)
+                        <p class="mt-1 inline-block rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">Kas {{ $cashTransaction->schedule->period_label }}</p>
+                    @endif
 
                     @if ($cashTransaction->amount)
                         <div class="mt-3 rounded-md bg-gray-50 p-4">
@@ -46,14 +55,109 @@
                 </div>
 
                 @if (Auth::user()->isWarga() && $cashTransaction->user_id === Auth::id() && $cashTransaction->payment_status === 'pending')
-                    <div class="mt-6 rounded-md border-2 border-dashed border-indigo-300 bg-indigo-50 p-6">
-                        <h2 class="text-base font-semibold text-indigo-900">Selesaikan Pembayaran Online</h2>
-                        <p class="mt-1 text-sm text-indigo-700">Simulasi pembayaran online. Klik tombol di bawah untuk menganggap pembayaran telah diterima.</p>
-                        <form method="POST" action="{{ route('cash_transactions.pay', $cashTransaction) }}" class="mt-4">
-                            @csrf
-                            <x-primary-button type="submit">Bayar Sekarang (Simulasi)</x-primary-button>
-                        </form>
+                    @php
+                        $amount = (float) $cashTransaction->amount;
+                        $code = $cashTransaction->payment_code ?? 'KAS-001';
+                        $rtName = Auth::user()->rt?->name ?? 'RT 01';
+                        $qrPayload = '00020101021226680016ID.CO.QRIS.WWW01189360091800000000005204581253033605406' . (int)$amount . '5802ID5915SMART+' . str_replace(' ', '+', $rtName) . '+RW056007JAKARTA';
+                        $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . urlencode($qrPayload);
+                    @endphp
+
+                    <div class="mx-auto mt-6 max-w-md overflow-hidden rounded-2xl border border-red-200 bg-white shadow-md">
+                        <div class="px-5 pb-5 pt-2 text-center">
+                            @php
+                                $activeMethod = in_array($cashTransaction->payment_method, ['qris', 'virtual_account', 'transfer'])
+                                    ? $cashTransaction->payment_method
+                                    : 'qris';
+                            @endphp
+                            <div id="preview-qris" @if ($activeMethod !== 'qris') class="hidden" @endif>
+                                <div class="flex justify-center">
+                                    <div class="w-56">
+                                        <div class="rounded-xl border-2 border-red-500 bg-white p-2 shadow-sm">
+                                            <img src="{{ $qrUrl }}" alt="QRIS Code Pembayaran Kas" class="h-52 w-52 object-contain">
+                                        </div>
+                                        <div class="mt-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-center text-xs font-bold leading-snug text-emerald-700">
+                                            🔒 Nominal Terkunci: Rp {{ number_format($amount, 0, ',', '.') }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2 rounded-lg bg-gray-50 p-4 text-left text-xs text-gray-600 space-y-1.5 border border-gray-200">
+                                    <p class="font-bold text-gray-800">Petunjuk Pembayaran QRIS:</p>
+                                    <ol class="list-decimal list-inside space-y-1 text-gray-700">
+                                        <li>Buka GoPay, OVO, ShopeePay, DANA, LinkAja, BCA Mobile, atau Bank Anda.</li>
+                                        <li>Pilih menu <strong>Scan / QRIS</strong> dan arahkan kamera ke kode QR di atas.</li>
+                                        <li>Nominal sebesar <strong>Rp {{ number_format($amount, 0, ',', '.') }}</strong> akan langsung terkunci secara otomatis.</li>
+                                        <li>Periksa nama penerima <strong>KAS {{ strtoupper($rtName) }}</strong>, lalu selesaikan transaksi dengan PIN Anda.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div id="preview-virtual_account" @if ($activeMethod !== 'virtual_account') class="hidden" @endif>
+                                <div class="rounded-xl bg-blue-50 border border-blue-200 p-4">
+                                    <p class="text-xs font-semibold text-blue-600 uppercase">Virtual Account (BCA / Mandiri)</p>
+                                    <p class="mt-1 font-mono text-xl font-bold text-blue-900">88001{{ str_pad((string)$cashTransaction->user_id, 4, '0', STR_PAD_LEFT) }}99</p>
+                                    <p class="mt-1 text-xs text-blue-700">Nominal Transfer: <strong>Rp {{ number_format($amount, 0, ',', '.') }}</strong></p>
+                                </div>
+
+                                <div class="mt-2 rounded-lg bg-gray-50 p-4 text-left text-xs text-gray-600 space-y-1.5 border border-gray-200">
+                                    <p class="font-bold text-gray-800">Petunjuk Pembayaran VA:</p>
+                                    <ol class="list-decimal list-inside space-y-1 text-gray-700">
+                                        <li>Salin nomor Virtual Account di atas.</li>
+                                        <li>Transfer tepat <strong>Rp {{ number_format($amount, 0, ',', '.') }}</strong> via ATM / M-Banking / Internet Banking.</li>
+                                        <li>Simpan bukti transfer, lalu tekan tombol bayar di bawah.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div id="preview-transfer" @if ($activeMethod !== 'transfer') class="hidden" @endif>
+                                <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+                                    <p class="text-xs font-semibold text-emerald-600 uppercase">Transfer Bank Manual</p>
+                                    <p class="mt-1 text-sm font-bold text-emerald-900">BCA: 123-456-7890 (a.n. Bendahara {{ $rtName }})</p>
+                                    <p class="mt-1 text-xs text-emerald-700">Nominal Transfer: <strong>Rp {{ number_format($amount, 0, ',', '.') }}</strong></p>
+                                </div>
+
+                                <div class="mt-2 rounded-lg bg-gray-50 p-4 text-left text-xs text-gray-600 space-y-1.5 border border-gray-200">
+                                    <p class="font-bold text-gray-800">Petunjuk Transfer Bank:</p>
+                                    <ol class="list-decimal list-inside space-y-1 text-gray-700">
+                                        <li>Transfer tepat <strong>Rp {{ number_format($amount, 0, ',', '.') }}</strong> ke rekening di atas.</li>
+                                        <li>Simpan bukti transfer, lalu tekan tombol bayar di bawah.</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <form method="POST" action="{{ route('cash_transactions.pay', $cashTransaction) }}" class="mt-5 space-y-3">
+                                @csrf
+                                <div class="text-left">
+                                    <x-input-label for="payment_method" value="Pilih Metode Pembayaran" />
+                                    <select id="payment_method" name="payment_method" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                        <option value="qris" @selected(old('payment_method', $cashTransaction->payment_method ?? 'qris') === 'qris')>QRIS</option>
+                                        <option value="virtual_account" @selected(old('payment_method', $cashTransaction->payment_method) === 'virtual_account')>Virtual Account</option>
+                                        <option value="transfer" @selected(old('payment_method', $cashTransaction->payment_method) === 'transfer')>Transfer Bank</option>
+                                    </select>
+                                    <x-input-error class="mt-2" :messages="$errors->get('payment_method')" />
+                                </div>
+                                <x-primary-button type="submit" class="w-full justify-center bg-red-600 py-3 hover:bg-red-700 font-bold text-sm">
+                                    Bayar Sekarang
+                                </x-primary-button>
+                            </form>
+                        </div>
                     </div>
+                    <script>
+                        (function () {
+                            var select = document.getElementById('payment_method');
+                            if (!select) return;
+                            var previews = {
+                                qris: document.getElementById('preview-qris'),
+                                virtual_account: document.getElementById('preview-virtual_account'),
+                                transfer: document.getElementById('preview-transfer'),
+                            };
+                            function syncPreview() {
+                                Object.keys(previews).forEach(function (key) {
+                                    if (previews[key]) previews[key].classList.toggle('hidden', key !== select.value);
+                                });
+                            }
+                            select.addEventListener('change', syncPreview);
+                        })();
+                    </script>
                 @endif
 
                 @if (Auth::user()->isAdmin())

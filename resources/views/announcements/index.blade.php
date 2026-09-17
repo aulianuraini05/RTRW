@@ -338,12 +338,6 @@
                                             </svg>
                                             <p class="mt-3 font-semibold text-gray-700">Belum ada pengumuman</p>
                                             <p class="mt-1 text-sm text-gray-500">Coba ubah kata kunci pencarian atau buat pengumuman baru.</p>
-                                            <a href="{{ route('announcements.create') }}" class="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                Buat Pengumuman Pertama
-                                            </a>
                                         </td>
                                     </tr>
                                 @endforelse

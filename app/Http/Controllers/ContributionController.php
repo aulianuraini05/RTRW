@@ -81,14 +81,36 @@ class ContributionController extends Controller
 
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
+            'payment_method' => ['nullable', Rule::in(['cash', 'virtual_account', 'qris', 'transfer'])],
             'payment_status' => ['required', Rule::in(['pending', 'lunas', 'ditolak'])],
             'proof_of_payment' => ['nullable', 'string', 'max:255'],
         ]);
 
-        Contribution::create($validated);
+        $status = $validated['payment_status'];
+        $paidAt = $status === 'lunas' ? now() : null;
+        $proof = $validated['proof_of_payment'];
+        $method = $validated['payment_method'] ?? 'cash';
+        $amount = $validated['amount'] ?? 50000;
+
+        if ($status === 'lunas' && empty($proof)) {
+            if ($method === 'cash') {
+                $proof = 'Diterima tunai secara langsung oleh Pengurus RT';
+            }
+        }
+
+        Contribution::create([
+            'user_id' => $validated['user_id'],
+            'amount' => $amount,
+            'payment_method' => $method,
+            'payment_code' => $this->generatePaymentCode(),
+            'payment_status' => $status,
+            'paid_at' => $paidAt,
+            'proof_of_payment' => $proof,
+        ]);
 
         return redirect()->route('contributions.index')
-            ->with('success', 'Status pembayaran iuran warga berhasil dicatat.');
+            ->with('success', 'Catatan pembayaran iuran warga berhasil disimpan.');
     }
 
     public function show(Contribution $contribution)
@@ -134,14 +156,32 @@ class ContributionController extends Controller
 
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
+            'payment_method' => ['nullable', Rule::in(['cash', 'virtual_account', 'qris', 'transfer'])],
             'payment_status' => ['required', Rule::in(['pending', 'lunas', 'ditolak'])],
             'proof_of_payment' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $contribution->update($validated);
+        $status = $validated['payment_status'];
+        $paidAt = $contribution->paid_at;
+
+        if ($status === 'lunas' && ! $paidAt) {
+            $paidAt = now();
+        } elseif ($status !== 'lunas') {
+            $paidAt = null;
+        }
+
+        $contribution->update([
+            'user_id' => $validated['user_id'],
+            'amount' => $validated['amount'] ?? $contribution->amount ?? 50000,
+            'payment_method' => $validated['payment_method'] ?? $contribution->payment_method ?? 'cash',
+            'payment_status' => $status,
+            'paid_at' => $paidAt,
+            'proof_of_payment' => $validated['proof_of_payment'],
+        ]);
 
         return redirect()->route('contributions.index')
-            ->with('success', 'Status pembayaran iuran warga berhasil diperbarui.');
+            ->with('success', 'Catatan pembayaran iuran warga berhasil diperbarui.');
     }
 
     public function updateStatus(Request $request, Contribution $contribution)
@@ -152,7 +192,12 @@ class ContributionController extends Controller
             'payment_status' => ['required', Rule::in(['pending', 'lunas', 'ditolak'])],
         ])['payment_status'];
 
-        $contribution->update(['payment_status' => $status]);
+        $paidAt = $status === 'lunas' ? ($contribution->paid_at ?? now()) : null;
+
+        $contribution->update([
+            'payment_status' => $status,
+            'paid_at' => $paidAt,
+        ]);
 
         return back()->with('success', 'Status pembayaran iuran warga diubah menjadi '.ucfirst($status).'.');
     }
@@ -175,10 +220,11 @@ class ContributionController extends Controller
     private function paymentMethodLabel(?string $method): string
     {
         return match ($method) {
+            'cash' => 'Tunai / Cash',
             'virtual_account' => 'Virtual Account',
             'qris' => 'QRIS',
             'transfer' => 'Transfer Bank',
-            default => 'Online',
+            default => 'Tunai / Online',
         };
     }
 }

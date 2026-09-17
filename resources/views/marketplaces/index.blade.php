@@ -75,7 +75,6 @@
                             Tidak ada produk yang cocok dengan pencarian.
                         @else
                             Belum ada produk terdaftar di marketplace.
-                            <a href="{{ route('marketplaces.create') }}" class="mt-4 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Daftarkan Produk Pertama</a>
                         @endif
                     </div>
                 @endforelse
