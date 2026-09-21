@@ -11,6 +11,7 @@ use App\Http\Controllers\KasScheduleController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WargaController;
 use App\Models\Asset;
 use App\Models\CashTransaction;
 use App\Models\Contribution;
@@ -322,6 +323,14 @@ Route::middleware('auth')->group(function () {
 
     // Warga & Admin: lihat detail
     Route::get('/marketplaces/{marketplace}', [MarketplaceController::class, 'show'])->name('marketplaces.show');
+
+    // =========================================================================
+    // DATA WARGA (per RT - Ketua RT hanya lihat RT sendiri, RW lihat semua)
+    // =========================================================================
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/warga', [WargaController::class, 'index'])->name('warga.index');
+        Route::get('/warga/{user}', [WargaController::class, 'show'])->name('warga.show');
+    });
 });
 
 require __DIR__.'/auth.php';
