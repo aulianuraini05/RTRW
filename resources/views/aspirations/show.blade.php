@@ -7,7 +7,13 @@
                 <span>{{ $aspiration->category }}</span><span>•</span>
                 <time datetime="{{ $aspiration->submission_date->toDateString() }}">{{ $aspiration->submission_date->translatedFormat('d F Y') }}</time>
                 <span>•</span><span class="font-medium capitalize">{{ $aspiration->aspiration_status }}</span>
+                @if($aspiration->aspiration_status === 'diteruskan')
+                    <span>•</span><span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">Diteruskan ke RW</span>
+                @endif
             </div>
+            @if($aspiration->forwarded_at)
+                <p class="mt-1 text-xs text-purple-600">Diteruskan oleh RT pada {{ $aspiration->forwarded_at->translatedFormat('d F Y H:i') }}</p>
+            @endif
             <h1 class="mt-2 text-lg font-bold text-gray-900">{{ $aspiration->aspiration_title }}</h1>
             @if (Auth::user()->isAdmin())
                 <p class="mt-2 text-sm text-gray-500">Diajukan oleh: {{ $aspiration->user?->name ?? 'Data warga lama' }}</p>

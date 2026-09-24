@@ -44,10 +44,15 @@
     </div>
 
     <div class="sheet">
+        @php $rwGlobal = \App\Models\Rw::first(); @endphp
         <div class="kop">
             <h1>Pengurus Rukun Tetangga / Rukun Warga</h1>
-            <h2>SmartRTRW{{ $letter->user?->rt ? ' — '.$letter->user->rt->name : ' — RT 01' }} / RW 10</h2>
-            <p>Sistem Informasi RT/RW • Surat Resmi Diterbitkan Secara Digital Melalui SmartRTRW</p>
+            <h2>SmartRTRW{{ $letter->user?->rt ? ' — '.$letter->user->rt->name : ' — RT 01' }} / {{ $rwGlobal?->name ?? 'RW 10' }}</h2>
+            <p>
+                {{ $rwGlobal?->alamat_lengkap ? $rwGlobal->alamat_lengkap.' • ' : '' }}
+                Kel. {{ $rwGlobal?->kelurahan ?? '-' }}, Kec. {{ $rwGlobal?->kecamatan ?? '-' }}, {{ $rwGlobal?->kota_kabupaten ?? '-' }}{{ $rwGlobal?->kode_pos ? ' '.$rwGlobal->kode_pos : '' }}
+                • Sistem Informasi RT/RW
+            </p>
         </div>
 
         @php
@@ -65,13 +70,17 @@
         </div>
 
         <div class="body-text">
-            <p>Yang bertanda tangan di bawah ini, Pengurus {{ $rtName }} RW 10 SmartRTRW, dengan ini menerangkan bahwa:</p>
+            <p>Yang bertanda tangan di bawah ini, Pengurus {{ $rtName }} {{ $rwGlobal?->name ?? 'RW 10' }} SmartRTRW, dengan ini menerangkan bahwa:</p>
         </div>
 
         <div class="meta">
             <table>
                 <tr><td style="width:170px;">Nama Warga</td><td style="width:12px;">:</td><td><strong>{{ $letter->user?->name ?? '—' }}</strong></td></tr>
-                <tr><td>RT / Wilayah</td><td>:</td><td>{{ $rtName }} / RW 10</td></tr>
+                <tr><td>NIK</td><td>:</td><td>{{ $letter->user?->nik ?? '—' }}</td></tr>
+                <tr><td>No. KK</td><td>:</td><td>{{ $letter->user?->no_kk ?? '—' }}</td></tr>
+                <tr><td>TTL</td><td>:</td><td>{{ $letter->user?->tempat_lahir ? $letter->user->tempat_lahir.', '.($letter->user->tanggal_lahir?->translatedFormat('d F Y') ?? '-') : '—' }}</td></tr>
+                <tr><td>Alamat</td><td>:</td><td>{{ $letter->user?->alamat_rumah ? $letter->user->alamat_rumah.($letter->user->no_rumah ? ' No. '.$letter->user->no_rumah : '').', '.$rtName.' / '.($rwGlobal?->name ?? 'RW 10').', Kel. '.($rwGlobal?->kelurahan ?? '-').', Kec. '.($rwGlobal?->kecamatan ?? '-') : '—' }}</td></tr>
+                <tr><td>RT / Wilayah</td><td>:</td><td>{{ $rtName }} / {{ $rwGlobal?->name ?? 'RW 10' }}</td></tr>
                 <tr><td>Jenis Surat</td><td>:</td><td>{{ $letter->letter_type }}</td></tr>
                 <tr><td>Tanggal Pengajuan</td><td>:</td><td>{{ $letter->submission_date?->translatedFormat('d F Y') }}</td></tr>
                 @if ($letter->letter_date)
@@ -95,7 +104,7 @@
 
         <div class="sign">
             <div class="sign-container">
-                <p style="margin:0 0 4px 0;">{{ ($letter->letter_date ?? now())->translatedFormat('d F Y') }}<br>Ketua {{ $rtName }} RW 10</p>
+                <p style="margin:0 0 4px 0;">{{ ($letter->letter_date ?? now())->translatedFormat('d F Y') }}<br>Ketua {{ $rtName }} {{ $rwGlobal?->name ?? 'RW 10' }}</p>
                 <div class="signature-box">
                     <img src="{{ $stempelPath }}" alt="Stempel Resmi RT 01" class="stamp-img">
                     <img src="{{ $ttdPath }}" alt="Tanda Tangan Ketua RT 01" class="signature-img">

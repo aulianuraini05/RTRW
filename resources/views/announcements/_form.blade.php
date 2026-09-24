@@ -57,8 +57,18 @@
         <p class="mt-1 mb-3 text-sm text-gray-500">Pilih RT yang akan melihat pengumuman ini. Jika tidak ada yang dipilih, pengumuman akan ditampilkan untuk semua RT.</p>
         <div class="flex flex-wrap gap-3" id="targetRtGroup">
             @php
-                $oldTargets = old('target_rt_ids', $announcement->target_rt_ids ?? []);
-                $allSelected = empty($oldTargets);
+                // Create: jangan ada yang ter-ceklis by default (user request)
+                // Edit: tampilkan sesuai data tersimpan (null = Semua RT, array = RT terpilih)
+                if (old('target_rt_ids') !== null) {
+                    $oldTargets = old('target_rt_ids');
+                    $allSelected = in_array('all', (array) $oldTargets);
+                } elseif (isset($announcement) && $announcement->exists) {
+                    $oldTargets = $announcement->target_rt_ids ?? [];
+                    $allSelected = empty($oldTargets);
+                } else {
+                    $oldTargets = [];
+                    $allSelected = false;
+                }
             @endphp
             <label class="target-rt-label flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:bg-emerald-50 cursor-pointer">
                 <input type="checkbox" name="target_rt_ids[]" value="all"

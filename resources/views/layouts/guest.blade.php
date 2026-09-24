@@ -14,16 +14,16 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cream-100">
+    <body class="font-sans antialiased bg-black">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-black">
             <div>
                 <a href="/" class="flex items-center gap-2.5">
-                    <x-application-logo class="w-12 h-12 fill-brand-600" />
-                    <span class="text-lg font-bold text-ink-800">{{ config('app.name', 'Smart RT/RW') }}</span>
+                    <x-application-logo class="w-12 h-12 fill-white" />
+                    <span class="text-lg font-bold text-white">{{ config('app.name', 'Smart RT/RW') }}</span>
                 </a>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-white shadow-md overflow-hidden sm:rounded-2xl border border-cream-200">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-zinc-900 shadow-md overflow-hidden sm:rounded-2xl border border-zinc-800">
                 {{ $slot }}
             </div>
         </div>

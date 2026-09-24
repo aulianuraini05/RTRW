@@ -25,23 +25,34 @@
 
                 <div class="mt-6 grid gap-4 sm:grid-cols-2">
                     <div class="rounded-md bg-gray-50 p-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Email</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Email / WA</p>
                         <p class="mt-1 text-sm font-medium text-gray-900 break-all">{{ $user->email }}</p>
+                        <p class="text-xs text-gray-500">{{ $user->no_whatsapp ?? '-' }}</p>
                     </div>
                     <div class="rounded-md bg-gray-50 p-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">RT</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">NIK / No. KK</p>
+                        <p class="mt-1 text-sm font-medium text-gray-900 font-mono">{{ $user->nik ?? '-' }}</p>
+                        <p class="text-xs text-gray-500 font-mono">KK: {{ $user->no_kk ?? '-' }}</p>
+                    </div>
+                    <div class="rounded-md bg-gray-50 p-4">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">TTL</p>
+                        <p class="mt-1 text-sm font-medium text-gray-900">{{ $user->tempat_lahir ?? '-' }}{{ $user->tanggal_lahir ? ', '.$user->tanggal_lahir->translatedFormat('d F Y') : '' }}</p>
+                        <p class="text-xs text-gray-500">{{ $user->jenis_kelamin === 'L' ? 'Laki-laki' : ($user->jenis_kelamin === 'P' ? 'Perempuan' : '-') }} • {{ $user->agama ?? '-' }}</p>
+                    </div>
+                    <div class="rounded-md bg-gray-50 p-4">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">RT / Alamat</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">{{ $user->rt?->name ?? '-' }}</p>
-                        @if($user->rt?->code)
-                            <p class="text-xs text-gray-500 font-mono">{{ $user->rt->code }}</p>
-                        @endif
+                        <p class="text-xs text-gray-500">{{ $user->alamat_rumah ? $user->alamat_rumah.($user->no_rumah ? ' No. '.$user->no_rumah : '') : '-' }}</p>
                     </div>
                     <div class="rounded-md bg-gray-50 p-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Role</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Status / Pendidikan / Pekerjaan</p>
+                        <p class="mt-1 text-sm font-medium text-gray-900 capitalize">{{ str_replace('_',' ', $user->status_perkawinan ?? '-') }}</p>
+                        <p class="text-xs text-gray-500">{{ $user->pendidikan_terakhir ?? '-' }} • {{ $user->pekerjaan ?? '-' }}</p>
+                    </div>
+                    <div class="rounded-md bg-gray-50 p-4">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Role / Terdaftar</p>
                         <p class="mt-1 text-sm font-medium text-gray-900 capitalize">{{ $user->role }}</p>
-                    </div>
-                    <div class="rounded-md bg-gray-50 p-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase">Terdaftar Sejak</p>
-                        <p class="mt-1 text-sm font-medium text-gray-900">{{ $user->created_at->translatedFormat('d F Y H:i') }}</p>
+                        <p class="text-xs text-gray-500">{{ $user->created_at->translatedFormat('d F Y H:i') }}</p>
                     </div>
                 </div>
 
@@ -68,7 +79,15 @@
                 </div>
             </article>
 
-            <a href="{{ route('warga.index') }}" class="inline-block text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke Data Warga</a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('warga.edit', $user) }}" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Edit Warga</a>
+                <form method="POST" action="{{ route('warga.destroy', $user) }}" onsubmit="return confirm('Yakin hapus {{ $user->name }}?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-50">Hapus Warga</button>
+                </form>
+                <a href="{{ route('warga.index') }}" class="ml-auto text-sm font-medium text-gray-600 hover:text-gray-900">Kembali ke Data Warga</a>
+            </div>
         </div>
     </div>
 </x-app-layout>

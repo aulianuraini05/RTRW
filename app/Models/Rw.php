@@ -16,5 +16,11 @@ class Rw extends Model
         'name',
         'code',
         'admin_code',
+        'kelurahan',
+        'kecamatan',
+        'kota_kabupaten',
+        'provinsi',
+        'kode_pos',
+        'alamat_lengkap',
     ];
 }

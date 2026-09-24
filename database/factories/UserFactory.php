@@ -33,6 +33,18 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role' => 'warga',
             'rt_id' => Rt::factory(),
+            'no_whatsapp' => '08'.fake()->numerify('##########'),
+            'nik' => fake()->unique()->numerify('################'),
+            'no_kk' => fake()->numerify('################'),
+            'tempat_lahir' => fake()->city(),
+            'tanggal_lahir' => fake()->date('Y-m-d', '-20 years'),
+            'jenis_kelamin' => fake()->randomElement(['L', 'P']),
+            'status_perkawinan' => fake()->randomElement(['belum_kawin', 'kawin']),
+            'agama' => fake()->randomElement(['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha']),
+            'pendidikan_terakhir' => fake()->randomElement(['SD', 'SMP', 'SMA/SMK', 'S1']),
+            'pekerjaan' => fake()->jobTitle(),
+            'alamat_rumah' => fake()->streetAddress(),
+            'no_rumah' => fake()->numerify('##'),
         ];
     }
 

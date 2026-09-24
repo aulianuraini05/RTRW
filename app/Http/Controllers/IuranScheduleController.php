@@ -36,7 +36,7 @@ class IuranScheduleController extends Controller
         }
 
         $schedules = $query->orderByDesc('year')->orderByDesc('month')->paginate(10)->withQueryString();
-        $rts = Rt::orderBy('name')->get();
+        $rts = Rt::orderByRaw("CAST(substr(name, 4) AS INTEGER)")->get();
 
         return view('iuran_schedules.index', compact('schedules', 'rts'));
     }
@@ -51,7 +51,7 @@ class IuranScheduleController extends Controller
                 ->with('error', 'Akun Ketua RT Anda belum terhubung ke data RT. Hubungi admin.');
         }
 
-        $rts = Rt::orderBy('name')->get();
+        $rts = Rt::orderByRaw("CAST(substr(name, 4) AS INTEGER)")->get();
         $defaultPeriode = now()->format('Y-m');
 
         return view('iuran_schedules.create', compact('rts', 'defaultPeriode'));

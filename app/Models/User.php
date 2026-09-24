@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'rt_id'])]
+#[Fillable(['name', 'email', 'password', 'role', 'rt_id', 'no_whatsapp', 'nik', 'no_kk', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'status_perkawinan', 'agama', 'pendidikan_terakhir', 'pekerjaan', 'alamat_rumah', 'no_rumah'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -133,11 +133,25 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    /**
+     * Cek apakah profil demografi sudah lengkap.
+     */
+    public function isProfileComplete(): bool
+    {
+        return ! empty($this->nik)
+            && ! empty($this->no_kk)
+            && ! empty($this->tempat_lahir)
+            && ! empty($this->tanggal_lahir)
+            && ! empty($this->jenis_kelamin)
+            && ! empty($this->alamat_rumah);
+    }
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tanggal_lahir' => 'date',
         ];
     }
 }

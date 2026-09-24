@@ -16,6 +16,9 @@ class Aspiration extends Model
         'category',
         'submission_date',
         'aspiration_status',
+        'forwarded_to',
+        'forwarded_by',
+        'forwarded_at',
     ];
 
     /**
@@ -33,6 +36,7 @@ class Aspiration extends Model
     {
         return [
             'submission_date' => 'date',
+            'forwarded_at' => 'datetime',
         ];
     }
 }

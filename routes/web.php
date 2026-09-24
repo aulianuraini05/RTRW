@@ -325,10 +325,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/marketplaces/{marketplace}', [MarketplaceController::class, 'show'])->name('marketplaces.show');
 
     // =========================================================================
-    // DATA WARGA (per RT - Ketua RT hanya lihat RT sendiri, RW lihat semua)
+    // DATA WARGA (per RT - Ketua RT hanya lihat & CRUD RT sendiri, RW lihat semua)
     // =========================================================================
     Route::middleware('role:admin')->group(function () {
         Route::get('/warga', [WargaController::class, 'index'])->name('warga.index');
+        Route::get('/warga/create', [WargaController::class, 'create'])->name('warga.create');
+        Route::post('/warga', [WargaController::class, 'store'])->name('warga.store');
+        Route::get('/warga/{user}/edit', [WargaController::class, 'edit'])->name('warga.edit');
+        Route::put('/warga/{user}', [WargaController::class, 'update'])->name('warga.update');
+        Route::delete('/warga/{user}', [WargaController::class, 'destroy'])->name('warga.destroy');
         Route::get('/warga/{user}', [WargaController::class, 'show'])->name('warga.show');
     });
 });

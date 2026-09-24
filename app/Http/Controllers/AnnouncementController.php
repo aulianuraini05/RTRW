@@ -106,7 +106,7 @@ class AnnouncementController extends Controller
 
     public function create()
     {
-        $rts = Rt::orderBy('name')->get();
+        $rts = Rt::orderByRaw("CAST(substr(name, 4) AS INTEGER)")->get();
 
         return view('announcements.create', compact('rts'));
     }
@@ -174,7 +174,7 @@ class AnnouncementController extends Controller
             abort(403);
         }
 
-        $rts = Rt::orderBy('name')->get();
+        $rts = Rt::orderByRaw("CAST(substr(name, 4) AS INTEGER)")->get();
 
         return view('announcements.edit', compact('announcement', 'rts'));
     }

@@ -22,6 +22,7 @@
                         'diproses' => 'bg-yellow-100 text-yellow-700',
                         'selesai' => 'bg-green-100 text-green-700',
                         'ditolak' => 'bg-red-100 text-red-700',
+                        'diteruskan' => 'bg-purple-100 text-purple-700',
                     ];
                 @endphp
                 <article class="rounded-lg bg-white p-6 shadow-sm">

@@ -18,12 +18,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // Seed RW master data (Ketua RW & Admin Utama codes)
+        // Seed RW master data (single wilayah - update alamat global di sini)
         \App\Models\Rw::updateOrCreate(
             ['name' => 'RW 10'],
             [
                 'code' => 'KETUA-RW',
                 'admin_code' => 'ADMIN-UTAMA',
+                'kelurahan' => 'Kelurahan Contoh',
+                'kecamatan' => 'Kecamatan Contoh',
+                'kota_kabupaten' => 'Kota Contoh',
+                'provinsi' => 'Jawa Barat',
+                'kode_pos' => '40100',
+                'alamat_lengkap' => 'Jl. Contoh No. 123',
             ]
         );
 

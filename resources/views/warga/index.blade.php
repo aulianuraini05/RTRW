@@ -10,14 +10,15 @@
                 </h2>
                 <p class="mt-1 text-sm text-gray-500">
                     @if(Auth::user()->isRt())
-                        Daftar warga di {{ Auth::user()->rt?->name ?? 'RT Anda' }} — hanya warga RT ini yang tampil.
+                        Daftar warga di {{ Auth::user()->rt?->name ?? 'RT Anda' }} — hanya warga RT ini yang tampil dan bisa Anda kelola (CRUD).
                     @elseif(Auth::user()->isRw())
-                        Daftar semua warga di bawah RW — semua RT tampil.
+                        Daftar semua warga di bawah RW — semua RT tampil dan bisa dikelola.
                     @else
                         Daftar warga terdaftar di sistem.
                     @endif
                 </p>
             </div>
+            <a href="{{ route('warga.create') }}" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Tambah Warga</a>
         </div>
     </x-slot>
 
@@ -98,9 +99,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{ route('warga.show', $item) }}" class="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-600 hover:bg-indigo-50 shrink-0">
-                                Lihat Detail
-                            </a>
+                            <div class="flex shrink-0 items-center gap-2">
+                                <a href="{{ route('warga.show', $item) }}" class="inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-600 hover:bg-indigo-50">
+                                    Lihat
+                                </a>
+                                <a href="{{ route('warga.edit', $item) }}" class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+                                    Edit
+                                </a>
+                                <form method="POST" action="{{ route('warga.destroy', $item) }}" onsubmit="return confirm('Hapus {{ $item->name }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-50">Hapus</button>
+                                </form>
+                            </div>
                         </div>
                     </article>
                 @empty

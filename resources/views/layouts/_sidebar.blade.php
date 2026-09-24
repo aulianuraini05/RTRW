@@ -19,9 +19,7 @@
     {{-- Navigasi --}}
     <div class="flex-1 overflow-y-auto px-3 py-4">
 
-        {{-- Menu Utama --}}
-        <p class="px-3 text-sm font-bold uppercase tracking-wide text-ink-400">Menu Utama</p>
-        <nav class="mt-2 space-y-1">
+        <nav class="space-y-1">
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
@@ -58,11 +56,7 @@
                 </svg>
                 {{ __('Persuratan') }}
             </x-nav-link>
-        </nav>
 
-        {{-- Administrasi --}}
-        <p class="mt-6 px-3 text-xs font-bold uppercase tracking-wide text-ink-400">Administrasi</p>
-        <nav class="mt-2 space-y-1">
             <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
@@ -83,11 +77,7 @@
                 </svg>
                 {{ __('Iuran Warga') }}
             </x-nav-link>
-        </nav>
 
-        {{-- Layanan --}}
-        <p class="mt-6 px-3 text-xs font-bold uppercase tracking-wide text-ink-400">Layanan</p>
-        <nav class="mt-2 space-y-1">
             <x-nav-link :href="route('marketplaces.index')" :active="request()->routeIs('marketplaces.*')">
                 <svg class="h-5 w-5 shrink-0" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />

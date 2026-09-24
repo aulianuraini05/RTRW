@@ -92,9 +92,29 @@ class AspirationController extends Controller
         $status = $request->validate([
             'aspiration_status' => [
                 'required',
-                Rule::in(['dikirim', 'diterima', 'diproses', 'selesai', 'ditolak']),
+                Rule::in(['dikirim', 'diterima', 'diproses', 'selesai', 'ditolak', 'diteruskan']),
             ],
         ])['aspiration_status'];
+
+        // Hanya RT yang boleh meneruskan ke RW
+        if ($status === 'diteruskan') {
+            abort_unless($request->user()->isRt(), 403, 'Hanya Ketua RT yang bisa meneruskan ke RW.');
+            abort_if($aspiration->aspiration_status === 'diteruskan', 400, 'Sudah diteruskan ke RW.');
+
+            $aspiration->update([
+                'aspiration_status' => 'diteruskan',
+                'forwarded_to' => 'rw',
+                'forwarded_by' => $request->user()->id,
+                'forwarded_at' => now(),
+            ]);
+
+            return back()->with('success', 'Aspirasi berhasil diteruskan ke RW untuk ditindaklanjuti.');
+        }
+
+        // Jika diteruskan, hanya RW/Superadmin yang boleh finalisasi (selesai/ditolak/diproses)
+        if ($aspiration->aspiration_status === 'diteruskan') {
+            abort_unless($request->user()->isRw() || $request->user()->isSuperAdmin() || $request->user()->role === 'admin', 403, 'Aspirasi yang diteruskan hanya bisa diproses oleh RW/Admin.');
+        }
 
         $aspiration->update(['aspiration_status' => $status]);
 

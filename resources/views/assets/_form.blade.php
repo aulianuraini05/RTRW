@@ -34,7 +34,7 @@
                 </option>
             @else
                 <option value="rw" @selected((string)$currentRtId === 'rw')>Aset Umum RW</option>
-                @foreach (\App\Models\Rt::orderBy('name')->get() as $rt)
+                @foreach (\App\Models\Rt::orderByRaw("CAST(substr(name, 4) AS INTEGER)")->get() as $rt)
                     <option value="{{ $rt->id }}" @selected((string)$currentRtId === (string)$rt->id)>Khusus {{ $rt->name }}</option>
                 @endforeach
             @endif
