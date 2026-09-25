@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetLoan;
+use App\Services\ActivityLog;
 use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -48,6 +49,8 @@ class AssetLoanController extends Controller
             $request->user(),
         );
 
+        ActivityLog::record($request->user(), 'aset', 'mengajukan peminjaman', $asset->asset_name.' ('.$loan->quantity.' unit)');
+
         return redirect()->route('assets.show', $asset)
             ->with('success', 'Permohonan peminjaman berhasil dikirim dan menunggu persetujuan RT/RW.');
     }
@@ -73,6 +76,7 @@ class AssetLoanController extends Controller
         ]);
 
         $loan->loadMissing(['user', 'asset']);
+        ActivityLog::record($request->user(), 'aset', 'mengubah status peminjaman menjadi '.ucfirst($status), ($loan->asset?->asset_name ?? 'Aset').' ('.$loan->quantity.' unit)');
         if ($loan->user) {
             Notifier::send(
                 $loan->user,

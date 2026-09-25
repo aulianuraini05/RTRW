@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
+use App\Services\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -127,7 +128,9 @@ class AssetController extends Controller
 
         $validated['image'] = $this->storeImage($request);
 
-        Asset::create($validated);
+        $asset = Asset::create($validated);
+
+        ActivityLog::record($request->user(), 'aset', 'menambah aset', $asset->asset_name.' ('.$asset->quantity.' unit)');
 
         return redirect()->route('assets.index')
             ->with('success', 'Aset berhasil ditambahkan.');
@@ -207,6 +210,8 @@ class AssetController extends Controller
 
         $asset->update($validated);
 
+        ActivityLog::record($request->user(), 'aset', 'memperbarui aset', $asset->asset_name);
+
         return redirect()->route('assets.index')
             ->with('success', 'Aset berhasil diperbarui.');
     }
@@ -219,7 +224,10 @@ class AssetController extends Controller
             Storage::disk('public')->delete($asset->image);
         }
 
+        $name = $asset->asset_name;
         $asset->delete();
+
+        ActivityLog::record(request()->user(), 'aset', 'menghapus aset', $name);
 
         return redirect()->route('assets.index')
             ->with('success', 'Aset berhasil dihapus.');

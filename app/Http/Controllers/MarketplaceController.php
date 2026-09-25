@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marketplace;
+use App\Services\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -51,6 +52,8 @@ class MarketplaceController extends Controller
             'seller_phone' => $request->seller_phone,
             'image' => $this->storeImage($request),
         ]);
+
+        ActivityLog::record($request->user(), 'marketplace', 'mendaftarkan produk', $request->product_name);
 
         return redirect()->route('marketplaces.index')
             ->with('success', 'Produk berhasil didaftarkan.');
@@ -103,6 +106,8 @@ class MarketplaceController extends Controller
 
         $marketplace->update($data);
 
+        ActivityLog::record($request->user(), 'marketplace', 'memperbarui produk', $marketplace->product_name);
+
         return redirect()->route('marketplaces.index')
             ->with('success', 'Produk berhasil diperbarui.');
     }
@@ -115,7 +120,10 @@ class MarketplaceController extends Controller
             Storage::disk('public')->delete($marketplace->image);
         }
 
+        $name = $marketplace->product_name;
         $marketplace->delete();
+
+        ActivityLog::record(request()->user(), 'marketplace', 'menghapus produk', $name);
 
         return redirect()->route('marketplaces.index')
             ->with('success', 'Produk berhasil dihapus.');

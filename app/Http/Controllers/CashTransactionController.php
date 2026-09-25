@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashTransaction;
 use App\Models\KasSchedule;
 use App\Models\User;
+use App\Services\ActivityLog;
 use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -172,6 +173,8 @@ class CashTransactionController extends Controller
                 $user,
             );
 
+            ActivityLog::record($user, 'kas', 'mengajukan pembayaran kas', $txn->payment_code.' (Rp '.number_format($txn->amount, 0, ',', '.').')');
+
             return redirect()->route('cash_transactions.index')
                 ->with('success', 'Pembayaran kas Anda berhasil diajukan. Silakan selesaikan pembayaran online untuk melunasi.');
         }
@@ -220,6 +223,8 @@ class CashTransactionController extends Controller
             'proof_of_payment' => $proof,
         ]);
 
+        ActivityLog::record($request->user(), 'kas', 'mencatat pembayaran kas ('.ucfirst($status).')', ($payerName ?? 'Warga').' Rp '.number_format($amount, 0, ',', '.'));
+
         return redirect()->route('cash_transactions.index')
             ->with('success', 'Catatan pembayaran kas warga berhasil disimpan.');
     }
@@ -258,6 +263,8 @@ class CashTransactionController extends Controller
             'paid_at' => now(),
             'proof_of_payment' => $cashTransaction->proof_of_payment ?? 'Pembayaran online via '.$this->paymentMethodLabel($method),
         ]);
+
+        ActivityLog::record($request->user(), 'kas', 'membayar kas online (Lunas)', $cashTransaction->payment_code);
 
         return back()->with('success', 'Pembayaran kas online berhasil. Status kini Lunas.');
     }
@@ -339,6 +346,8 @@ class CashTransactionController extends Controller
             'paid_at' => $paidAt,
         ]);
 
+        ActivityLog::record($request->user(), 'kas', 'mengubah status menjadi '.ucfirst($status), $cashTransaction->payment_code);
+
         if ($cashTransaction->user) {
             $cashTransaction->loadMissing('user');
             Notifier::send(
@@ -359,7 +368,10 @@ class CashTransactionController extends Controller
 
         $this->ensureRtAccess(request(), $cashTransaction);
 
+        $code = $cashTransaction->payment_code;
         $cashTransaction->delete();
+
+        ActivityLog::record(request()->user(), 'kas', 'menghapus catatan kas', $code);
 
         return redirect()->route('cash_transactions.index')
             ->with('success', 'Catatan kas warga berhasil dihapus.');

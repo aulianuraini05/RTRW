@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Letter;
+use App\Services\ActivityLog;
 use App\Services\Notifier;
 use App\Support\LetterRequirements;
 use Illuminate\Http\Request;
@@ -130,6 +131,8 @@ class LetterController extends Controller
             $request->user(),
         );
 
+        ActivityLog::record($request->user(), 'surat', 'mengajukan surat', $letter->letter_type.' ('.$letter->letter_number.')');
+
         return redirect()->route('letters.index')
             ->with('success', 'Permohonan surat berhasil dikirim dan menunggu persetujuan RT/RW.');
     }
@@ -210,6 +213,8 @@ class LetterController extends Controller
             'letter_status' => $status,
         ]);
 
+        ActivityLog::record($request->user(), 'surat', 'mengubah status menjadi '.ucfirst($status), $letter->letter_number.' ('.$letter->letter_type.')');
+
         $letter->loadMissing('user');
         Notifier::send(
             $letter->user,
@@ -226,11 +231,14 @@ class LetterController extends Controller
     {
         $this->ensureRtAccess(request(), $letter);
 
+        $subject = $letter->letter_number.' ('.$letter->letter_type.')';
         foreach ($letter->attachments as $attachment) {
             Storage::disk('public')->delete($attachment->file_path);
         }
 
         $letter->delete();
+
+        ActivityLog::record(request()->user(), 'surat', 'menghapus surat', $subject);
 
         return redirect()->route('letters.index')
             ->with('success', 'Surat berhasil dihapus.');

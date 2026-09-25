@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AspirationController;
 use App\Http\Controllers\AssetController;
@@ -145,6 +146,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+
+    // =========================================================================
+    // RIWAYAT AKTIVITAS
+    // =========================================================================
+    Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
 
     // =========================================================================
     // PENGUMUMAN (Announcement)

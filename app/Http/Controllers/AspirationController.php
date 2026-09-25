@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aspiration;
+use App\Services\ActivityLog;
 use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -109,6 +110,8 @@ class AspirationController extends Controller
             $request->user(),
         );
 
+        ActivityLog::record($request->user(), 'aspirasi', 'mengajukan aspirasi', $aspiration->aspiration_title);
+
         return redirect()->route('aspirations.index')
             ->with('success', 'Aspirasi berhasil dikirim dan menunggu tindak lanjut RT/RW.');
     }
@@ -200,6 +203,7 @@ class AspirationController extends Controller
         $aspiration->update(['aspiration_status' => $status]);
 
         $aspiration->loadMissing('user');
+        ActivityLog::record($request->user(), 'aspirasi', 'mengubah status menjadi '.ucfirst($status), $aspiration->aspiration_title);
         Notifier::send(
             $aspiration->user,
             'Status aspirasi diperbarui',
@@ -234,6 +238,8 @@ class AspirationController extends Controller
             'tanggapan_at' => now(),
         ]);
 
+        ActivityLog::record($request->user(), 'aspirasi', 'memberi tanggapan', $aspiration->aspiration_title);
+
         $aspiration->loadMissing('user');
         Notifier::send(
             $aspiration->user,
@@ -250,11 +256,14 @@ class AspirationController extends Controller
     {
         $this->ensureRtAccess(request(), $aspiration);
 
+        $title = $aspiration->aspiration_title;
         if (! empty($aspiration->photo_path)) {
             Storage::disk('public')->delete($aspiration->photo_path);
         }
 
         $aspiration->delete();
+
+        ActivityLog::record(request()->user(), 'aspirasi', 'menghapus aspirasi', $title);
 
         return redirect()->route('aspirations.index');
     }

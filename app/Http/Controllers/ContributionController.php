@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contribution;
 use App\Models\IuranSchedule;
 use App\Models\User;
+use App\Services\ActivityLog;
 use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -171,6 +172,8 @@ class ContributionController extends Controller
                 $user,
             );
 
+            ActivityLog::record($user, 'iuran', 'mengajukan pembayaran iuran', $contrib->payment_code.' (Rp '.number_format($contrib->amount, 0, ',', '.').')');
+
             return redirect()->route('contributions.index')
                 ->with('success', 'Pembayaran iuran Anda berhasil diajukan. Silakan selesaikan pembayaran online untuk melunasi.');
         }
@@ -219,6 +222,8 @@ class ContributionController extends Controller
             'proof_of_payment' => $proof,
         ]);
 
+        ActivityLog::record($request->user(), 'iuran', 'mencatat pembayaran iuran ('.ucfirst($status).')', ($payerName ?? 'Warga').' Rp '.number_format($amount, 0, ',', '.'));
+
         return redirect()->route('contributions.index')
             ->with('success', 'Catatan pembayaran iuran warga berhasil disimpan.');
     }
@@ -257,6 +262,8 @@ class ContributionController extends Controller
             'paid_at' => now(),
             'proof_of_payment' => $contribution->proof_of_payment ?? 'Pembayaran online via '.$this->paymentMethodLabel($method),
         ]);
+
+        ActivityLog::record($request->user(), 'iuran', 'membayar iuran online (Lunas)', $contribution->payment_code);
 
         return back()->with('success', 'Pembayaran iuran online berhasil. Status kini Lunas.');
     }
@@ -336,6 +343,8 @@ class ContributionController extends Controller
             'paid_at' => $paidAt,
         ]);
 
+        ActivityLog::record($request->user(), 'iuran', 'mengubah status menjadi '.ucfirst($status), $contribution->payment_code);
+
         if ($contribution->user) {
             $contribution->loadMissing('user');
             Notifier::send(
@@ -356,7 +365,10 @@ class ContributionController extends Controller
 
         $this->ensureRtAccess(request(), $contribution);
 
+        $code = $contribution->payment_code;
         $contribution->delete();
+
+        ActivityLog::record(request()->user(), 'iuran', 'menghapus catatan iuran', $code);
 
         return redirect()->route('contributions.index')
             ->with('success', 'Catatan iuran warga berhasil dihapus.');

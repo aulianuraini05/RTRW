@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Announcement;
 use App\Models\Rt;
+use App\Services\ActivityLog;
 use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -102,6 +103,8 @@ class AnnouncementController extends Controller
             'status' => $announcement->status === 'active' ? 'archived' : 'active',
         ]);
 
+        ActivityLog::record(request()->user(), 'pengumuman', 'mengubah status menjadi '.($announcement->status === 'active' ? 'Aktif' : 'Arsip'), $announcement->announcement_title);
+
         return back()->with('success', 'Status pengumuman berhasil diperbarui.');
     }
 
@@ -122,6 +125,8 @@ class AnnouncementController extends Controller
 
         // Notifikasi ke warga sasaran (per RT jika ditargetkan)
         $this->notifyAnnouncement($announcement, $request->user());
+
+        ActivityLog::record($request->user(), 'pengumuman', 'membuat pengumuman', $announcement->announcement_title);
 
         return redirect()->route('announcements.index')
             ->with('success', 'Pengumuman berhasil dibuat.');
@@ -204,6 +209,8 @@ class AnnouncementController extends Controller
 
         $announcement->update($validated);
 
+        ActivityLog::record($request->user(), 'pengumuman', 'memperbarui pengumuman', $announcement->announcement_title);
+
         return redirect()->route('announcements.index')
             ->with('success', 'Pengumuman berhasil diperbarui.');
     }
@@ -220,7 +227,10 @@ class AnnouncementController extends Controller
             Storage::disk('public')->delete($announcement->image);
         }
 
+        $title = $announcement->announcement_title;
         $announcement->delete();
+
+        ActivityLog::record($user, 'pengumuman', 'menghapus pengumuman', $title);
 
         return redirect()->route('announcements.index')
             ->with('success', 'Pengumuman berhasil dihapus.');
