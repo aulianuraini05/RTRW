@@ -6,13 +6,25 @@
             <span class="text-base font-bold text-ink-800">{{ config('app.name', 'Smart RT/RW') }}</span>
         </a>
 
-        <button @click="open = !open"
-                class="inline-flex items-center justify-center rounded-lg p-2 text-brand-700 hover:bg-cream-100 focus:outline-none"
-                aria-label="Buka menu">
-            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-        </button>
+        <div class="flex items-center gap-1">
+            <a href="{{ route('notifications.index') }}" aria-label="Notifikasi"
+               class="relative inline-flex items-center justify-center rounded-lg p-2 text-brand-700 hover:bg-cream-100 focus:outline-none">
+                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                @php $unreadMobile = auth()->user()->unreadNotifications()->count(); @endphp
+                @if ($unreadMobile > 0)
+                    <span class="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white">{{ $unreadMobile > 99 ? '99+' : $unreadMobile }}</span>
+                @endif
+            </a>
+            <button @click="open = !open"
+                    class="inline-flex items-center justify-center rounded-lg p-2 text-brand-700 hover:bg-cream-100 focus:outline-none"
+                    aria-label="Buka menu">
+                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+        </div>
     </div>
 
     {{-- Sidebar desktop (selalu tampil di layar lg ke atas) --}}

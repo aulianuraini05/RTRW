@@ -67,9 +67,9 @@
     </div>
 
     <div>
-        <x-input-label for="image" value="Foto Aset (opsional)" />
+        <x-input-label for="image" value="Foto Aset" />
         <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100" />
-        <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, WEBP (maks. 10 MB). Biarkan kosong jika tidak mengunggah foto.</p>
+        <p class="mt-1 text-sm font-bold text-black">Unggah Format : JPG, PNG, WEBP. Max 10 MB</p>
         <x-input-error class="mt-2" :messages="$errors->get('image')" />
 
         @if (!empty($asset->image))

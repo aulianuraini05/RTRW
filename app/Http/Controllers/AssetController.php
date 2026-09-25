@@ -82,9 +82,13 @@ class AssetController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'condition' => ['required', 'in:baik,rusak ringan,rusak berat,perlu perbaikan'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
+            // Ketua RT wajib mengunggah foto aset; peran lain tetap opsional.
+            'image' => $request->user()->isRt()
+                ? ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240']
+                : ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
             'rt_id' => ['nullable'],
         ], [
+            'image.required' => 'Wajib diisi.',
             'image.max' => 'Ukuran foto maksimal 10 MB.',
             'image.image' => 'File yang diunggah harus berupa foto.',
             'image.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
@@ -149,9 +153,13 @@ class AssetController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'condition' => ['required', 'in:baik,rusak ringan,rusak berat,perlu perbaikan'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
+            // Ketua RT wajib punya foto: saat edit, wajib isi jika aset belum punya foto.
+            'image' => ($request->user()->isRt() && empty($asset->image))
+                ? ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240']
+                : ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
             'rt_id' => ['nullable'],
         ], [
+            'image.required' => 'Wajib diisi.',
             'image.max' => 'Ukuran foto maksimal 10 MB.',
             'image.image' => 'File yang diunggah harus berupa foto.',
             'image.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',

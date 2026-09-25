@@ -19,8 +19,8 @@
 
             @if (in_array($letter->letter_status, ['disetujui', 'selesai'], true))
                 <div class="mt-6 border-t pt-5">
-                    <a href="{{ route('letters.cetak', $letter) }}" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">Simpan PDF Surat Resmi</a>
-                    <p class="mt-2 text-xs text-gray-500">Dapat disimpan langsung dalam format PDF.</p>
+                    <a href="{{ route('letters.cetak', $letter) }}" target="_blank" rel="noopener" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">Lihat PDF Surat Resmi</a>
+                    <p class="mt-2 text-xs text-gray-500">Klik untuk melihat surat resmi dalam format PDF.</p>
                 </div>
             @endif
 

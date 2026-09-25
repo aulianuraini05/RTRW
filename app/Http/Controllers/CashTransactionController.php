@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashTransaction;
 use App\Models\KasSchedule;
 use App\Models\User;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -150,7 +151,7 @@ class CashTransactionController extends Controller
                 }
             }
 
-            $user->cashTransactions()->create([
+            $txn = $user->cashTransactions()->create([
                 'kas_schedule_id' => $schedule?->id,
                 'rt_id' => $user->rt_id,
                 'payer_name' => $user->name,
@@ -160,6 +161,16 @@ class CashTransactionController extends Controller
                 'payment_status' => 'pending',
                 'proof_of_payment' => $validated['proof_of_payment'] ?? null,
             ]);
+
+            // Notifikasi ke pengurus RT (ada tagihan baru masuk)
+            $managers = Notifier::managersForRt($user->rt_id);
+            Notifier::sendMany(
+                $managers,
+                'Pembayaran kas baru',
+                $user->name.' mengajukan pembayaran kas '.number_format($txn->amount, 0, ',', '.'),
+                route('cash_transactions.show', $txn),
+                $user,
+            );
 
             return redirect()->route('cash_transactions.index')
                 ->with('success', 'Pembayaran kas Anda berhasil diajukan. Silakan selesaikan pembayaran online untuk melunasi.');
@@ -327,6 +338,17 @@ class CashTransactionController extends Controller
             'payment_status' => $status,
             'paid_at' => $paidAt,
         ]);
+
+        if ($cashTransaction->user) {
+            $cashTransaction->loadMissing('user');
+            Notifier::send(
+                $cashTransaction->user,
+                'Status pembayaran kas diperbarui',
+                'Pembayaran kas '.$cashTransaction->payment_code.' kini '.ucfirst($status).'.',
+                route('cash_transactions.show', $cashTransaction),
+                $request->user(),
+            );
+        }
 
         return back()->with('success', 'Status pembayaran kas warga diubah menjadi '.ucfirst($status).'.');
     }

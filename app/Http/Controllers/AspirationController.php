@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aspiration;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AspirationController extends Controller
@@ -36,15 +39,49 @@ class AspirationController extends Controller
     {
         abort_unless($request->user()->isWarga(), 403);
 
-        $request->user()->aspirations()->create([
-            ...$request->validate([
-                'aspiration_title' => ['required', 'string', 'max:255'],
-                'aspiration_content' => ['required', 'string'],
-                'category' => ['required', 'string', 'max:100'],
-                'submission_date' => ['required', 'date'],
-            ]),
+        $validated = $request->validate([
+            'aspiration_title' => ['required', 'string', 'max:255'],
+            'aspiration_content' => ['required', 'string'],
+            'category' => ['required', 'string', 'max:100'],
+            'submission_date' => ['required', 'date'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+        ], [
+            'photo.max' => 'Ukuran foto maksimal 10 MB.',
+            'photo.image' => 'File yang diunggah harus berupa foto.',
+            'photo.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
+        ]);
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            try {
+                $photoPath = $this->storePhoto($request);
+            } catch (\Throwable $e) {
+                report($e);
+
+                return back()->withInput()->withErrors([
+                    'photo' => 'Gagal mengunggah foto. Coba lagi tanpa foto atau gunakan file JPG/PNG/WebP maksimal 10 MB.',
+                ]);
+            }
+        }
+
+        $aspiration = $request->user()->aspirations()->create([
+            'aspiration_title' => $validated['aspiration_title'],
+            'aspiration_content' => $validated['aspiration_content'],
+            'category' => $validated['category'],
+            'submission_date' => $validated['submission_date'],
+            'photo_path' => $photoPath,
             'aspiration_status' => 'dikirim',
         ]);
+
+        // Notifikasi ke pengurus RT setempat
+        $managers = Notifier::managersForRt($request->user()->rt_id);
+        Notifier::sendMany(
+            $managers,
+            'Aspirasi baru masuk',
+            $request->user()->name.' mengajukan aspirasi: '.$aspiration->aspiration_title,
+            route('aspirations.show', $aspiration),
+            $request->user(),
+        );
 
         return redirect()->route('aspirations.index')
             ->with('success', 'Aspirasi berhasil dikirim dan menunggu tindak lanjut RT/RW.');
@@ -108,6 +145,24 @@ class AspirationController extends Controller
                 'forwarded_at' => now(),
             ]);
 
+            $aspiration->loadMissing('user');
+            Notifier::send(
+                $aspiration->user,
+                'Aspirasi diteruskan ke RW',
+                'Aspirasi "'.$aspiration->aspiration_title.'" diteruskan Ketua RT ke RW untuk ditindaklanjuti.',
+                route('aspirations.show', $aspiration),
+                $request->user(),
+            );
+            // Notifikasi ke RW/Admin agar segera ditindaklanjuti
+            $rwManagers = \App\Models\User::whereIn('role', ['rw', 'admin', 'superadmin'])->get();
+            Notifier::sendMany(
+                $rwManagers,
+                'Aspirasi diteruskan ke RW',
+                'Aspirasi "'.$aspiration->aspiration_title.'" diteruskan Ketua RT dan menunggu tindak lanjut RW.',
+                route('aspirations.show', $aspiration),
+                $request->user(),
+            );
+
             return back()->with('success', 'Aspirasi berhasil diteruskan ke RW untuk ditindaklanjuti.');
         }
 
@@ -118,16 +173,95 @@ class AspirationController extends Controller
 
         $aspiration->update(['aspiration_status' => $status]);
 
+        $aspiration->loadMissing('user');
+        Notifier::send(
+            $aspiration->user,
+            'Status aspirasi diperbarui',
+            'Aspirasi "'.$aspiration->aspiration_title.'" kini '.ucfirst($status).'.',
+            route('aspirations.show', $aspiration),
+            $request->user(),
+        );
+
         return back()->with('success', 'Status aspirasi berhasil diubah menjadi '.ucfirst($status).'.');
+    }
+
+    /**
+     * Simpan tanggapan pengurus (RT/RW/Admin) untuk sebuah aspirasi.
+     * Aturan kewenangan sama dengan ubah status: jika sudah diteruskan
+     * ke RW, hanya RW/Admin yang boleh menanggapi.
+     */
+    public function storeTanggapan(Request $request, Aspiration $aspiration)
+    {
+        $this->ensureRtAccess($request, $aspiration);
+
+        if ($aspiration->aspiration_status === 'diteruskan') {
+            abort_unless($request->user()->isRw() || $request->user()->isSuperAdmin() || $request->user()->role === 'admin', 403, 'Aspirasi yang diteruskan hanya bisa ditanggapi oleh RW/Admin.');
+        }
+
+        $validated = $request->validate([
+            'tanggapan' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $aspiration->update([
+            'tanggapan' => $validated['tanggapan'],
+            'tanggapan_by' => $request->user()->id,
+            'tanggapan_at' => now(),
+        ]);
+
+        $aspiration->loadMissing('user');
+        Notifier::send(
+            $aspiration->user,
+            'Aspirasi mendapat tanggapan',
+            'Aspirasi "'.$aspiration->aspiration_title.'" mendapat tanggapan dari pengurus.',
+            route('aspirations.show', $aspiration),
+            $request->user(),
+        );
+
+        return back()->with('success', 'Tanggapan berhasil disimpan.');
     }
 
     public function destroy(Aspiration $aspiration)
     {
         $this->ensureRtAccess(request(), $aspiration);
 
+        if (! empty($aspiration->photo_path)) {
+            Storage::disk('public')->delete($aspiration->photo_path);
+        }
+
         $aspiration->delete();
 
         return redirect()->route('aspirations.index');
+    }
+
+    /**
+     * Simpan foto aspirasi tanpa memakai UploadedFile::store().
+     * store() memakai getRealPath() + fopen() yang di Laragon/Windows
+     * bisa mengembalikan path kosong -> ValueError "Path must not be empty".
+     * Cara ini memakai getPathname() + Storage::put() seperti modul lain.
+     */
+    private function storePhoto(Request $request): ?string
+    {
+        if (! $request->hasFile('photo')) {
+            return null;
+        }
+
+        $file = $request->file('photo');
+
+        if (! $file || ! $file->isValid() || ! is_file($file->getPathname())) {
+            return null;
+        }
+
+        $contents = @file_get_contents($file->getPathname());
+        if ($contents === false) {
+            return null;
+        }
+
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $name = Str::random(40).'.'.$extension;
+
+        Storage::disk('public')->put("aspirations/{$name}", $contents);
+
+        return "aspirations/{$name}";
     }
 
     /**

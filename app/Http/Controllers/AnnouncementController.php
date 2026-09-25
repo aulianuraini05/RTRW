@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Announcement;
 use App\Models\Rt;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -117,7 +118,10 @@ class AnnouncementController extends Controller
         $validated['image'] = $this->storeImage($request);
         $validated['created_by'] = $request->user()->id;
 
-        Announcement::create($validated);
+        $announcement = Announcement::create($validated);
+
+        // Notifikasi ke warga sasaran (per RT jika ditargetkan)
+        $this->notifyAnnouncement($announcement, $request->user());
 
         return redirect()->route('announcements.index')
             ->with('success', 'Pengumuman berhasil dibuat.');
@@ -306,5 +310,26 @@ class AnnouncementController extends Controller
         Storage::disk('public')->put("announcements/{$name}", $buffer);
 
         return "announcements/{$name}";
+    }
+
+    private function notifyAnnouncement(Announcement $announcement, $actor): void
+    {
+        $targetIds = $announcement->target_rt_ids;
+
+        $query = \App\Models\User::query()->where('role', 'warga');
+
+        if (! empty($targetIds)) {
+            $query->whereIn('rt_id', $targetIds);
+        }
+
+        $recipients = $query->get();
+
+        Notifier::sendMany(
+            $recipients,
+            'Pengumuman baru: '.$announcement->announcement_title,
+            \Illuminate\Support\Str::limit($announcement->announcement_content, 100),
+            route('announcements.show', $announcement),
+            $actor,
+        );
     }
 }

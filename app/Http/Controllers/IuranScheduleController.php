@@ -6,6 +6,7 @@ use App\Models\Contribution;
 use App\Models\IuranSchedule;
 use App\Models\Rt;
 use App\Models\User;
+use App\Services\Notifier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -188,7 +189,7 @@ class IuranScheduleController extends Controller
             ->get();
 
         foreach ($warga as $user) {
-            Contribution::create([
+            $contrib = Contribution::create([
                 'user_id' => $user->id,
                 'iuran_schedule_id' => $schedule->id,
                 'rt_id' => $schedule->rt_id,
@@ -198,6 +199,12 @@ class IuranScheduleController extends Controller
                 'payment_code' => 'IUR-'.$schedule->year.sprintf('%02d', $schedule->month).'-'.strtoupper(Str::random(6)),
                 'payment_status' => 'pending',
             ]);
+            Notifier::send(
+                $user,
+                'Tagihan iuran baru',
+                'Tagihan '.$schedule->full_label.' sebesar Rp '.number_format((float) $schedule->amount, 0, ',', '.').' telah terbit.',
+                route('contributions.show', $contrib),
+            );
         }
 
         return $warga->count();

@@ -39,6 +39,12 @@
                                 <p class="mt-1 text-sm text-gray-500">Pengaju: {{ $aspiration->user?->name ?? 'Data warga lama' }}</p>
                             @endif
                             <p class="mt-2 text-gray-600">{{ Str::limit($aspiration->aspiration_content, 180) }}</p>
+                            @if($aspiration->photo_path)
+                                <p class="mt-2 text-xs font-medium text-gray-500">Melampirkan foto bukti • <a href="{{ route('aspirations.show', $aspiration) }}" class="text-indigo-600 hover:text-indigo-800">lihat foto</a></p>
+                            @endif
+                            @if($aspiration->tanggapan)
+                                <div class="mt-2 rounded-md bg-indigo-50 p-2 text-xs text-gray-700"><span class="font-semibold text-indigo-700">Tanggapan:</span> {{ Str::limit($aspiration->tanggapan, 120) }}</div>
+                            @endif
                         </div>
                         <div class="flex shrink-0 flex-wrap items-center gap-3 sm:flex-col sm:items-end">
                             @if (Auth::user()->isAdmin())

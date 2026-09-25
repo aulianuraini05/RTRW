@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contribution;
 use App\Models\IuranSchedule;
 use App\Models\User;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -150,7 +151,7 @@ class ContributionController extends Controller
                 }
             }
 
-            $user->contributions()->create([
+            $contrib = $user->contributions()->create([
                 'iuran_schedule_id' => $schedule?->id,
                 'rt_id' => $user->rt_id,
                 'payer_name' => $user->name,
@@ -160,6 +161,15 @@ class ContributionController extends Controller
                 'payment_status' => 'pending',
                 'proof_of_payment' => $validated['proof_of_payment'] ?? null,
             ]);
+
+            $managers = Notifier::managersForRt($user->rt_id);
+            Notifier::sendMany(
+                $managers,
+                'Pembayaran iuran baru',
+                $user->name.' mengajukan pembayaran iuran '.number_format($contrib->amount, 0, ',', '.'),
+                route('contributions.show', $contrib),
+                $user,
+            );
 
             return redirect()->route('contributions.index')
                 ->with('success', 'Pembayaran iuran Anda berhasil diajukan. Silakan selesaikan pembayaran online untuk melunasi.');
@@ -325,6 +335,17 @@ class ContributionController extends Controller
             'payment_status' => $status,
             'paid_at' => $paidAt,
         ]);
+
+        if ($contribution->user) {
+            $contribution->loadMissing('user');
+            Notifier::send(
+                $contribution->user,
+                'Status pembayaran iuran diperbarui',
+                'Pembayaran iuran '.$contribution->payment_code.' kini '.ucfirst($status).'.',
+                route('contributions.show', $contribution),
+                $request->user(),
+            );
+        }
 
         return back()->with('success', 'Status pembayaran iuran warga diubah menjadi '.ucfirst($status).'.');
     }

@@ -10,6 +10,7 @@ use App\Http\Controllers\IuranScheduleController;
 use App\Http\Controllers\KasScheduleController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WargaController;
 use App\Models\Asset;
@@ -139,6 +140,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     // =========================================================================
+    // NOTIFIKASI (lonceng)
+    // =========================================================================
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+
+    // =========================================================================
     // PENGUMUMAN (Announcement)
     // =========================================================================
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
@@ -171,6 +179,7 @@ Route::middleware('auth')->group(function () {
     // Admin only: edit & hapus aspirasi (proses/approve/reject)
     Route::middleware('role:admin')->group(function () {
         Route::patch('/aspirations/{aspiration}/status', [AspirationController::class, 'updateStatus'])->name('aspirations.status.update');
+        Route::patch('/aspirations/{aspiration}/tanggapan', [AspirationController::class, 'storeTanggapan'])->name('aspirations.tanggapan');
         Route::get('/aspirations/{aspiration}/edit', [AspirationController::class, 'edit'])->name('aspirations.edit');
         Route::put('/aspirations/{aspiration}', [AspirationController::class, 'update'])->name('aspirations.update');
         Route::delete('/aspirations/{aspiration}', [AspirationController::class, 'destroy'])->name('aspirations.destroy');

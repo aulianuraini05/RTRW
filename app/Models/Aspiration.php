@@ -19,6 +19,10 @@ class Aspiration extends Model
         'forwarded_to',
         'forwarded_by',
         'forwarded_at',
+        'tanggapan',
+        'tanggapan_by',
+        'tanggapan_at',
+        'photo_path',
     ];
 
     /**
@@ -30,6 +34,16 @@ class Aspiration extends Model
     }
 
     /**
+     * Pengurus (RT/RW/Admin) yang menulis tanggapan.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function tanggapanAuthor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tanggapan_by');
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
@@ -37,6 +51,7 @@ class Aspiration extends Model
         return [
             'submission_date' => 'date',
             'forwarded_at' => 'datetime',
+            'tanggapan_at' => 'datetime',
         ];
     }
 }

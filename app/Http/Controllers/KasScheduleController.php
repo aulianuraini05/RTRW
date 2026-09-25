@@ -6,6 +6,7 @@ use App\Models\CashTransaction;
 use App\Models\KasSchedule;
 use App\Models\Rt;
 use App\Models\User;
+use App\Services\Notifier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -184,7 +185,7 @@ class KasScheduleController extends Controller
             ->get();
 
         foreach ($warga as $user) {
-            CashTransaction::create([
+            $txn = CashTransaction::create([
                 'user_id' => $user->id,
                 'kas_schedule_id' => $schedule->id,
                 'rt_id' => $schedule->rt_id,
@@ -194,6 +195,12 @@ class KasScheduleController extends Controller
                 'payment_code' => 'KAS-'.$schedule->year.sprintf('%02d', $schedule->month).'-'.strtoupper(Str::random(6)),
                 'payment_status' => 'pending',
             ]);
+            Notifier::send(
+                $user,
+                'Tagihan kas baru',
+                'Tagihan kas '.$schedule->period_label.' sebesar Rp '.number_format((float) $schedule->amount, 0, ',', '.').' telah terbit.',
+                route('cash_transactions.show', $txn),
+            );
         }
 
         return $warga->count();

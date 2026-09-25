@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetLoan;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class AssetLoanController extends Controller
             return back()->withErrors(['quantity' => 'Jumlah melebihi stok yang tersedia ('.$asset->availableQuantity().').'])->withInput();
         }
 
-        $request->user()->assetLoans()->create([
+        $loan = $request->user()->assetLoans()->create([
             'asset_id' => $asset->id,
             'quantity' => $validated['quantity'],
             'borrow_date' => $validated['borrow_date'],
@@ -31,6 +32,21 @@ class AssetLoanController extends Controller
             'notes' => $validated['notes'] ?? null,
             'loan_status' => 'diajukan',
         ]);
+
+        // Notifikasi ke pengurus pemilik aset
+        $asset->loadMissing('rt');
+        $managers = Notifier::managersForRt($asset->rt_id);
+        // Jika aset umum (rt_id null), kirim ke semua RW/Admin
+        if (empty($asset->rt_id)) {
+            $managers = \App\Models\User::whereIn('role', ['rw', 'admin', 'superadmin'])->get();
+        }
+        Notifier::sendMany(
+            $managers,
+            'Pengajuan peminjaman aset',
+            $request->user()->name.' mengajukan peminjaman '.$asset->asset_name.' ('.$loan->quantity.' unit)',
+            route('assets.show', $asset),
+            $request->user(),
+        );
 
         return redirect()->route('assets.show', $asset)
             ->with('success', 'Permohonan peminjaman berhasil dikirim dan menunggu persetujuan RT/RW.');
@@ -55,6 +71,17 @@ class AssetLoanController extends Controller
             'loan_status' => $status,
             'actual_return_date' => $status === 'dikembalikan' ? today() : $loan->actual_return_date,
         ]);
+
+        $loan->loadMissing(['user', 'asset']);
+        if ($loan->user) {
+            Notifier::send(
+                $loan->user,
+                'Status peminjaman diperbarui',
+                'Peminjaman '.$loan->asset->asset_name.' kini '.ucfirst($status).'.',
+                route('assets.show', $loan->asset),
+                $request->user(),
+            );
+        }
 
         return back()->with('success', 'Status peminjaman berhasil diubah menjadi '.ucfirst($status).'.');
     }

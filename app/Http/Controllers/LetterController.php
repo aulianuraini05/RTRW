@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Letter;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -44,12 +45,21 @@ class LetterController extends Controller
             'submission_date' => ['required', 'date'],
         ]);
 
-        $request->user()->letters()->create([
+        $letter = $request->user()->letters()->create([
             ...$validated,
             // Nomor surat selalu digenerate otomatis — tidak bisa diisi manual.
             'letter_number' => $this->generateLetterNumber(),
             'letter_status' => 'diajukan',
         ]);
+
+        $managers = Notifier::managersForRt($request->user()->rt_id);
+        Notifier::sendMany(
+            $managers,
+            'Pengajuan surat baru',
+            $request->user()->name.' mengajukan surat: '.$letter->letter_type.' ('.$letter->letter_number.')',
+            route('letters.show', $letter),
+            $request->user(),
+        );
 
         return redirect()->route('letters.index')
             ->with('success', 'Permohonan surat berhasil dikirim dan menunggu persetujuan RT/RW.');
@@ -123,6 +133,15 @@ class LetterController extends Controller
         $letter->update([
             'letter_status' => $status,
         ]);
+
+        $letter->loadMissing('user');
+        Notifier::send(
+            $letter->user,
+            'Status surat diperbarui',
+            'Surat '.$letter->letter_number.' kini '.ucfirst($status).'.',
+            route('letters.show', $letter),
+            $request->user(),
+        );
 
         return back()->with('success', 'Status surat berhasil diubah menjadi '.ucfirst($status).'.');
     }

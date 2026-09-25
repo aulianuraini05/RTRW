@@ -9,7 +9,9 @@
 
             <article class="overflow-hidden rounded-lg bg-white shadow-sm">
                 @if ($asset->image)
-                    <img src="{{ Storage::url($asset->image) }}" alt="{{ $asset->asset_name }}" class="aspect-[16/9] w-full max-h-80 object-cover object-center border-b border-gray-100" />
+                    <div class="flex justify-center border-b border-gray-100 px-6 pt-6">
+                        <img src="{{ Storage::url($asset->image) }}" alt="{{ $asset->asset_name }}" class="aspect-[4/3] w-full max-w-md rounded-lg border object-cover object-center" />
+                    </div>
                 @endif
                 <div class="p-6 sm:p-8">
                 @php
