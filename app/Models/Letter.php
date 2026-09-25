@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Letter extends Model
 {
@@ -26,6 +27,16 @@ class Letter extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Lampiran syarat per jenis surat (jumlah & jenis beda-beda).
+     *
+     * @return HasMany<LetterAttachment, $this>
+     */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(LetterAttachment::class);
     }
 
     /**

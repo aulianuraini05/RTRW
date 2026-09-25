@@ -3,8 +3,8 @@
 Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD. Tujuannya adalah melihat dengan jelas apa yang sudah selesai, apa yang masih belum dikerjakan, dan apa yang akan dikerjakan berikutnya.
 
 ## 1. Status Umum Proyek
-- Status keseluruhan: Persiapan dan struktur modul awal sudah ada, tetapi integrasi fitur end-to-end masih perlu diselesaikan.
-- Fokus prioritas: menyatukan modul inti, menghubungkan route, memperbaiki akses per role, dan memastikan alur CRUD berjalan.
+- Status keseluruhan: Seluruh modul inti selesai dan terintegrasi end-to-end.
+- Fokus prioritas: polish sisa (search/filter, riwayat aktivitas, dashboard ringkasan), lalu deploy dan uji coba.
 
 ## 2. Keterangan Status
 - [x] Sudah selesai
@@ -46,6 +46,8 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Workflow status (diterima/diproses/ditolak) selesai
 - [x] Panel RT/RW untuk memproses aspirasi selesai
 - [x] Aspirasi baru menampilkan ACC/Tolak, lalu Ubah Status setelah keputusan RT/RW diberikan
+- [x] Upload foto pendukung aspirasi oleh warga selesai (JPG/PNG/WEBP, maks 10 MB)
+- [x] Tanggapan pengurus RT/RW/Admin untuk aspirasi selesai
 
 ### E. Modul Aset (Asset)
 - [x] Controller untuk aset tersedia
@@ -85,6 +87,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Approval/reject oleh RT/RW selesai
 - [x] Riwayat status surat selesai
 - [x] Soft doc surat resmi auto-generate (cetak/simpan PDF) hanya untuk status disetujui/selesai
+- [x] Lampiran syarat dinamis per jenis surat (Domisili 2, Nikah 3, dst. — tiap syarat 1 file JPG/PNG/WEBP/PDF maks 10 MB)
 
 ### I. Modul Marketplace / UMKM
 - [x] Controller marketplace tersedia
@@ -98,22 +101,25 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 
 ## 4. Pekerjaan Cross-Cutting / Tambahan
 - [ ] Pencarian, filter, dan sorting data untuk tiap modul
-- [ ] Notifikasi status perubahan untuk pengguna
-- [ ] Upload dokumen pendukung untuk pengaduan dan persuratan
+- [x] Notifikasi status perubahan untuk pengguna
+- [x] Upload dokumen pendukung untuk pengaduan dan persuratan
 - [ ] Riwayat aktivitas pengguna dan transaksi
-- [ ] Testing fitur utama
+- [x] Testing fitur utama
 - [ ] Deploy awal dan uji coba pengguna
 
 ## 5. Prioritas Implementasi Selanjutnya
-1. Hubungkan route dan controller ke view yang sudah ada.
-2. Selesaikan otorisasi per role admin dan warga.
-3. Fokus pada modul inti: pengumuman, aspirasi, persuratan.
-4. Lanjutkan modul administrasi: aset, kas, iuran.
-5. Tambahkan marketplace dan integrasi pembayaran online.
+1. Standardisasi pencarian, filter, dan sorting (Aspirasi, Aset, Surat).
+2. Riwayat aktivitas pengguna dan transaksi.
+3. Dashboard ringkasan + export laporan.
+4. Deploy awal dan uji coba pengguna.
 
 ## 6. Catatan Saat Ini
 - Struktur modul inti sudah mulai tersedia di dalam project.
 - Modul kas dan iuran sudah mengikuti desain per-warga sesuai PRD: warga dapat mengajukan pembayaran (status pending) dan RT/RW memverifikasi menjadi lunas/ditolak.
 - Marketplace (UMKM) sudah lengkap: warga dapat mendaftarkan produk, melihat katalog. Tombol "Beli via WhatsApp" membuka chat WA penjual secara langsung dengan template pesan otomatis berisi nama produk dan harga. Stok otomatis dan sistem riwayat pembelian/penjualan (MarketplacePurchase) sudah dihapus karena transaksi dialihkan ke WhatsApp penjual. Sudah ada test khusus (MarketplaceTest).
 - Integrasi pembayaran online (fase 3) sudah dikerjakan dalam bentuk simulasi/sandbox untuk modul kas dan iuran: warga mengisi jumlah & memilih metode (Virtual Account/QRIS/Transfer), sistem generate kode pembayaran, lalu warga menyelesaikan lewat tombol "Bayar Sekarang (Simulasi)" yang mengubah status menjadi lunas + mencatat paid_at. Sudah ada test tambahan (KasTest & IuranTest).
+- Notifikasi status perubahan sudah dikerjakan dan di-commit (32f242c): ada tabel notifications, service Notifier, lonceng di navigasi/sidebar, dan hook notifikasi di pengumuman, aspirasi, aset/peminjaman, kas, iuran, dan persuratan.
+- Aspirasi sudah mendukung upload foto pendukung dan tanggapan pengurus (kolom tanggapan/tanggapan_by/tanggapan_at/photo_path), plus validasi foto wajib untuk aset Ketua RT. Timezone diubah ke Asia/Jakarta.
+- Persuratan sekarang pakai lampiran dinamis per jenis surat (LetterRequirements + tabel letter_attachments, tiap syarat 1 file, tampil di detail + edit read-only, hapus otomatis saat surat dihapus).
+- Testing fitur utama sudah dijalankan (129 passed, 430 assertions) dan tidak ada masalah.
 - Dokumen ini bisa terus diperbarui setiap kali ada progress baru.

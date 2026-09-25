@@ -22,6 +22,20 @@
         <x-input-error class="mt-2" :messages="$errors->get('submission_date')" />
     </div>
 
+    @if (isset($letter) && $letter->relationLoaded('attachments') === false)
+        @php $letter->load('attachments'); @endphp
+    @endif
+    @if (isset($letter) && $letter->attachments->isNotEmpty())
+        <div class="rounded-md bg-gray-50 p-4">
+            <p class="text-sm font-medium text-gray-700">Lampiran pengajuan (tidak bisa diubah saat edit)</p>
+            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                @foreach ($letter->attachments as $att)
+                    <li>• {{ $att->label }} — <a href="{{ Storage::url($att->file_path) }}" target="_blank" rel="noopener" class="text-indigo-600 hover:text-indigo-800">Lihat</a></li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div>
         <x-input-label for="letter_status" value="Status" />
         <select id="letter_status" name="letter_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>

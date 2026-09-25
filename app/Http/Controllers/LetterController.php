@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Letter;
 use App\Services\Notifier;
+use App\Support\LetterRequirements;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -32,7 +34,9 @@ class LetterController extends Controller
     {
         abort_unless(request()->user()->isWarga(), 403);
 
-        return view('letters.create');
+        $requirements = LetterRequirements::all();
+
+        return view('letters.create', compact('requirements'));
     }
 
     public function store(Request $request)
@@ -40,9 +44,23 @@ class LetterController extends Controller
         abort_unless($request->user()->isWarga(), 403);
 
         $validated = $request->validate([
-            'letter_type' => ['required', 'string', 'max:100'],
+            'letter_type' => ['required', 'string', Rule::in(LetterRequirements::types())],
             'purpose' => ['required', 'string'],
             'submission_date' => ['required', 'date'],
+        ]);
+
+        // Validasi lampiran dinamis sesuai jenis surat.
+        $requirements = LetterRequirements::for($validated['letter_type']);
+        $fileRules = [];
+        foreach ($requirements as $req) {
+            $fileRules['attachments.'.$req['key']] = [
+                'required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240',
+            ];
+        }
+        $request->validate($fileRules, [
+            'attachments.*.required' => 'Lampiran wajib diunggah.',
+            'attachments.*.mimes' => 'Lampiran harus JPG, PNG, WEBP, atau PDF.',
+            'attachments.*.max' => 'Ukuran tiap lampiran maksimal 10 MB.',
         ]);
 
         $letter = $request->user()->letters()->create([
@@ -51,6 +69,22 @@ class LetterController extends Controller
             'letter_number' => $this->generateLetterNumber(),
             'letter_status' => 'diajukan',
         ]);
+
+        // Simpan tiap lampiran sesuai syarat jenis suratnya.
+        foreach ($requirements as $req) {
+            $file = $request->file('attachments.'.$req['key']);
+            if (! $file) {
+                continue;
+            }
+            $path = $this->storeAttachment($file, $letter->id, $req['key']);
+            if ($path) {
+                $letter->attachments()->create([
+                    'doc_key' => $req['key'],
+                    'label' => $req['label'],
+                    'file_path' => $path,
+                ]);
+            }
+        }
 
         $managers = Notifier::managersForRt($request->user()->rt_id);
         Notifier::sendMany(
@@ -72,6 +106,8 @@ class LetterController extends Controller
         }
 
         $this->ensureRtAccess(request(), $letter);
+
+        $letter->load(['user', 'attachments']);
 
         return view('letters.show', compact('letter'));
     }
@@ -99,6 +135,8 @@ class LetterController extends Controller
     {
         $this->ensureRtAccess(request(), $letter);
 
+        $letter->load('attachments');
+
         return view('letters.edit', compact('letter'));
     }
 
@@ -107,11 +145,14 @@ class LetterController extends Controller
         $this->ensureRtAccess($request, $letter);
 
         $validated = $request->validate([
-            'letter_type' => ['required', 'string', 'max:100'],
+            'letter_type' => ['required', 'string', Rule::in(LetterRequirements::types())],
             'purpose' => ['required', 'string'],
             'submission_date' => ['required', 'date'],
             'letter_status' => ['required', Rule::in(['diajukan', 'diproses', 'disetujui', 'ditolak', 'selesai'])],
         ]);
+
+        // Lampiran tidak diubah saat edit — tetap jadi bukti pengajuan awal
+        // walau jenis surat diganti admin.
 
         $letter->update($validated);
 
@@ -150,6 +191,10 @@ class LetterController extends Controller
     {
         $this->ensureRtAccess(request(), $letter);
 
+        foreach ($letter->attachments as $attachment) {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
+
         $letter->delete();
 
         return redirect()->route('letters.index')
@@ -162,6 +207,28 @@ class LetterController extends Controller
         $count = Letter::whereDate('created_at', today())->count() + 1;
 
         return 'SURAT/'.$date.'/'.str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Simpan 1 file lampiran tanpa UploadedFile::store() agar aman di Laragon/Windows.
+     */
+    private function storeAttachment($file, int $letterId, string $docKey): ?string
+    {
+        if (! $file || ! $file->isValid() || ! is_file($file->getPathname())) {
+            return null;
+        }
+
+        $contents = @file_get_contents($file->getPathname());
+        if ($contents === false) {
+            return null;
+        }
+
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $name = Str::random(40).'.'.$extension;
+
+        Storage::disk('public')->put("letters/{$letterId}/{$docKey}_{$name}", $contents);
+
+        return "letters/{$letterId}/{$docKey}_{$name}";
     }
 
     /**
