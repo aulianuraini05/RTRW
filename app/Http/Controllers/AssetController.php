@@ -38,8 +38,26 @@ class AssetController extends Controller
             ->withCount(['loans' => function ($query) {
                 $query->whereIn('loan_status', ['disetujui', 'dipinjam']);
             }])
-            ->latest()
-            ->paginate(10);
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = '%'.trim($request->string('search')).'%';
+
+                return $query->where(function ($sub) use ($search) {
+                    $sub->where('asset_name', 'like', $search)
+                        ->orWhere('asset_type', 'like', $search)
+                        ->orWhere('description', 'like', $search);
+                });
+            })
+            ->when($request->filled('condition'), function ($query) use ($request) {
+                $conditions = ['baik', 'rusak ringan', 'perlu perbaikan', 'rusak berat'];
+                $condition = $request->string('condition')->toString();
+
+                return in_array($condition, $conditions, true)
+                    ? $query->where('condition', $condition)
+                    : $query;
+            })
+            ->when($request->string('sort')->toString() === 'nama', fn ($query) => $query->orderBy('asset_name'), fn ($query) => $query->latest())
+            ->paginate(10)
+            ->withQueryString();
 
         if ($user->isAdmin()) {
             $loansQuery = \App\Models\AssetLoan::with(['asset', 'user'])->latest();

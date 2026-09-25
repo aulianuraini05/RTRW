@@ -16,6 +16,8 @@ class Aspiration extends Model
         'category',
         'submission_date',
         'aspiration_status',
+        'user_id',
+        'rt_id',
         'forwarded_to',
         'forwarded_by',
         'forwarded_at',
@@ -31,6 +33,14 @@ class Aspiration extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * RT pemilik aspirasi (dicatat saat pengajuan, tetap ada walau akun warga dihapus).
+     */
+    public function rt(): BelongsTo
+    {
+        return $this->belongsTo(Rt::class);
     }
 
     /**

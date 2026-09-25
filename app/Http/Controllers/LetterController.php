@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 
 class LetterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $letters = Letter::query()
             ->with('user')
@@ -24,10 +24,45 @@ class LetterController extends Controller
         // Privasi per RT: Ketua RT hanya melihat surat warga RT-nya sendiri.
         $this->applyRtScope(request(), $letters);
 
-        $letters = $letters->latest('submission_date')
-            ->paginate(10);
+        // Cari: nomor surat / jenis / keperluan.
+        $letters->when($request->filled('search'), function ($query) use ($request) {
+            $search = '%'.trim($request->string('search')).'%';
 
-        return view('letters.index', compact('letters'));
+            return $query->where(function ($sub) use ($search) {
+                $sub->where('letter_number', 'like', $search)
+                    ->orWhere('letter_type', 'like', $search)
+                    ->orWhere('purpose', 'like', $search);
+            });
+        });
+
+        // Filter status.
+        $letters->when($request->filled('status'), function ($query) use ($request) {
+            $statuses = ['diajukan', 'diproses', 'disetujui', 'selesai', 'ditolak'];
+            $status = $request->string('status')->toString();
+
+            return in_array($status, $statuses, true)
+                ? $query->where('letter_status', $status)
+                : $query;
+        });
+
+        // Filter jenis surat.
+        $letters->when($request->filled('type'), function ($query) use ($request) {
+            $type = $request->string('type')->toString();
+
+            return in_array($type, LetterRequirements::types(), true)
+                ? $query->where('letter_type', $type)
+                : $query;
+        });
+
+        // Urutkan: terbaru (default) / terlama.
+        $sort = $request->string('sort')->toString();
+        $letters = $sort === 'terlama'
+            ? $letters->oldest('submission_date')->paginate(10)->withQueryString()
+            : $letters->latest('submission_date')->paginate(10)->withQueryString();
+
+        $letterTypes = LetterRequirements::types();
+
+        return view('letters.index', compact('letters', 'letterTypes'));
     }
 
     public function create()

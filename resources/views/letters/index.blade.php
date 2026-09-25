@@ -14,6 +14,33 @@
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
 
+            <form method="GET" action="{{ route('letters.index') }}" class="flex flex-col gap-2 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:flex-wrap">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor / jenis / keperluan..."
+                    class="w-full flex-1 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:min-w-48" />
+                <select name="status" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Semua status</option>
+                    @foreach (['diajukan', 'diproses', 'disetujui', 'selesai', 'ditolak'] as $st)
+                        <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
+                    @endforeach
+                </select>
+                <select name="type" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Semua jenis</option>
+                    @foreach ($letterTypes as $type)
+                        <option value="{{ $type }}" @selected(request('type') === $type)>{{ $type }}</option>
+                    @endforeach
+                </select>
+                <select name="sort" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Terbaru</option>
+                    <option value="terlama" @selected(request('sort') === 'terlama')>Terlama</option>
+                </select>
+                <div class="flex gap-2">
+                    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Cari</button>
+                    @if (request()->hasAny(['search', 'status', 'type', 'sort']))
+                        <a href="{{ route('letters.index') }}" class="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">Reset</a>
+                    @endif
+                </div>
+            </form>
+
             @forelse ($letters as $letter)
                 @php
                     $statusClasses = [

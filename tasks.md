@@ -100,7 +100,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - [x] Stok otomatis dan riwayat pembelian/penjualan dihapus (transaksi lewat chat WA penjual)
 
 ## 4. Pekerjaan Cross-Cutting / Tambahan
-- [ ] Pencarian, filter, dan sorting data untuk tiap modul
+- [x] Pencarian, filter, dan sorting data untuk tiap modul
 - [x] Notifikasi status perubahan untuk pengguna
 - [x] Upload dokumen pendukung untuk pengaduan dan persuratan
 - [ ] Riwayat aktivitas pengguna dan transaksi
@@ -121,5 +121,7 @@ Dokumen ini digunakan untuk melacak progres pengembangan sistem berdasarkan PRD.
 - Notifikasi status perubahan sudah dikerjakan dan di-commit (32f242c): ada tabel notifications, service Notifier, lonceng di navigasi/sidebar, dan hook notifikasi di pengumuman, aspirasi, aset/peminjaman, kas, iuran, dan persuratan.
 - Aspirasi sudah mendukung upload foto pendukung dan tanggapan pengurus (kolom tanggapan/tanggapan_by/tanggapan_at/photo_path), plus validasi foto wajib untuk aset Ketua RT. Timezone diubah ke Asia/Jakarta.
 - Persuratan sekarang pakai lampiran dinamis per jenis surat (LetterRequirements + tabel letter_attachments, tiap syarat 1 file, tampil di detail + edit read-only, hapus otomatis saat surat dihapus).
-- Testing fitur utama sudah dijalankan (129 passed, 430 assertions) dan tidak ada masalah.
+- Testing fitur utama sudah dijalankan (131 passed) dan tidak ada masalah.
+- Aspirasi: RT mencatat rt_id saat pengajuan (migrasi add_rt_id_to_aspirations) agar aspirasi tidak hilang dari daftar RT saat akun warga dihapus. Tombol "Teruskan ke RW" dihapus dari UI karena RW sudah melihat semua aspirasi langsung.
+- Filter/search/sorting sudah lengkap semua modul: Aspirasi (cari judul/isi + status + terbaru/terlama), Aset (cari nama/jenis/deskripsi + kondisi + nama A-Z), Surat (cari nomor/jenis/keperluan + status + jenis + terbaru/terlama). Test LetterPrivacyTest diperbaiki pakai nomor surat karena dropdown jenis ikut menampilkan semua nama.
 - Dokumen ini bisa terus diperbarui setiap kali ada progress baru.

@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 class AspirationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $aspirations = Aspiration::query()
             ->with('user')
@@ -23,7 +23,31 @@ class AspirationController extends Controller
         // Privasi per RT: Ketua RT hanya melihat aspirasi warga RT-nya sendiri.
         $this->applyRtScope(request(), $aspirations);
 
-        $aspirations = $aspirations->latest('submission_date')->paginate(10);
+        // Cari: judul / isi aspirasi.
+        $aspirations->when($request->filled('search'), function ($query) use ($request) {
+            $search = '%'.trim($request->string('search')).'%';
+
+            return $query->where(function ($sub) use ($search) {
+                $sub->where('aspiration_title', 'like', $search)
+                    ->orWhere('aspiration_content', 'like', $search);
+            });
+        });
+
+        // Filter status.
+        $aspirations->when($request->filled('status'), function ($query) use ($request) {
+            $statuses = ['dikirim', 'diterima', 'diproses', 'selesai', 'ditolak', 'diteruskan'];
+            $status = $request->string('status')->toString();
+
+            return in_array($status, $statuses, true)
+                ? $query->where('aspiration_status', $status)
+                : $query;
+        });
+
+        // Urutkan: terbaru (default) / terlama.
+        $sort = $request->string('sort')->toString();
+        $aspirations = $sort === 'terlama'
+            ? $aspirations->oldest('submission_date')->paginate(10)->withQueryString()
+            : $aspirations->latest('submission_date')->paginate(10)->withQueryString();
 
         return view('aspirations.index', compact('aspirations'));
     }
@@ -71,6 +95,8 @@ class AspirationController extends Controller
             'submission_date' => $validated['submission_date'],
             'photo_path' => $photoPath,
             'aspiration_status' => 'dikirim',
+            // Catat RT saat pengajuan agar tetap terlihat oleh RT walau akun warga dihapus.
+            'rt_id' => $request->user()->rt_id,
         ]);
 
         // Notifikasi ke pengurus RT setempat
@@ -265,7 +291,9 @@ class AspirationController extends Controller
     }
 
     /**
-     * Batasi query aspirasi untuk Ketua RT: hanya aspirasi warga RT-nya sendiri.
+     * Batasi query aspirasi untuk Ketua RT: hanya aspirasi RT-nya sendiri.
+     * Memakai kolom rt_id (tetap ada walau akun warga dihapus),
+     * dengan fallback ke relasi user untuk data lama yang rt_id-nya masih kosong.
      */
     private function applyRtScope(Request $request, $query): void
     {
@@ -283,7 +311,13 @@ class AspirationController extends Controller
 
         $rtId = $user->rt_id;
 
-        $query->whereHas('user', fn ($q) => $q->where('rt_id', $rtId));
+        $query->where(function ($q) use ($rtId) {
+            $q->where('aspirations.rt_id', $rtId)
+                ->orWhere(function ($sub) use ($rtId) {
+                    $sub->whereNull('aspirations.rt_id')
+                        ->whereHas('user', fn ($uq) => $uq->where('rt_id', $rtId));
+                });
+        });
     }
 
     /**
@@ -299,10 +333,8 @@ class AspirationController extends Controller
 
         $aspiration->loadMissing('user');
 
-        $inScope = ! empty($user->rt_id)
-            && $aspiration->user
-            && (int) $aspiration->user->rt_id === (int) $user->rt_id;
+        $ownerRtId = $aspiration->rt_id ?? $aspiration->user?->rt_id;
 
-        abort_unless($inScope, 404);
+        abort_unless(! empty($user->rt_id) && (int) $ownerRtId === (int) $user->rt_id, 404);
     }
 }

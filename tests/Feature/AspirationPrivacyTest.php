@@ -42,6 +42,55 @@ test('ketua rt cannot change or delete foreign rt aspiration', function () {
     $this->assertDatabaseHas('aspirations', ['id' => $a2->id, 'aspiration_status' => 'dikirim']);
 });
 
+test('ketua rt manages own rt aspirations without forward button', function () {
+    $rt1 = Rt::factory()->create();
+
+    $ketua1 = User::factory()->create(['role' => 'rt', 'rt_id' => $rt1->id]);
+    $warga1 = User::factory()->create(['role' => 'warga', 'rt_id' => $rt1->id]);
+
+    $a1 = Aspiration::factory()->create(['user_id' => $warga1->id, 'rt_id' => $rt1->id, 'aspiration_status' => 'dikirim']);
+
+    // Tidak ada lagi tombol forward — aspirasi langsung terlihat RW.
+    $this->actingAs($ketua1)->get(route('aspirations.index'))
+        ->assertStatus(200)
+        ->assertDontSee('Teruskan ke RW');
+    $this->actingAs($ketua1)->get(route('aspirations.show', $a1))
+        ->assertStatus(200)
+        ->assertDontSee('Teruskan ke RW');
+
+    // RT tetap bisa memproses seperti biasa.
+    $this->actingAs($ketua1)->patch(route('aspirations.status.update', $a1), [
+        'aspiration_status' => 'diproses',
+    ])->assertRedirect();
+
+    expect($a1->fresh()->aspiration_status)->toBe('diproses');
+});
+
+test('aspirasi tetap terlihat oleh rt walau akun warga dihapus', function () {
+    $rt1 = Rt::factory()->create();
+
+    $ketua1 = User::factory()->create(['role' => 'rt', 'rt_id' => $rt1->id]);
+    $warga1 = User::factory()->create(['role' => 'warga', 'rt_id' => $rt1->id]);
+
+    // Lewat alur asli agar rt_id tercatat saat pengajuan.
+    $this->actingAs($warga1)->post(route('aspirations.store'), [
+        'aspiration_title' => 'Jalan Rusak Parah',
+        'aspiration_content' => 'Mohon diperbaiki.',
+        'category' => 'Infrastruktur',
+        'submission_date' => now()->toDateString(),
+    ])->assertRedirect();
+
+    $asp = Aspiration::where('aspiration_title', 'Jalan Rusak Parah')->firstOrFail();
+
+    // Warga dihapus (mis. keluar/pindah) — aspirasi harus tetap ada untuk RT.
+    $warga1->delete();
+
+    $this->actingAs($ketua1)->get(route('aspirations.index'))
+        ->assertStatus(200)
+        ->assertSee('Jalan Rusak Parah');
+    $this->actingAs($ketua1)->get(route('aspirations.show', $asp))->assertStatus(200);
+});
+
 test('higher admin still sees all aspirations', function () {
     $rt1 = Rt::factory()->create();
     $rt2 = Rt::factory()->create();

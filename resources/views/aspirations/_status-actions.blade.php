@@ -7,20 +7,9 @@
             'selesai' => ['label' => 'Selesai', 'classes' => 'bg-green-600 hover:bg-green-500'],
             'ditolak' => ['label' => 'Ditolak', 'classes' => 'bg-red-600 hover:bg-red-500'],
         ];
-        // Ketua RT: selalu ada tombol Teruskan (di semua akun RT) selama belum diteruskan
-        $canForward = Auth::user()->isRt() && !$isForwarded;
         // Jika sudah diteruskan, hanya RW/Admin yang bisa finalisasi
         $canChangeStatus = !$isForwarded || Auth::user()->isRw() || Auth::user()->isSuperAdmin() || Auth::user()->role === 'admin';
     @endphp
-
-    @if($canForward)
-        <form method="POST" action="{{ route('aspirations.status.update', $aspiration) }}">
-            @csrf
-            @method('PATCH')
-            <input type="hidden" name="aspiration_status" value="diteruskan">
-            <button type="submit" class="rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white hover:bg-purple-500">Teruskan ke RW</button>
-        </form>
-    @endif
 
     @foreach ($statusOptions as $status => $option)
         @php

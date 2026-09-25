@@ -14,6 +14,27 @@
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
 
+            <form method="GET" action="{{ route('assets.index') }}" class="flex flex-col gap-2 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / jenis / deskripsi aset..."
+                    class="w-full flex-1 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                <select name="condition" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Semua kondisi</option>
+                    @foreach (['baik', 'rusak ringan', 'perlu perbaikan', 'rusak berat'] as $cond)
+                        <option value="{{ $cond }}" @selected(request('condition') === $cond)>{{ ucfirst($cond) }}</option>
+                    @endforeach
+                </select>
+                <select name="sort" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Terbaru</option>
+                    <option value="nama" @selected(request('sort') === 'nama')>Nama A–Z</option>
+                </select>
+                <div class="flex gap-2">
+                    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Cari</button>
+                    @if (request()->hasAny(['search', 'condition', 'sort']))
+                        <a href="{{ route('assets.index') }}" class="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">Reset</a>
+                    @endif
+                </div>
+            </form>
+
             @if ($loans->isNotEmpty())
                 <section class="rounded-lg bg-white p-6 shadow-sm">
                     <h3 class="text-base font-semibold text-gray-900 mb-4">

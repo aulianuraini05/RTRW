@@ -17,8 +17,8 @@ test('ketua rt only sees letters of own rt warga', function () {
 
     $this->actingAs($ketua1)->get(route('letters.index'))
         ->assertStatus(200)
-        ->assertSee('Surat Keterangan Domisili')
-        ->assertDontSee('Surat Pengantar KTP');
+        ->assertSee($l1->letter_number)
+        ->assertDontSee($l2->letter_number);
 
     $this->actingAs($ketua1)->get(route('letters.show', $l1))->assertStatus(200);
     $this->actingAs($ketua1)->get(route('letters.show', $l2))->assertStatus(404);
@@ -50,11 +50,11 @@ test('higher admin still sees all letters', function () {
     $warga1 = User::factory()->create(['role' => 'warga', 'rt_id' => $rt1->id]);
     $warga2 = User::factory()->create(['role' => 'warga', 'rt_id' => $rt2->id]);
 
-    Letter::factory()->create(['user_id' => $warga1->id, 'letter_type' => 'Surat Keterangan Usaha']);
-    Letter::factory()->create(['user_id' => $warga2->id, 'letter_type' => 'Surat Pengantar Nikah']);
+    $l1 = Letter::factory()->create(['user_id' => $warga1->id, 'letter_type' => 'Surat Keterangan Usaha']);
+    $l2 = Letter::factory()->create(['user_id' => $warga2->id, 'letter_type' => 'Surat Pengantar Nikah']);
 
     $this->actingAs($admin)->get(route('letters.index'))
         ->assertStatus(200)
-        ->assertSee('Surat Keterangan Usaha')
-        ->assertSee('Surat Pengantar Nikah');
+        ->assertSee($l1->letter_number)
+        ->assertSee($l2->letter_number);
 });

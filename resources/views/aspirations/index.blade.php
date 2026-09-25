@@ -14,6 +14,27 @@
                 <div class="rounded-md bg-green-50 p-4 text-sm text-green-700">{{ session('success') }}</div>
             @endif
 
+            <form method="GET" action="{{ route('aspirations.index') }}" class="flex flex-col gap-2 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul / isi aspirasi..."
+                    class="w-full flex-1 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                <select name="status" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Semua status</option>
+                    @foreach (['dikirim', 'diterima', 'diproses', 'diteruskan', 'selesai', 'ditolak'] as $st)
+                        <option value="{{ $st }}" @selected(request('status') === $st)>{{ ucfirst($st) }}</option>
+                    @endforeach
+                </select>
+                <select name="sort" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Terbaru</option>
+                    <option value="terlama" @selected(request('sort') === 'terlama')>Terlama</option>
+                </select>
+                <div class="flex gap-2">
+                    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Cari</button>
+                    @if (request()->hasAny(['search', 'status', 'sort']))
+                        <a href="{{ route('aspirations.index') }}" class="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">Reset</a>
+                    @endif
+                </div>
+            </form>
+
             @forelse ($aspirations as $aspiration)
                 @php
                     $statusClasses = [
@@ -56,7 +77,13 @@
                 </article>
             @empty
                 <div class="rounded-lg bg-white p-8 text-center text-gray-600 shadow-sm">
-                    {{ Auth::user()->isAdmin() ? 'Belum ada aspirasi dari warga.' : 'Anda belum mengirim aspirasi atau pengaduan.' }}
+                    @if (Auth::user()->isRt())
+                        Belum ada aspirasi dari warga {{ Auth::user()->rt?->name ?? '' }}.
+                    @elseif (Auth::user()->isAdmin())
+                        Belum ada aspirasi dari warga.
+                    @else
+                        Anda belum mengirim aspirasi atau pengaduan.
+                    @endif
                 </div>
             @endforelse
 
